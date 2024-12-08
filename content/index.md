@@ -1,6 +1,5 @@
 ---
-title: Welcome to Quartz
+title: hello
 ---
 
-This is a blank Quartz installation.
-See the [documentation](https://quartz.jzhao.xyz) for how to get started.
+![hi](content/images/cute_ghost.jpeg) My name is Rachel. Welcome to the chaos.
