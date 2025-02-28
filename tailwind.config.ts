@@ -14,5 +14,17 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require("tailwind-typewriter")({
+      wordsets: {
+        character: {
+          words: ["stranger", "human", "_______"],
+          caretColor: "var(--accent)",
+          writeSpeed: 0.1,
+          pauseBetween: 2,
+          repeat: 0,
+        },
+      },
+    }),
+  ],
 } satisfies Config;
