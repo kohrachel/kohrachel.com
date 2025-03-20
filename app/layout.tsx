@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 import "./globals.css";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +26,13 @@ export const metadata: Metadata = {
 const Footer = () => {
   return (
     <div className="w-full h-12 bg-stone-900 text-gray-300 flex items-center justify-between fixed bottom-0 left-0 text-xs px-4">
-      <div>Built by rachel with love, sweat, and (a lot of) tears.</div>
+      <div>
+        Built by{" "}
+        <Link href="/about" className="underline text-orange-200">
+          rachel
+        </Link>{" "}
+        with love, sweat, and (a lot of) tears.
+      </div>
       <div className="flex flex-row gap-2">
         <span>GitHub</span>
         <span>LinkedIn</span>
