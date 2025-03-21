@@ -1,9 +1,4 @@
-import { Island_Moments, Geist_Mono } from "next/font/google";
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { Island_Moments } from "next/font/google";
 
 const islandMoments = Island_Moments({
   weight: "400",
@@ -51,7 +46,12 @@ const Content = () => {
           </thead>
           <tbody>
             {entries.map(({ date, title, categories }) => (
-              <Entry date={date} title={title} categories={categories} />
+              <Entry
+                key={title}
+                date={date}
+                title={title}
+                categories={categories}
+              />
             ))}
           </tbody>
         </table>
@@ -72,8 +72,11 @@ const Entry = ({ date, title, categories }: EntryProps) => {
       <td className="p-4">{date.toLocaleDateString("en-US")}</td>
       <td className="p-4">{title}</td>
       <td className="p-4 flex flex-row gap-2">
-        {categories.map((category) => (
-          <div className="bg-stone-700 rounded-xl text-xs py-1 px-2 align-middle max-h-max">
+        {categories.map((category, index) => (
+          <div
+            key={index}
+            className="bg-stone-700 rounded-xl text-xs py-1 px-2 align-middle max-h-max"
+          >
             {category}
           </div>
         ))}

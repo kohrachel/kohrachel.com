@@ -1,6 +1,4 @@
 "use client";
-import { Mona_Sans } from "next/font/google";
-import Image from "next/image";
 import Link from "next/link";
 
 const panels = [
@@ -41,6 +39,7 @@ export default function Home() {
         <div className="p-[6px] gap-7 h-full flex items-start hover:!opacity-100">
           {panels.map(({ name, href, imgSrc, description }) => (
             <Panel
+              key={name}
               name={name}
               href={href}
               imgSrc={imgSrc}
