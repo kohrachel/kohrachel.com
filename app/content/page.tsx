@@ -30,13 +30,8 @@ const Content = () => {
       setIsMobile(window.innerWidth < 1000);
     };
 
-    // Check initial width
     checkWidth();
-
-    // Add event listener for window resize
     window.addEventListener("resize", checkWidth);
-
-    // Cleanup
     return () => window.removeEventListener("resize", checkWidth);
   }, []);
 
@@ -44,7 +39,9 @@ const Content = () => {
     <div className="p-8">
       <div className="flex gap-3">
         <p className="text-xl font-bold mb-6">with love,</p>
-        <p className={`${islandMoments.className} text-4xl text-orange-300`}>
+        <p
+          className={`${islandMoments.className} text-4xl text-orange-300 leading-8`}
+        >
           r. k.
         </p>
       </div>
