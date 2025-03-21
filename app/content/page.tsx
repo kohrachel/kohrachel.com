@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Island_Moments } from "next/font/google";
 
 const islandMoments = Island_Moments({
@@ -10,14 +13,7 @@ const entries = [
   {
     date: new Date(),
     title: "Hello World",
-    categories: [
-      "coding",
-      "life",
-      "stories",
-      "I am a ridiculously long category for no reason",
-      "what if there is more than one of me because rachel is weird?",
-      "zi is the best",
-    ],
+    categories: ["coding", "life", "stories"],
   },
   {
     date: new Date(),
@@ -27,6 +23,23 @@ const entries = [
 ];
 
 const Content = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkWidth = () => {
+      setIsMobile(window.innerWidth < 1000);
+    };
+
+    // Check initial width
+    checkWidth();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", checkWidth);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", checkWidth);
+  }, []);
+
   return (
     <div className="p-8">
       <div className="flex gap-3">
@@ -41,7 +54,7 @@ const Content = () => {
             <tr className="border-b border-orange-200">
               <th className="text-left p-4">Date</th>
               <th className="text-left p-4">Title</th>
-              <th className="text-left p-4">Categories</th>
+              {!isMobile && <th className="text-left p-4">Categories</th>}
             </tr>
           </thead>
           <tbody>
@@ -51,6 +64,7 @@ const Content = () => {
                 date={date}
                 title={title}
                 categories={categories}
+                displayCategories={!isMobile}
               />
             ))}
           </tbody>
@@ -64,23 +78,30 @@ interface EntryProps {
   date: Date;
   title: string;
   categories: string[];
+  displayCategories: boolean;
 }
 
-const Entry = ({ date, title, categories }: EntryProps) => {
+const Entry = ({ date, title, categories, displayCategories }: EntryProps) => {
   return (
-    <tr className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
-      <td className="p-4">{date.toLocaleDateString("en-US")}</td>
-      <td className="p-4">{title}</td>
-      <td className="p-4 flex flex-row gap-2">
-        {categories.map((category, index) => (
-          <div
-            key={index}
-            className="bg-stone-700 rounded-xl text-xs py-1 px-2 align-middle max-h-max"
-          >
-            {category}
-          </div>
-        ))}
+    <tr className="border-b border-dashed border-stone-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+      <td className="p-4">
+        {date.toLocaleDateString("en-US", { month: "short" }) +
+          ". " +
+          date.toLocaleDateString("en-US", { day: "numeric" })}
       </td>
+      <td className="p-4">{title}</td>
+      {displayCategories && (
+        <td className="p-4 flex flex-row gap-2">
+          {categories.map((category, index) => (
+            <div
+              key={index}
+              className="bg-stone-700 rounded-xl text-xs py-1 px-2 align-middle max-h-max"
+            >
+              {category}
+            </div>
+          ))}
+        </td>
+      )}
     </tr>
   );
 };
