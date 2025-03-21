@@ -28,7 +28,7 @@ export default function Home() {
   return (
     <div className="flex flex-col h-full">
       {/* Hello, traveller. */}
-      <div className="text-center text-8xl px-3 py-10">
+      <div className="text-center text-8xl px-3 pb-12 pt-20">
         hello,
         <span className="type-character"> </span>
       </div>
