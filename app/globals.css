@@ -3,9 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --accent: #ff8000;
+  --background-light: #ffffff;
+  --foreground-light: #171717;
+  --background-dark: #111111;
+  --foreground-dark: #ededed;
+  --accent: #dc96ff;
   --gradient: radial-gradient(circle, #dd7bbb 10%, #dd7bbb00 20%),
     radial-gradient(circle at 40% 40%, #d79f1e 5%, #d79f1e00 15%),
     radial-gradient(circle at 60% 60%, #5a922c 10%, #5a922c00 20%),
@@ -20,10 +22,23 @@
     );
 }
 
+/* Default (light) mode */
+:root {
+  --background: var(--background-light);
+  --foreground: var(--foreground-light);
+}
+
+/* Dark mode using class */
+.dark {
+  --background: var(--background-dark);
+  --foreground: var(--foreground-dark);
+}
+
+/* System preference dark mode (fallback) */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not(.light) {
+    --background: var(--background-dark);
+    --foreground: var(--foreground-dark);
   }
 }
 

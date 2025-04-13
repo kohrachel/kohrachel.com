@@ -6,11 +6,20 @@ export default {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        background: {
+          light: "var(--background-light)",
+          dark: "var(--background-dark)",
+          DEFAULT: "var(--background)",
+        },
+        foreground: {
+          light: "var(--foreground-light)",
+          dark: "var(--foreground-dark)",
+          DEFAULT: "var(--foreground)",
+        },
       },
       fontFamily: {
         mono: ["var(--font-geist-mono)"],
