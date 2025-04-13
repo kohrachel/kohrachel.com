@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 
 const Footer = () => {
   return (
-    <div className="w-full h-12 bg-stone-900 text-gray-300 flex items-center justify-between fixed bottom-0 left-0 text-xs px-4">
+    <div className="w-full h-16 bg-stone-900 text-gray-300 flex items-center justify-between fixed bottom-0 left-0 text-xs px-4">
       <div>
         Built by{" "}
         <Link
@@ -87,7 +87,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${montserrat.variable} ${geistMono.variable} antialiased flex flex-col h-screen`}
+        className={`${montserrat.variable} ${geistMono.variable} ${ebGaramond.variable} antialiased flex flex-col h-screen`}
       >
         <div className="flex-grow overflow-auto pb-16">{children}</div>
         <Footer />
