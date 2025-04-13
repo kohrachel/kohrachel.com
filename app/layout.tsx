@@ -30,7 +30,7 @@ const Footer = () => {
         Built by{" "}
         <Link
           href="/about"
-          className="border border-dashed rounded-xl px-1 py-[1px] border-stone-400 hover:bg-stone-600"
+          className="border border-dashed rounded-xl px-1 mx-[2px] py-[1px] border-stone-400 hover:bg-stone-600"
         >
           rachel
         </Link>{" "}
@@ -56,7 +56,7 @@ const Footer = () => {
           GitHub
         </Link>
         <Link
-          className="flex gap-1 border border-dashed rounded-2xl px-1 py-1 border-stone-400 hover:bg-stone-600 items-center"
+          className="flex gap-1 border border-dashed rounded-2xl px-2 py-1 border-stone-400 hover:bg-stone-600 items-center"
           href="https://www.linkedin.com/in/kohrh/"
         >
           <svg
