@@ -8,14 +8,12 @@ export default function Home() {
       <div className="h-screen flex">
         {/* L: About me */}
         <div className="flex flex-col items-center justify-start w-full gap-6 mt-32">
-          <p className="text-stone-900 text-3xl uppercase bg-pink-500">
-            Hi, I'm
-          </p>
+          <p className="text-stone-900 text-3xl uppercase">Hi, I'm</p>
 
-          <p className="text-stone-900 font-serif font-bold text-9xl italic bg-pink-500">
+          <p className="text-stone-900 font-serif font-bold text-9xl italic">
             Rachel Koh
           </p>
-          <p className="text-stone-900 bg-pink-500 text-xl">
+          <p className="text-stone-900text-xl">
             I'm a software engineer. I do full-stack development.
           </p>
           <p className="text-stone-900 text-xl font-serif font-semibold italic">
@@ -27,6 +25,7 @@ export default function Home() {
                 href={pin.href}
                 key={pin.key}
                 className="flex flex-row gap-2 w-80 border border-dashed rounded-2xl p-3 border-stone-400 hover:bg-purple-100 items-start transition-all duration-500"
+                target="_blank"
               >
                 {pin.icon}
                 <div className="flex flex-col gap-1">
