@@ -6,16 +6,20 @@ import Link from "next/link";
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 const ebGaramond = EB_Garamond({
   variable: "--font-eb-garamond",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -25,7 +29,7 @@ export const metadata: Metadata = {
 
 const Footer = () => {
   return (
-    <div className="w-full h-16 bg-stone-900 text-gray-300 flex items-center justify-between fixed bottom-0 left-0 text-xs px-4">
+    <div className="w-full bg-stone-900 text-gray-300 flex items-center justify-between text-xs px-4 py-4">
       <div>
         Built by{" "}
         <Link
@@ -87,9 +91,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${montserrat.variable} ${geistMono.variable} ${ebGaramond.variable} antialiased flex flex-col h-screen`}
+        className={`${montserrat.variable} ${geistMono.variable} ${ebGaramond.variable} antialiased min-h-screen flex flex-col`}
       >
-        <div className="flex-grow overflow-auto pb-16">{children}</div>
+        <main className="flex-grow">{children}</main>
         <Footer />
       </body>
     </html>
