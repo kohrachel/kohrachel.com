@@ -48,46 +48,48 @@ export default function Home() {
       {/* -------------- blog -------------- */}
 
       {/* Second panel */}
-      <div className="h-[calc(100vh-4rem)] flex">
-        <div className="w-1/3 h-full flex flex-col justify-between px-8 py-16 bg-purple-100">
-          <div className="flex flex-col gap-6">
-            <p className="text-stone-900 text-5xl font-serif font-bold italic">
-              this blog is a(n) (unordered) collection of my shower thoughts
-            </p>
-            <div className="flex gap-2 justify-between">
-              <p className="text-stone-900 text-xl">
-                here&apos;s some highlights:
+      <div className="h-screen flex">
+        <div className="m-6 w-full h-stretch flex rounded-xl bg-stone-100 border border-stone-200 shadow-lg">
+          <div className="w-1/3 h-full flex flex-col justify-between px-8 py-16">
+            <div className="flex flex-col gap-6">
+              <p className="text-stone-900 text-5xl font-serif font-bold italic">
+                this blog is a(n) (unordered) collection of my shower thoughts
               </p>
-              <p className="text-stone-900 text-xl font-mono">{">>>>"}</p>
+              <div className="flex gap-2 justify-between">
+                <p className="text-stone-900 text-xl">
+                  here&apos;s some highlights:
+                </p>
+                <p className="text-stone-900 text-xl font-mono">{">>>>"}</p>
+              </div>
+            </div>
+
+            {/* TODO: make this filterable by tag and add a search bar here*/}
+            <div className="flex justify-center text-center">
+              <Link
+                href="/blog"
+                className="text-stone-800 text-xl flex justify-center gap-2 w-72 rounded-full p-4 font-serif font-bold italic bg-purple-100 border border-dashed border-violet-300 hover:bg-purple-200 hover:scale-105 transition-all duration-500"
+              >
+                <svg
+                  role="img"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  height="24px"
+                  focusable="false"
+                >
+                  <path
+                    fill="#292524"
+                    d="M9 3v15h3V3zm3 2l4 13l3-1l-4-13zM5 5v13h3V5zM3 19v2h18v-2z"
+                  />
+                </svg>
+                view all posts
+              </Link>
             </div>
           </div>
 
-          {/* TODO: make this filterable by tag and add a search bar here*/}
-          <div className="flex justify-center text-center">
-            <Link
-              href="/blog"
-              className="text-stone-900 text-sm flex justify-center gap-2 w-72 rounded-2xl p-4 outline-4 outline-dotted outline-purple-400 hover:outline-purple-300 hover:scale-105 transition-all duration-500"
-            >
-              <svg
-                role="img"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                height="24px"
-                focusable="false"
-              >
-                <path
-                  fill="#7c3aed"
-                  d="M9 3v15h3V3zm3 2l4 13l3-1l-4-13zM5 5v13h3V5zM3 19v2h18v-2z"
-                />
-              </svg>
-              view all posts
-            </Link>
-          </div>
-        </div>
-        <div className="w-px h-full bg-purple-200"></div>
-        <div className="w-2/3 h-full p-8">
-          <div className="w-stretch h-full bg-red-100">
-            <BlogPosts />
+          <div className="w-2/3 h-full p-2">
+            <div className="w-stretch h-full p-9 rounded-lg outline outline-stone-300 bg-white">
+              <BlogPosts />
+            </div>
           </div>
         </div>
       </div>
@@ -211,19 +213,22 @@ const Socials = () => {
 
 const BlogPosts = () => {
   return (
-    <div className="grid grid-cols-2 gap-7 rounded-xl bg-yellow-100">
+    <div className="grid grid-cols-2 gap-7 rounded-xl">
       {posts.map((post) => (
         <Link href={post.href} key={post.key}>
           <div
             key={post.key}
-            className="group rounded-xl p-4 h-60 outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500"
+            className="flex flex-col justify-between group rounded-xl p-4 h-60 outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500"
           >
-            <p className="text-stone-900 text-xl group-hover:text-2xl transition-all duration-300">
-              {post.title}
-            </p>
-            <p className="text-stone-900 text-sm group-hover:text-md transition-all duration-300">
-              {post.description}
-            </p>
+            <div className="text-xs uppercase text-stone-500">{post.date}</div>
+            <div className="flex flex-col gap-4">
+              <p className="text-stone-900 text-3xl group-hover:text-stone-500 font-serif font-bold italic transition-all duration-300">
+                {post.title}
+              </p>
+              <p className="text-stone-900 text-sm group-hover:text-md transition-all duration-300">
+                {post.description}
+              </p>
+            </div>
           </div>
         </Link>
       ))}
@@ -311,16 +316,16 @@ const posts: {
 }[] = [
   {
     key: "post-1",
-    title: "Post 1",
+    title: "the top of the world (is a soapbox)",
     href: "/",
-    description: "Brief",
+    description: "free will v. determinism, 2025",
     date: "2024-01-01",
   },
   {
     key: "post-2",
-    title: "Post 2",
+    title: "in which i defeat a vampire",
     href: "/",
-    description: "This is the content of post 2",
+    description: "creative liberty should be given sparingly",
     date: "2024-01-02",
   },
   {
