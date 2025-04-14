@@ -7,31 +7,32 @@ export default function Home() {
       {/* First panel */}
       <div className="h-screen flex">
         {/* L: About me */}
-        <div className="flex flex-col items-center justify-start w-full gap-6 mt-32">
-          <p className="text-stone-900 text-3xl uppercase">Hi, I'm</p>
-
-          <p className="text-stone-900 font-serif font-bold text-9xl italic">
-            Rachel Koh
-          </p>
-          <p className="text-stone-900text-xl">
-            I'm a software engineer. I do full-stack development.
-          </p>
+        <div className="flex flex-col items-center justify-center w-full pl-24">
+          <div className="flex flex-col items-center justify-center gap-4 mb-3">
+            <p className="text-stone-900 text-3xl">Hi, I'm</p>
+            <p className="text-stone-900 font-serif font-bold text-9xl italic">
+              Rachel Koh
+            </p>
+            <p className="text-stone-900 text-xl">
+              I'm a software engineer. I do full-stack development.
+            </p>
+          </div>
 
           {/* Pinned Projects */}
-          <p className="text-stone-900 text-xl font-serif font-semibold italic mt-4">
-            what I've been up to lately:
+          <p className="text-stone-900 text-xl font-serif font-semibold italic mt-10 mb-3">
+            painting the town green (the town is my github activity)
           </p>
           <Projects />
 
           {/* Socials */}
-          <p className="text-stone-900 text-xl font-serif font-semibold italic mt-4">
+          <p className="text-stone-900 text-xl font-serif font-semibold italic mt-4 mb-1">
             socials:
           </p>
           <Socials />
         </div>
 
         {/* R: Image */}
-        <div className="w-1/2 flex flex-col items-start justify-center w-max-content px-5">
+        <div className="w-2/3 flex flex-col items-start justify-center w-max-content px-5">
           <Link href="/about">
             <div className="overflow-hidden relative rounded-3xl outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-offset-[12px] hover:outline-8 transition-all duration-500">
               <img
@@ -44,19 +45,56 @@ export default function Home() {
         </div>
       </div>
 
+      {/* -------------- blog -------------- */}
+
       {/* Second panel */}
-      {/* <div className="h-screen bg-pink-100">
-        <p className="text-stone-900 text-3xl font-serif font-bold italic">
-          hi i'm the second panel. rachel hasn't built me yet.
-        </p>
-      </div> */}
+      <div className="h-[calc(100vh-4rem)] flex">
+        <div className="w-1/3 h-full flex flex-col justify-between px-8 py-16 bg-purple-100">
+          <div className="flex flex-col gap-6">
+            <p className="text-stone-900 text-5xl font-serif font-bold italic">
+              this blog is a(n) (unordered) collection of my shower thoughts
+            </p>
+            <div className="flex gap-2 justify-between">
+              <p className="text-stone-900 text-xl">here's some highlights:</p>
+              <p className="text-stone-900 text-xl">{">>>>"}</p>
+            </div>
+          </div>
+
+          {/* TODO: make this filterable by tag and add a search bar here*/}
+          <div className="flex justify-center text-center">
+            <Link
+              href="/blog"
+              className="text-stone-900 text-sm flex justify-center gap-2 w-72 rounded-2xl p-4 outline-4 outline-dotted outline-purple-400 hover:outline-purple-300 hover:scale-105 transition-all duration-500"
+            >
+              <svg
+                role="img"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                height="24px"
+                focusable="false"
+              >
+                <path
+                  fill="#7c3aed"
+                  d="M9 3v15h3V3zm3 2l4 13l3-1l-4-13zM5 5v13h3V5zM3 19v2h18v-2z"
+                />
+              </svg>
+              view all posts
+            </Link>
+          </div>
+        </div>
+        <div className="w-2/3 h-full p-6">
+          <div className="w-stretch h-full">
+            <BlogPosts />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 const Projects = () => {
   return (
-    <div className="grid grid-cols-2 gap-4 w-max-content max-w-3xl">
+    <div className="grid grid-cols-2 gap-2 w-max-content max-w-3xl">
       {pins.map((project) => (
         <Link
           href={project.href}
@@ -73,6 +111,16 @@ const Projects = () => {
           </div>
         </Link>
       ))}
+
+      {/* TODO: make projects page */}
+      <Link
+        href="https://github.com/kohrachel"
+        className="text-stone-900 text-sm flex flex-col justify-center border border-dashed w-72 rounded-2xl p-4 bg-purple-100 border-violet-300 hover:bg-purple-200 transition-all duration-500"
+      >
+        <p className="text-stone-900 font-bold font-serif text-center text-xl">
+          view my full portfolio
+        </p>
+      </Link>
     </div>
   );
 };
@@ -157,6 +205,28 @@ const Socials = () => {
   );
 };
 
+const BlogPosts = () => {
+  return (
+    <div className="grid grid-cols-2 gap-3 rounded-xl">
+      {posts.map((post) => (
+        <Link href={post.href} key={post.key}>
+          <div
+            key={post.key}
+            className="group rounded-xl p-4 h-60 outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500"
+          >
+            <p className="text-stone-900 text-xl group-hover:text-2xl transition-all duration-300">
+              {post.title}
+            </p>
+            <p className="text-stone-900 text-sm group-hover:text-md transition-all duration-300">
+              {post.description}
+            </p>
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+};
+
 const pins: {
   key: string;
   name: string;
@@ -225,5 +295,56 @@ const pins: {
         />
       </svg>
     ),
+  },
+];
+
+const posts: {
+  key: string;
+  title: string;
+  href: string;
+  description: string;
+  date: string;
+}[] = [
+  {
+    key: "post-1",
+    title: "Post 1",
+    href: "/",
+    description: "Brief",
+    date: "2024-01-01",
+  },
+  {
+    key: "post-2",
+    title: "Post 2",
+    href: "/",
+    description: "This is the content of post 2",
+    date: "2024-01-02",
+  },
+  {
+    key: "post-3",
+    title: "Post 3",
+    href: "/",
+    description: "This is the content of post 3",
+    date: "2024-01-03",
+  },
+  {
+    key: "post-4",
+    title: "Post 4",
+    href: "/",
+    description: "This is the content of post 4",
+    date: "2024-01-04",
+  },
+  {
+    key: "post-5",
+    title: "Post 5",
+    href: "/",
+    description: "This is the content of post 5",
+    date: "2024-01-05",
+  },
+  {
+    key: "post-6",
+    title: "Post 6",
+    href: "/",
+    description: "This is the content of post 6",
+    date: "2024-01-06",
   },
 ];
