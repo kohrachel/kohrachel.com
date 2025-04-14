@@ -58,7 +58,7 @@ export default function Home() {
               <p className="text-stone-900 text-xl">
                 here&apos;s some highlights:
               </p>
-              <p className="text-stone-900 text-xl">{">>>>"}</p>
+              <p className="text-stone-900 text-xl font-mono">{">>>>"}</p>
             </div>
           </div>
 
@@ -84,8 +84,9 @@ export default function Home() {
             </Link>
           </div>
         </div>
-        <div className="w-2/3 h-full p-6">
-          <div className="w-stretch h-full">
+        <div className="w-px h-full bg-purple-200"></div>
+        <div className="w-2/3 h-full p-8">
+          <div className="w-stretch h-full bg-red-100">
             <BlogPosts />
           </div>
         </div>
@@ -118,9 +119,10 @@ const Projects = () => {
       <Link
         href="https://github.com/kohrachel"
         className="text-stone-900 text-sm flex flex-col justify-center border border-dashed w-72 rounded-2xl p-4 bg-purple-100 border-violet-300 hover:bg-purple-200 transition-all duration-500"
+        target="_blank"
       >
         <p className="text-stone-900 font-bold font-serif text-center text-xl">
-          view my full portfolio
+          full portfolio on github
         </p>
       </Link>
     </div>
@@ -209,7 +211,7 @@ const Socials = () => {
 
 const BlogPosts = () => {
   return (
-    <div className="grid grid-cols-2 gap-3 rounded-xl">
+    <div className="grid grid-cols-2 gap-7 rounded-xl bg-yellow-100">
       {posts.map((post) => (
         <Link href={post.href} key={post.key}>
           <div

@@ -44,6 +44,7 @@ const Footer = () => {
         <Link
           className="flex gap-1 border border-dashed rounded-2xl px-2 py-1 border-stone-400 hover:bg-stone-600 items-center"
           href="https://github.com/kohrachel"
+          target="_blank"
         >
           <svg
             role="img"
@@ -62,6 +63,7 @@ const Footer = () => {
         <Link
           className="flex gap-1 border border-dashed rounded-2xl px-2 py-1 border-stone-400 hover:bg-stone-600 items-center"
           href="https://www.linkedin.com/in/kohrh/"
+          target="_blank"
         >
           <svg
             role="img"
