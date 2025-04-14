@@ -280,7 +280,7 @@ const pins: {
   {
     key: "spin-to-learn",
     name: "Spin-To-Learn",
-    description: "Gambling, learning -- what&apos;s the difference?",
+    description: "Gambling, learning -- what's the difference?",
     href: "https://github.com/zineanteoh/spin-to-learn",
     icon: (
       <svg
