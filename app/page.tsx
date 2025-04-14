@@ -9,12 +9,12 @@ export default function Home() {
         {/* L: About me */}
         <div className="flex flex-col items-center justify-center w-full pl-24">
           <div className="flex flex-col items-center justify-center gap-4 mb-3">
-            <p className="text-stone-900 text-3xl">Hi, I'm</p>
+            <p className="text-stone-900 text-3xl">Hi, I&apos;m</p>
             <p className="text-stone-900 font-serif font-bold text-9xl italic">
               Rachel Koh
             </p>
             <p className="text-stone-900 text-xl">
-              I'm a software engineer. I do full-stack development.
+              I&apos;m a software engineer. I do full-stack development.
             </p>
           </div>
 
@@ -55,7 +55,9 @@ export default function Home() {
               this blog is a(n) (unordered) collection of my shower thoughts
             </p>
             <div className="flex gap-2 justify-between">
-              <p className="text-stone-900 text-xl">here's some highlights:</p>
+              <p className="text-stone-900 text-xl">
+                here&apos;s some highlights:
+              </p>
               <p className="text-stone-900 text-xl">{">>>>"}</p>
             </div>
           </div>
@@ -278,7 +280,7 @@ const pins: {
   {
     key: "spin-to-learn",
     name: "Spin-To-Learn",
-    description: "Gambling, learning -- what's the difference?",
+    description: "Gambling, learning -- what&apos;s the difference?",
     href: "https://github.com/zineanteoh/spin-to-learn",
     icon: (
       <svg
