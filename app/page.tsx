@@ -7,7 +7,7 @@ export default function Home() {
       {/* First panel */}
       <div className="h-screen flex">
         {/* L: About me */}
-        <div className="flex flex-col items-center justify-center w-full pl-24">
+        <div className="flex flex-col items-center justify-center w-full pl-24 pr-6">
           <div className="flex flex-col items-center justify-center gap-4 mb-3">
             <p className="text-stone-900 text-3xl">Hi, I&apos;m</p>
             <p className="text-stone-900 font-serif font-bold text-9xl italic">
@@ -49,9 +49,9 @@ export default function Home() {
 
       {/* Second panel */}
       <div className="h-screen flex">
-        <div className="m-6 w-full h-stretch flex rounded-xl bg-stone-100 border border-stone-200 shadow-lg">
+        <div className="m-6 w-full h-stretch flex rounded-xl bg-purple-100 outline outline-purple-200 shadow-xl shadow-black/30">
           <div className="w-1/3 h-full flex flex-col justify-between px-8 py-16">
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-8">
               <p className="text-stone-900 text-5xl font-serif font-bold italic">
                 this blog is a(n) (unordered) collection of my shower thoughts
               </p>
@@ -64,31 +64,31 @@ export default function Home() {
             </div>
 
             {/* TODO: make this filterable by tag and add a search bar here*/}
-            <div className="flex justify-center text-center">
-              <Link
-                href="/blog"
-                className="text-stone-800 text-xl flex justify-center gap-2 w-72 rounded-full p-4 font-serif font-bold italic bg-purple-100 border border-dashed border-violet-300 hover:bg-purple-200 hover:scale-105 transition-all duration-500"
-              >
-                <svg
-                  role="img"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  height="24px"
-                  focusable="false"
-                >
-                  <path
-                    fill="#292524"
-                    d="M9 3v15h3V3zm3 2l4 13l3-1l-4-13zM5 5v13h3V5zM3 19v2h18v-2z"
-                  />
-                </svg>
-                view all posts
-              </Link>
-            </div>
           </div>
 
           <div className="w-2/3 h-full p-2">
-            <div className="w-stretch h-full p-9 rounded-lg outline outline-stone-300 bg-white">
+            <div className="flex flex-col w-stretch h-full p-9 rounded-lg gap-11 outline outline-purple-200 bg-white overflow-y-scroll">
               <BlogPosts />
+              <div className="flex justify-center text-center">
+                <Link
+                  href="/blog"
+                  className="text-stone-800 text-xl flex justify-center gap-2 w-72 rounded-full p-4 font-serif font-bold italic bg-purple-100 border border-dashed border-violet-300 hover:bg-purple-200 hover:scale-105 transition-all duration-500"
+                >
+                  <svg
+                    role="img"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    height="24px"
+                    focusable="false"
+                  >
+                    <path
+                      fill="#292524"
+                      d="M9 3v15h3V3zm3 2l4 13l3-1l-4-13zM5 5v13h3V5zM3 19v2h18v-2z"
+                    />
+                  </svg>
+                  view all posts
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -218,7 +218,7 @@ const BlogPosts = () => {
         <Link href={post.href} key={post.key}>
           <div
             key={post.key}
-            className="flex flex-col justify-between group rounded-xl p-4 h-60 outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500"
+            className="flex flex-col justify-between group rounded-xl p-4 h-64 outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500"
           >
             <div className="text-xs uppercase text-stone-500">{post.date}</div>
             <div className="flex flex-col gap-4">
