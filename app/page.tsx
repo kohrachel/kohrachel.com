@@ -7,13 +7,13 @@ export default function Home() {
       {/* First panel */}
       <div className="h-screen flex">
         {/* L: About me */}
-        <div className="flex flex-col items-center justify-center w-full pl-24 pr-6">
+        <div className="flex flex-col items-center justify-center w-full pl-12 xl:pl-24 pr-6">
           <div className="flex flex-col items-center justify-center gap-4 mb-3">
-            <p className="text-stone-900 text-3xl">Hi, I&apos;m</p>
-            <p className="text-stone-900 font-serif font-bold text-9xl italic">
+            <p className="text-stone-900 text-2xl xl:text-3xl">Hi, I&apos;m</p>
+            <p className="text-stone-900 font-serif font-bold text-8xl xl:text-9xl italic">
               Rachel Koh
             </p>
-            <p className="text-stone-900 text-xl">
+            <p className="text-stone-900 text-base xl:text-xl">
               I&apos;m a software engineer. I do full-stack development.
             </p>
           </div>
@@ -99,12 +99,12 @@ export default function Home() {
 
 const Projects = () => {
   return (
-    <div className="grid grid-cols-2 gap-2 w-max-content max-w-3xl">
+    <div className="grid grid-cols-2 gap-2 w-max-content max-w-3xl xl:w-4/5 bg-yellow-300">
       {pins.map((project) => (
         <Link
           href={project.href}
           key={project.key}
-          className="flex flex-col border border-dashed w-72 rounded-2xl p-4 border-violet-300 hover:bg-purple-100 transition-all duration-500"
+          className="flex flex-col border border-dashed w-stretch rounded-2xl p-4 border-violet-300 hover:bg-purple-100 transition-all duration-500"
           target="_blank"
         >
           <div className="mb-1 flex flex-row gap-2">
@@ -120,7 +120,7 @@ const Projects = () => {
       {/* TODO: make projects page */}
       <Link
         href="https://github.com/kohrachel"
-        className="text-stone-900 text-sm flex flex-col justify-center border border-dashed w-72 rounded-2xl p-4 bg-purple-100 border-violet-300 hover:bg-purple-200 transition-all duration-500"
+        className="text-stone-900 text-sm flex flex-col justify-center border border-dashed w-stretch rounded-2xl p-4 bg-purple-100 border-violet-300 hover:bg-purple-200 transition-all duration-500"
         target="_blank"
       >
         <p className="text-stone-900 font-bold font-serif text-center text-xl">
