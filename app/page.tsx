@@ -33,12 +33,12 @@ export default function Home() {
 
         {/* R: Image */}
         <div className="w-2/3 flex flex-col items-start justify-center w-max-content px-5">
-          <Link href="/about">
+          <Link href="/about" className="rounded-3xl">
             <div className="overflow-hidden relative rounded-3xl outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-offset-[12px] hover:outline-8 transition-all duration-500">
               <img
                 src="/assets/hello.jpg"
                 alt="hello"
-                className="w-96 min-h-content hover:outline-stone-100 transition-all duration-500 hover:scale-105"
+                className="rounded-3xl w-96 min-h-content hover:outline-stone-100 transition-all duration-500 hover:scale-105"
               />
             </div>
           </Link>
@@ -67,8 +67,10 @@ export default function Home() {
           </div>
 
           <div className="w-2/3 h-full p-2">
-            <div className="flex flex-col w-stretch h-full p-9 rounded-lg gap-11 outline outline-purple-200 bg-white overflow-y-scroll">
-              <BlogPosts />
+            <div className="flex flex-col justify-between w-stretch h-full p-9 rounded-lg gap-11 outline outline-purple-200 bg-white overflow-y-scroll">
+              <div className="h-[90%] p-1 overflow-y-scroll">
+                <BlogPosts />
+              </div>
               <div className="flex justify-center text-center">
                 <Link
                   href="/blog"
@@ -99,7 +101,7 @@ export default function Home() {
 
 const Projects = () => {
   return (
-    <div className="grid grid-cols-2 gap-2 w-max-content max-w-3xl xl:w-4/5 bg-yellow-300">
+    <div className="grid grid-cols-2 gap-2 w-max-content max-w-3xl xl:w-4/5">
       {pins.map((project) => (
         <Link
           href={project.href}
@@ -120,12 +122,26 @@ const Projects = () => {
       {/* TODO: make projects page */}
       <Link
         href="https://github.com/kohrachel"
-        className="text-stone-900 text-sm flex flex-col justify-center border border-dashed w-stretch rounded-2xl p-4 bg-purple-100 border-violet-300 hover:bg-purple-200 transition-all duration-500"
+        className="group text-stone-900 text-sm flex justify-center items-center gap-2 border border-dashed w-stretch rounded-2xl p-4 bg-purple-100 border-violet-300 hover:bg-purple-200 transition-all duration-500"
         target="_blank"
       >
         <p className="text-stone-900 font-bold font-serif text-center text-xl">
           full portfolio on github
         </p>
+        <svg
+          height="12"
+          strokeLinejoin="round"
+          className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-500 text-purple-600"
+          viewBox="0 0 16 16"
+          width="12"
+        >
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M13.5 10.25V13.25C13.5 13.3881 13.3881 13.5 13.25 13.5H2.75C2.61193 13.5 2.5 13.3881 2.5 13.25L2.5 2.75C2.5 2.61193 2.61193 2.5 2.75 2.5H5.75H6.5V1H5.75H2.75C1.7835 1 1 1.7835 1 2.75V13.25C1 14.2165 1.7835 15 2.75 15H13.25C14.2165 15 15 14.2165 15 13.25V10.25V9.5H13.5V10.25ZM9 1H9.75H14.2495C14.6637 1 14.9995 1.33579 14.9995 1.75V6.25V7H13.4995V6.25V3.56066L8.53033 8.52978L8 9.06011L6.93934 7.99945L7.46967 7.46912L12.4388 2.5H9.75H9V1Z"
+            fill="currentColor"
+          ></path>
+        </svg>
       </Link>
     </div>
   );
@@ -213,12 +229,12 @@ const Socials = () => {
 
 const BlogPosts = () => {
   return (
-    <div className="grid grid-cols-2 gap-7 rounded-xl">
+    <div className="grid grid-cols-2 gap-7">
       {posts.map((post) => (
-        <Link href={post.href} key={post.key}>
+        <Link href={post.href} key={post.key} className="rounded-xl">
           <div
             key={post.key}
-            className="flex flex-col justify-between group rounded-xl p-4 h-64 outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500"
+            className="flex flex-col justify-between group rounded-xl p-4 h-[18rem] outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500"
           >
             <div className="text-xs uppercase text-stone-500">{post.date}</div>
             <div className="flex flex-col gap-4">
@@ -341,19 +357,5 @@ const posts: {
     href: "/",
     description: "This is the content of post 4",
     date: "2024-01-04",
-  },
-  {
-    key: "post-5",
-    title: "Post 5",
-    href: "/",
-    description: "This is the content of post 5",
-    date: "2024-01-05",
-  },
-  {
-    key: "post-6",
-    title: "Post 6",
-    href: "/",
-    description: "This is the content of post 6",
-    date: "2024-01-06",
   },
 ];
