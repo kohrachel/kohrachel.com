@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
 export default function About() {
   const scrollHelperRef = useRef<HTMLDivElement>(null);
@@ -91,9 +92,9 @@ export default function About() {
           WebkitClipPath: "inset(5% 0 5% 0 round 30px)", // Safari
         }}
       />
-      <div className="h-[200vh] w-full ml-[35%] p-11">
+      <div className="h-[200vh] w-full p-11 flex justify-center">
         <div
-          className="flex h-max w-max p-9 rounded-3xl fixed bg-yellow-300"
+          className="flex h-max py-9 px-20 rounded-xl fixed mt-96 backdrop-blur-sm shadow-lg text-white"
           style={{
             ...moveImageLeftOnScroll(),
           }}
@@ -104,8 +105,23 @@ export default function About() {
               <p className="pb-2 text-xl">(n.)</p>
             </div>
             <ol className="list-decimal text-xl">
-              <li>ewe, female sheep</li>
-              <li>modern idiot</li>
+              <li>
+                ewe, female{" "}
+                <Link
+                  href=""
+                  className="underline underline-offset-4 decoration-1 hover:text-blue-300 hover:underline-offset-[5px] duration-300"
+                >
+                  sheep
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href=""
+                  className="underline underline-offset-4 decoration-1 hover:text-blue-300 hover:underline-offset-[5px] duration-300"
+                >
+                  modern idiot
+                </Link>
+              </li>
             </ol>
           </div>
         </div>
