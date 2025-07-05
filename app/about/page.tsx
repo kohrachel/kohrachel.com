@@ -78,28 +78,6 @@ export default function About() {
           </div>
         </div>
       </div>
-      <div className="h-[200vh] w-full ml-[35%] p-11">
-        <div
-          className="flex h-max w-max p-9 rounded-3xl fixed bg-yellow-300"
-          style={makeTextAppearOnScroll(true)}
-        >
-          <div className="flex flex-col items-center">
-            <div className="flex items-end gap-1">
-              <p className="font-serif font-semibold italic text-8xl">rachel</p>
-              <p className="pb-2 text-xl">(n.)</p>
-            </div>
-            <ol className="list-decimal text-xl">
-              <li>ewe, female sheep</li>
-              <li>modern idiot</li>
-            </ol>
-          </div>
-          <div className="flex flex-col h-max p-3 bg-blue-300">
-            <p>许</p>
-            <p>慧</p>
-            <p>琦</p>
-          </div>
-        </div>
-      </div>
 
       <img
         ref={imageRef}
@@ -113,6 +91,25 @@ export default function About() {
           WebkitClipPath: "inset(5% 0 5% 0 round 30px)", // Safari
         }}
       />
+      <div className="h-[200vh] w-full ml-[35%] p-11">
+        <div
+          className="flex h-max w-max p-9 rounded-3xl fixed bg-yellow-300"
+          style={{
+            ...moveImageLeftOnScroll(),
+          }}
+        >
+          <div className="flex flex-col items-center">
+            <div className="flex items-end gap-1">
+              <p className="font-serif font-semibold italic text-8xl">rachel</p>
+              <p className="pb-2 text-xl">(n.)</p>
+            </div>
+            <ol className="list-decimal text-xl">
+              <li>ewe, female sheep</li>
+              <li>modern idiot</li>
+            </ol>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
