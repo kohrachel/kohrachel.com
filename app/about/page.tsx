@@ -18,15 +18,22 @@ export default function About() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  function getTransform() {
+  function moveImageLeftOnScroll() {
     if (imageRef.current === null) return {};
 
     const imageWidth = imageRef.current.getBoundingClientRect().width;
     return {
       transform: `translateX(${
         (position / window.innerHeight) *
-        (window.innerWidth / 2 - imageWidth / 2)
+        (window.innerWidth / 2 - imageWidth / 2 - 20)
       }px)`,
+    };
+  }
+  function makeTextAppearOnScroll() {
+    if (imageRef.current === null) return {};
+
+    return {
+      opacity: `${-position / window.innerHeight}`,
     };
   }
 
@@ -38,8 +45,21 @@ export default function About() {
         src="/assets/water.jpg"
         alt="water ebbs and flows as waves crash to shore, close up"
         className="h-full object-contain fixed"
-        style={getTransform()}
+        style={moveImageLeftOnScroll()}
       />
+      <div
+        className="flex flex-col h-max w-max p-9 ml-9 rounded-3xl fixed bg-yellow-300"
+        style={makeTextAppearOnScroll()}
+      >
+        <div className="flex items-end gap-1">
+          <p className="font-serif font-semibold italic text-8xl">rachel</p>
+          <p className="pb-2 text-xl">(n.)</p>
+        </div>
+        <ol className="list-decimal text-xl">
+          <li>ewe, female sheep</li>
+          <li>modern idiot</li>
+        </ol>
+      </div>
     </div>
   );
 
