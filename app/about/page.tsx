@@ -29,37 +29,90 @@ export default function About() {
       }px)`,
     };
   }
-  function makeTextAppearOnScroll() {
+  function makeTextAppearOnScroll(fadeDir: boolean) {
     if (imageRef.current === null) return {};
 
+    if (fadeDir)
+      return {
+        opacity: `${-position / window.innerHeight}`,
+      };
+
     return {
-      opacity: `${-position / window.innerHeight}`,
+      opacity: `${1 + position / window.innerHeight}`,
     };
   }
 
   return (
     <div className="h-[100vh] relative w-screen flex justify-center">
       <div ref={scrollHelperRef} className="absolute h-[200vh] w-screen" />
+      <div>
+        <div
+          className="fixed flex flex-col justify-center gap-5 w-1/3 h-full p-11 break-words"
+          style={makeTextAppearOnScroll(false)}
+        >
+          <p>Dear Reader,</p>
+          <p className="indent-6">
+            I was raised in a little sleepy town that peaked even before the
+            British Empire did. By all means, I should have settled into that
+            slow, steady rhythm of life. I don't know exactly why I didn't.
+            Perhaps it was my endlessly precocious nature, or perhaps it was my
+            Slytherin desire clawing for more. It doesn't matter. I was a
+            hopeless romantic in a land of greige indifference.
+          </p>
+          <p className="indent-6">
+            In 2023, a little university in Nashville sent me a letter. It was
+            everything I had ever dreamed of. It was a fleeting sense of the
+            most concentrated amount of catharsis I had ever felt telling me
+            that my naivety wasn't for nothing. I accepted.
+          </p>
+          <p className="indent-6">
+            It's been a crazy few years, and hopefully I'll be able to continue
+            saying that for many many more. In the meantime, I'm going to
+            compile this haphazard collage of the things that inspire and excite
+            me. It's a little bit of a dumpster fire, but it's <em>my</em>{" "}
+            dumpster fire. Welcome to the gang, I'm so glad you're here.
+          </p>
+          <div className="flex gap-2">
+            <p>Love,</p>
+            <p className="font-serif italic font-semibold">r.k.</p>
+          </div>
+        </div>
+      </div>
+      <div className="h-[200vh] w-full ml-[35%] p-11">
+        <div
+          className="flex h-max w-max p-9 rounded-3xl fixed bg-yellow-300"
+          style={makeTextAppearOnScroll(true)}
+        >
+          <div className="flex flex-col items-center">
+            <div className="flex items-end gap-1">
+              <p className="font-serif font-semibold italic text-8xl">rachel</p>
+              <p className="pb-2 text-xl">(n.)</p>
+            </div>
+            <ol className="list-decimal text-xl">
+              <li>ewe, female sheep</li>
+              <li>modern idiot</li>
+            </ol>
+          </div>
+          <div className="flex flex-col h-max p-3 bg-blue-300">
+            <p>许</p>
+            <p>慧</p>
+            <p>琦</p>
+          </div>
+        </div>
+      </div>
+
       <img
         ref={imageRef}
         src="/assets/water.jpg"
         alt="water ebbs and flows as waves crash to shore, close up"
         className="h-full object-contain fixed"
-        style={moveImageLeftOnScroll()}
+        style={{
+          ...moveImageLeftOnScroll(),
+          /* trim 15 % off top & bottom (0 % left/right) */
+          clipPath: "inset(5% 0 5% 0 round 30px)",
+          WebkitClipPath: "inset(5% 0 5% 0 round 30px)", // Safari
+        }}
       />
-      <div
-        className="flex flex-col h-max w-max p-9 ml-9 rounded-3xl fixed bg-yellow-300"
-        style={makeTextAppearOnScroll()}
-      >
-        <div className="flex items-end gap-1">
-          <p className="font-serif font-semibold italic text-8xl">rachel</p>
-          <p className="pb-2 text-xl">(n.)</p>
-        </div>
-        <ol className="list-decimal text-xl">
-          <li>ewe, female sheep</li>
-          <li>modern idiot</li>
-        </ol>
-      </div>
     </div>
   );
 
