@@ -19,7 +19,7 @@ export default function About() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  function moveImageLeftOnScroll() {
+  function moveLeftOnScroll() {
     if (imageRef.current === null) return {};
 
     const imageWidth = imageRef.current.getBoundingClientRect().width;
@@ -30,7 +30,7 @@ export default function About() {
       }px)`,
     };
   }
-  function makeTextAppearOnScroll(fadeDir: boolean) {
+  function appearOnScroll(fadeDir: boolean) {
     if (imageRef.current === null) return {};
 
     if (fadeDir)
@@ -46,36 +46,24 @@ export default function About() {
   return (
     <div className="h-[100vh] relative w-screen flex justify-center">
       <div ref={scrollHelperRef} className="absolute h-[200vh] w-screen" />
-      <div>
-        <div
-          className="fixed flex flex-col justify-center gap-5 w-1/3 h-full p-11 break-words"
-          style={makeTextAppearOnScroll(false)}
-        >
-          <p>Dear Reader,</p>
-          <p className="indent-6">
-            I was raised in a little sleepy town that peaked even before the
-            British Empire did. By all means, I should have settled into that
-            slow, steady rhythm of life. I don't know exactly why I didn't.
-            Perhaps it was my endlessly precocious nature, or perhaps it was my
-            Slytherin desire clawing for more. It doesn't matter. I was a
-            hopeless romantic in a land of greige indifference.
-          </p>
-          <p className="indent-6">
-            In 2023, a little university in Nashville sent me a letter. It was
-            everything I had ever dreamed of. It was a fleeting sense of the
-            most concentrated amount of catharsis I had ever felt telling me
-            that my naivety wasn't for nothing. I accepted.
-          </p>
-          <p className="indent-6">
-            It's been a crazy few years, and hopefully I'll be able to continue
-            saying that for many many more. In the meantime, I'm going to
-            compile this haphazard collage of the things that inspire and excite
-            me. It's a little bit of a dumpster fire, but it's <em>my</em>{" "}
-            dumpster fire. Welcome to the gang, I'm so glad you're here.
-          </p>
-          <div className="flex gap-2">
-            <p>Love,</p>
-            <p className="font-serif italic font-semibold">r.k.</p>
+      <DearReader makeTextAppearOnScroll={appearOnScroll} />
+      <div
+        className="w-full fixed flex justify-end h-full opacity-0 bg-purple-100"
+        style={appearOnScroll(true)}
+      >
+        <div className="w-2/3 h-full flex py-11 px-6">
+          <div
+            className="bg-blue-500 w-full h-full rounded-xl"
+            style={appearOnScroll(true)}
+          >
+            <div
+              className="flex flex-col font-chn text-[15rem] w-max h-full justify-center text-purple-200"
+              style={appearOnScroll(true)}
+            >
+              <p className="-mb-16 -mt-28">许</p>
+              <p className="-my-16">慧</p>
+              <p className="-mt-16 -mb-28">琦</p>
+            </div>
           </div>
         </div>
       </div>
@@ -86,67 +74,16 @@ export default function About() {
         alt="water ebbs and flows as waves crash to shore, close up"
         className="h-full object-contain fixed"
         style={{
-          ...moveImageLeftOnScroll(),
+          ...moveLeftOnScroll(),
           /* trim 15 % off top & bottom (0 % left/right) */
-          clipPath: "inset(5% 0 5% 0 round 30px)",
-          WebkitClipPath: "inset(5% 0 5% 0 round 30px)", // Safari
+          clipPath: "inset(3% 0 3% 0 round 20px)",
+          WebkitClipPath: "inset(3% 0 3% 0 round 20px)", // Safari
         }}
       />
-      <div className="h-[200vh] w-full p-11 flex justify-center">
-        <div
-          className="flex h-max py-9 px-20 rounded-xl fixed mt-96 backdrop-blur-sm shadow-lg text-white"
-          style={{
-            ...moveImageLeftOnScroll(),
-          }}
-        >
-          <div className="flex flex-col items-center">
-            <div className="flex items-end gap-1">
-              <p className="font-serif font-semibold italic text-8xl">rachel</p>
-              <p className="pb-2 text-xl">(n.)</p>
-            </div>
-            <ol className="list-decimal text-xl">
-              <li>
-                ewe, female{" "}
-                <Link
-                  href=""
-                  className="underline underline-offset-4 decoration-1 hover:text-blue-300 hover:underline-offset-[5px] duration-300"
-                >
-                  sheep
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href=""
-                  className="underline underline-offset-4 decoration-1 hover:text-blue-300 hover:underline-offset-[5px] duration-300"
-                >
-                  modern idiot
-                </Link>
-              </li>
-            </ol>
-          </div>
-        </div>
-      </div>
+      <NameCard moveLeftOnScroll={moveLeftOnScroll} />
+      <div className="h-[200vh] w-full p-11"></div>
     </div>
   );
-
-  //   based on scroll position, move the position of the div below
-  //   return (
-  //     <div className="h-[200vh] w-screen flex">
-  //       {/* TODO: make this default to center on render, and move it to left on scroll */}
-  //       <div className="flex items-center h-[100vh]" ref={parentRef}>
-  //         <SpotlightImage scrollPosition={-position} />
-  //         {/* <div className="flex flex-col h-max w-max p-9 ml-9 rounded-3xl bg-yellow-300">
-  //           <div className="flex items-end gap-1">
-  //             <p className="font-serif font-semibold italic text-8xl">rachel</p>
-  //             <p className="pb-2 text-xl">(n.)</p>
-  //           </div>
-  //           <ol className="list-decimal text-xl">
-  //             <li>ewe, female sheep</li>
-  //             <li>modern idiot</li>
-  //           </ol>
-  //         </div> */}
-  //       </div>
-  //     </div>
 
   /* taylor swift lover dollhouse (will come back to this sometime) 
     <div className="h-full w-screen">
@@ -190,3 +127,92 @@ export default function About() {
 //     ></img>
 //   );
 // }
+
+function DearReader({
+  makeTextAppearOnScroll,
+}: {
+  makeTextAppearOnScroll: (fadeDir: boolean) => {};
+}) {
+  return (
+    <div>
+      <div
+        className="fixed flex flex-col justify-center gap-5 w-1/3 h-full p-11 break-words"
+        style={makeTextAppearOnScroll(false)}
+      >
+        <p>Dear Reader,</p>
+        <p className="indent-6">
+          I was raised in a little sleepy town that peaked even before the
+          British Empire did. By all means, I should have settled into that
+          slow, steady rhythm of life. I don't know exactly why I didn't.
+          Perhaps it was my endlessly precocious nature, or perhaps it was my
+          Slytherin desire clawing for more. It doesn't matter. I was a hopeless
+          romantic in a land of greige indifference.
+        </p>
+        <p className="indent-6">
+          In 2023, a little university in Nashville sent me a letter. It was
+          everything I had ever dreamed of. It was a fleeting sense of the most
+          concentrated amount of catharsis I had ever felt telling me that my
+          naivety wasn't for nothing. I accepted.
+        </p>
+        <p className="indent-6">
+          It's been a crazy few years, and hopefully I'll be able to continue
+          saying that for many many more. In the meantime, I'm going to compile
+          this haphazard collage of the things that inspire and excite me. It's
+          a little bit of a dumpster fire, but it's <em>my</em> dumpster fire.
+          Welcome to the gang, I'm so glad you're here.
+        </p>
+        <div className="flex gap-2">
+          <p>Love,</p>
+          <p className="font-serif italic font-semibold">r.k.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NameCard({ moveLeftOnScroll }: { moveLeftOnScroll: () => {} }) {
+  return (
+    <div
+      className="flex h-max py-7 px-12 rounded-3xl fixed mt-72 backdrop-blur-sm shadow-lg text-white outline-1 outline-blue-200 outline outline-offset-4"
+      style={{
+        ...moveLeftOnScroll(),
+      }}
+    >
+      <div className="flex flex-col items-center">
+        <div className="flex items-end gap-1">
+          <p className="font-serif font-semibold italic text-9xl">rachel</p>
+          <p className="pb-2 text-xl font-serif">(n.)</p>
+        </div>
+        <ol className="list-decimal text-xl">
+          <li>
+            ewe, female{" "}
+            <Link
+              href=""
+              className="underline underline-offset-4 decoration-1 hover:text-purple-300 hover:underline-offset-[5px] duration-300"
+            >
+              sheep
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="https://www.youtube.com/watch?v=isF2CTDlIkc"
+              className="underline underline-offset-4 decoration-1 hover:text-purple-300 hover:underline-offset-[5px] duration-300"
+            >
+              modern idiot
+            </Link>
+            , evermore
+          </li>
+          <li>
+            <Link
+              href=""
+              className="underline underline-offset-4 decoration-1 hover:text-purple-300 hover:underline-offset-[5px] duration-300"
+            >
+              matcha
+            </Link>{" "}
+            lover
+          </li>
+        </ol>
+      </div>
+    </div>
+  );
+}

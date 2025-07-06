@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Montserrat, EB_Garamond } from "next/font/google";
+import {
+  Geist_Mono,
+  Montserrat,
+  EB_Garamond,
+  Long_Cang,
+} from "next/font/google";
 import "./globals.css";
 
 const geistMono = Geist_Mono({
@@ -21,6 +26,13 @@ const ebGaramond = EB_Garamond({
   style: ["normal", "italic"],
 });
 
+const longCang = Long_Cang({
+  variable: "--font-long-cang",
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal"],
+});
+
 export const metadata: Metadata = {
   title: "Rachel Koh",
   description: "My cozy little corner of the internet",
@@ -34,7 +46,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${montserrat.variable} ${geistMono.variable} ${ebGaramond.variable} antialiased min-h-screen flex flex-col`}
+        className={`${montserrat.variable} ${geistMono.variable} ${ebGaramond.variable} ${longCang.variable} antialiased min-h-screen flex flex-col`}
       >
         <main className="flex-grow">{children}</main>
         {/* <Footer /> */}

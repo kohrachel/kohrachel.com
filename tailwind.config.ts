@@ -25,6 +25,7 @@ export default {
         mono: ["var(--font-geist-mono)"],
         sans: ["var(--font-montserrat)"],
         serif: ["var(--font-eb-garamond)"],
+        chn: ["var(--font-long-cang)"],
       },
     },
   },
