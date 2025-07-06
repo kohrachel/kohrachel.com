@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+
+type MoveLeftOnScrollType = Pick<CSSProperties, "transform"> | undefined;
+type AppearOnScrollType = Pick<CSSProperties, "opacity"> | undefined;
 
 export default function About() {
   const scrollHelperRef = useRef<HTMLDivElement>(null);
@@ -19,8 +22,8 @@ export default function About() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  function moveLeftOnScroll() {
-    if (imageRef.current === null) return {};
+  function moveLeftOnScroll(): MoveLeftOnScrollType {
+    if (imageRef.current === null) return undefined;
 
     const imageWidth = imageRef.current.getBoundingClientRect().width;
     return {
@@ -30,8 +33,9 @@ export default function About() {
       }px)`,
     };
   }
-  function appearOnScroll(fadeDir: boolean) {
-    if (imageRef.current === null) return {};
+
+  function appearOnScroll(fadeDir: boolean): AppearOnScrollType {
+    if (imageRef.current === null) return undefined;
 
     if (fadeDir)
       return {
@@ -46,7 +50,7 @@ export default function About() {
   return (
     <div className="h-[100vh] relative w-screen flex justify-center">
       <div ref={scrollHelperRef} className="absolute h-[200vh] w-screen" />
-      <DearReader makeTextAppearOnScroll={appearOnScroll} />
+      <DearReader appearOnScroll={appearOnScroll} />
       <div
         className="w-full fixed flex justify-end h-full opacity-0 bg-purple-100"
         style={appearOnScroll(true)}
@@ -129,15 +133,15 @@ export default function About() {
 // }
 
 function DearReader({
-  makeTextAppearOnScroll,
+  appearOnScroll: appearOnScroll,
 }: {
-  makeTextAppearOnScroll: (fadeDir: boolean) => {};
+  appearOnScroll: (fadeDir: boolean) => AppearOnScrollType;
 }) {
   return (
     <div>
       <div
         className="fixed flex flex-col justify-center gap-5 w-1/3 h-full p-11 break-words"
-        style={makeTextAppearOnScroll(false)}
+        style={appearOnScroll(false)}
       >
         <p>Dear Reader,</p>
         <p className="indent-6">
@@ -171,7 +175,11 @@ function DearReader({
   );
 }
 
-function NameCard({ moveLeftOnScroll }: { moveLeftOnScroll: () => {} }) {
+function NameCard({
+  moveLeftOnScroll,
+}: {
+  moveLeftOnScroll: () => MoveLeftOnScrollType;
+}) {
   return (
     <div
       className="flex h-max py-7 px-12 rounded-3xl fixed mt-72 backdrop-blur-sm shadow-lg text-white outline-1 outline-blue-200 outline outline-offset-4"
