@@ -52,17 +52,17 @@ export default function Blog() {
                 <Link href="" key={post.title} className="rounded-2xl">
                   <div className="flex flex-col relative justify-between group rounded-2xl h-max m-1 outline outline-purple-200 outline-offset-4 hover:outline-purple-400 transition-all duration-500">
                     <div className="absolute text-xs uppercase top-2 left-2 text-stone-500">
-                      date here
+                      {post.date}
                     </div>
-                    <div className="absolute bottom-0 left-0 right-0 flex flex-col gap-1 backdrop-blur-xl pl-2 py-2 pr-11 rounded-b-2xl border-solid border-purple-50 border-t-[1px] border-opacity-20">
-                      <p className="text-stone-900 text-3xl group-hover:text-stone-500 font-serif font-bold italic transition-all duration-300">
-                        hello, who are you?
+                    <div className="absolute bottom-0 left-0 right-0 flex flex-col gap-1 backdrop-blur-md pl-3 py-2 pr-11 rounded-b-2xl border-solid border-purple-50 border-t-[1px] border-opacity-20">
+                      <p className="text-3xl group-hover:text-purple-800 font-serif font-bold italic transition-all duration-300">
+                        {post.title}
                       </p>
                       <p className="text-stone-900 text-sm group-hover:text-md transition-all duration-300">
-                        la la la
+                        {post.description}
                       </p>
                     </div>
-                    <img src="assets/example43.jpg" className="rounded-2xl" />
+                    <img src={post.imgPath} className="rounded-2xl" />
                   </div>
                 </Link>
               ))}
@@ -75,52 +75,52 @@ export default function Blog() {
 }
 
 const posts: {
-  key: string;
   title: string;
   href: string;
   description: string;
   date: string;
+  imgPath: string;
 }[] = [
   {
-    key: "post-1",
-    title: "the top of the world (is a soapbox)",
-    href: "/",
-    description: "free will v. determinism, 2025",
+    title: "you don't exist",
+    href: "/you-dont-exist",
+    description: "the book that just saved me that you haven't heard of",
     date: "2024-01-01",
+    imgPath: "/assets/you-dont-exist.png",
   },
   {
-    key: "post-2",
-    title: "in which i defeat a vampire",
-    href: "/",
-    description: "creative liberty should be given sparingly",
-    date: "2024-01-02",
+    title: "blog about a blog",
+    href: "/blog-about-a-blog",
+    description: "i sense a glitch in the matrix",
+    date: "2025-02-18",
+    imgPath: "/assets/you-dont-exist.png",
   },
   {
-    key: "post-3",
-    title: "Post 3",
-    href: "/",
-    description: "This is the content of post 3",
-    date: "2024-01-03",
+    title: "5 scrapped NYT bestsellers",
+    href: "/5-scrapped-nyt-bestsellers",
+    description: "sometimes you should get an editor",
+    date: "2025-02-18",
+    imgPath: "/assets/example43.jpg",
   },
   {
-    key: "post-4",
-    title: "Post 4",
-    href: "/",
-    description: "This is the content of post 4",
+    title: "ete",
+    href: "/ete",
+    description: "written purely out of self-indulgence",
     date: "2024-01-04",
+    imgPath: "/assets/example43.jpg",
   },
   {
-    key: "post-5",
-    title: "Post 5",
+    title: "a series of goodbyes",
     href: "/",
-    description: "This is the content of post 4",
+    description: "this is not sappy at all",
     date: "2024-01-04",
+    imgPath: "/assets/example43.jpg",
   },
   {
-    key: "post-6",
-    title: "Post 6",
+    title: "life (is a stained glass window)",
     href: "/",
-    description: "This is the content of post 4",
+    description: "and hopefully not in the wcs way",
     date: "2024-01-04",
+    imgPath: "/assets/example43.jpg",
   },
 ];
