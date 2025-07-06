@@ -143,23 +143,24 @@ function DearReader({
         <p className="indent-6">
           I was raised in a little sleepy town that peaked even before the
           British Empire did. By all means, I should have settled into that
-          slow, steady rhythm of life. I don't know exactly why I didn't.
-          Perhaps it was my endlessly precocious nature, or perhaps it was my
-          Slytherin desire clawing for more. It doesn't matter. I was a hopeless
-          romantic in a land of greige indifference.
+          slow, steady rhythm of life. I don&apos;t know exactly why I
+          didn&apos;t. Perhaps it was my endlessly precocious nature, or perhaps
+          it was my Slytherin desire clawing for more. It doesn&apos;t matter. I
+          was a hopeless romantic in a land of greige indifference.
         </p>
         <p className="indent-6">
           In 2023, a little university in Nashville sent me a letter. It was
           everything I had ever dreamed of. It was a fleeting sense of the most
           concentrated amount of catharsis I had ever felt telling me that my
-          naivety wasn't for nothing. I accepted.
+          naivety wasn&apos;t for nothing. I accepted.
         </p>
         <p className="indent-6">
-          It's been a crazy few years, and hopefully I'll be able to continue
-          saying that for many many more. In the meantime, I'm going to compile
-          this haphazard collage of the things that inspire and excite me. It's
-          a little bit of a dumpster fire, but it's <em>my</em> dumpster fire.
-          Welcome to the gang, I'm so glad you're here.
+          It&apos;s been a crazy few years, and hopefully I&apos;ll be able to
+          continue saying that for many many more. In the meantime, I&apos;m
+          going to compile this haphazard collage of the things that inspire and
+          excite me. It&apos;s a little bit of a dumpster fire, but it&apos;s{" "}
+          <em>my</em> dumpster fire. Welcome to the gang, I&apos;m so glad
+          you&apos;re here.
         </p>
         <div className="flex gap-2">
           <p>Love,</p>
