@@ -30,6 +30,39 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         {children}
       </h2>
     ),
+    ul: ({ children }) => (
+      <ul
+        style={{
+          listStyleType: "disc",
+          paddingLeft: "2rem",
+          marginBottom: "1rem",
+        }}
+      >
+        {children}
+      </ul>
+    ),
+    ol: ({ children }) => (
+      <ol
+        style={{
+          listStyleType: "decimal",
+          paddingLeft: "2rem",
+          marginBottom: "1rem",
+        }}
+      >
+        {children}
+      </ol>
+    ),
+    li: ({ children }) => (
+      <li
+        style={{
+          fontSize: "1rem",
+          lineHeight: 1.6,
+          marginBottom: "0.5rem",
+        }}
+      >
+        {children}
+      </li>
+    ),
 
     ...components,
   };
