@@ -2,12 +2,7 @@ import type { MDXComponents } from "mdx/types";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
-    wrapper: ({ children }) => (
-      <div className="p-8">
-        {/* This adds padding to the entire MDX content */}
-        {children}
-      </div>
-    ),
+    wrapper: ({ children }) => <div className="p-8">{children}</div>,
 
     h1: ({ children }) => (
       <h1
