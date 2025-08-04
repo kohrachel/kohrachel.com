@@ -53,24 +53,26 @@ export default function Home() {
 
       {/* Second panel */}
       <div className="h-screen flex">
-        <div className="m-6 w-full h-stretch flex rounded-xl bg-purple-100 outline outline-purple-200 shadow-xl shadow-black/30">
-          <div className="w-1/3 h-full flex flex-col justify-between px-8 py-16">
-            <div className="flex flex-col gap-8">
-              <p className="text-stone-900 text-5xl font-serif font-bold italic">
+        <div className="m-6 w-full h-max xl:h-stretch flex flex-col xl:flex-row rounded-xl bg-purple-100 outline outline-purple-200 shadow-xl shadow-black/30">
+          <div className="w-full xl:w-1/3 h-full flex flex-col justify-between px-8 pt-8 xl:py-16">
+            <div className="flex flex-col gap-4 xl:gap-8">
+              <p className="text-stone-900 text-3xl xl:text-5xl font-serif font-bold italic">
                 this blog is a(n) (unordered) collection of my shower thoughts
               </p>
               <div className="flex gap-2 justify-between">
-                <p className="text-stone-900 text-xl">
+                <p className="text-stone-900 text-md xl:text-xl">
                   here&apos;s some highlights:
                 </p>
-                <p className="text-stone-900 text-xl font-mono">{">>>>"}</p>
+                <p className="opacity-0 xl:opacity-100 text-stone-900 text-xl font-mono">
+                  {">>>>"}
+                </p>
               </div>
             </div>
 
             {/* TODO: make this filterable by tag and add a search bar here*/}
           </div>
 
-          <div className="w-2/3 h-full p-2">
+          <div className="w-full xl:w-2/3 h-full p-2">
             <div className="flex flex-col justify-between w-stretch h-full p-9 rounded-lg gap-11 outline outline-purple-200 bg-white overflow-y-scroll">
               <div className="h-[90%] p-1 overflow-y-scroll">
                 <BlogPosts />
@@ -233,7 +235,7 @@ const Socials = () => {
 
 const BlogPosts = () => {
   return (
-    <div className="grid grid-cols-2 gap-7">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-7">
       {/* <div className="bg-blue-300 h-[18rem]">
         wow, this is a really good quote man
       </div>
@@ -248,7 +250,7 @@ const BlogPosts = () => {
               key={index}
               className="rounded-xl"
             >
-              <div className="flex flex-col justify-between items-start group rounded-xl p-4 h-[18rem] outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500">
+              <div className="flex flex-col justify-between items-start group rounded-xl p-4 h-36 xl:h-[18rem] outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500">
                 <div className="text-xs uppercase text-stone-500">
                   {post.date}
                 </div>
