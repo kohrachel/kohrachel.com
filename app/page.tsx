@@ -26,7 +26,7 @@ export default function Home() {
       {/* First panel */}
       <div className="h-screen flex">
         {/* L: About me */}
-        <div className="flex flex-col items-center justify-center w-full pl-12 xl:pl-24 pr-6">
+        <div className="flex flex-col items-center justify-center w-full xl:pl-24 xl:pr-6">
           {!xl && (
             <div className="w-60 px-5 pb-6">
               <Link href="/yin-yang" className="rounded-[3rem]">
