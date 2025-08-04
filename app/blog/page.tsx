@@ -45,29 +45,35 @@ export default function Blog() {
           </div>
         </div>
 
-        <div className="w-4/5 h-full p-2">
-          <div className="flex flex-col justify-between w-stretch h-full px-24 py-16 rounded-lg outline outline-purple-200 bg-white overflow-y-scroll">
-            <div className="grid grid-cols-2 gap-x-12 gap-y-9">
-              {posts.map((post) => (
-                <Link href="" key={post.title} className="rounded-lg">
-                  <div className="flex flex-col gap-1 relative justify-between group rounded-lg h-max m-1 outline outline-purple-200 outline-offset-4 hover:outline-purple-400 transition-all duration-500">
-                    <img src={post.imgPath} className="rounded-lg" />
-                    <div className="p-2">
-                      <p className="text-xs uppercase text-stone-500 group-hover:text-purple-600">
-                        {post.date}
-                      </p>
-                      <p className="text-3xl group-hover:text-purple-800 py-1 font-serif font-bold italic transition-all duration-300">
-                        {post.title}
-                      </p>
-                      <p className="text-stone-900 group-hover:text-purple-600 text-sm group-hover:text-md transition-all duration-300">
-                        {post.description}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+        <div className="w-3/5 h-full py-2">
+          <div className="flex justify-between w-stretch h-full rounded-lg outline outline-purple-200 bg-white overflow-y-scroll">
+            <div className="h-full w-1/2 bg-blue-300">hello</div>
           </div>
+        </div>
+
+        <div className="overflow-scroll p-4 h-full w-1/5 flex flex-col">
+          <div className="grid grid-cols-1 gap-y-3 h-full w-full overflow-scroll p-1 ">
+            {posts.map((post) => (
+              <Link href={post.href} key={post.title} className="rounded-xl">
+                <div className="flex flex-col justify-between group rounded-xl p-4 h-max outline-2 outline-dashed outline-purple-100 hover:outline-purple-700 hover:bg-purple-200 transition-all duration-700">
+                  <div className="flex flex-col gap-1">
+                    <p className="text-stone-900 text-3xl group-hover:text-stone-500 font-serif font-bold italic transition-all duration-300">
+                      {post.title}
+                    </p>
+                    <p className="text-stone-900 text-xs group-hover:text-md transition-all duration-300">
+                      {post.description}
+                    </p>
+                    <p className="text-xs uppercase text-stone-500">
+                      {post.date}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <p className="text-stone-900 text-4xl font-serif font-bold italic pt-4 pb-8 px-2">
+            the great list
+          </p>
         </div>
       </div>
     </div>
