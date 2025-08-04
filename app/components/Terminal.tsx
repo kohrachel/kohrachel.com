@@ -59,7 +59,7 @@ function Terminal() {
   });
   return (
     <div className="w-screen h-screen p-10">
-      <div className="w-full h-full bg-black rounded-xl outline outline-1 outline-neutral-400 shadow-[0px_0px_15px_0px] shadow-black/80">
+      <div className="w-full h-full rounded-xl outline outline-1 outline-neutral-400 shadow-[0px_0px_15px_0px] shadow-black/80">
         {/* Header */}
         <div className="w-full h-[3.5%] bg-zinc-700 rounded-t-xl flex flex-row">
           <div className="flex flex-row items-center ml-2 gap-2">
@@ -87,7 +87,7 @@ function Terminal() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 autoFocus
-              ></input>
+              />
             </form>
           )}
           {terminalMessage}
