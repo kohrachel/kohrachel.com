@@ -38,7 +38,7 @@ export default function Home() {
         {/* R: Image */}
         <div className="w-2/3 flex flex-col items-start justify-center w-max-content px-5">
           <Link href="/about" className="rounded-3xl">
-            <div className="overflow-hidden relative rounded-3xl outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-offset-[12px] hover:outline-8 transition-all duration-500">
+            <div className="overflow-hidden relative rounded-3xl outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-offset-[16px] hover:outline-8 transition-all duration-500">
               <img
                 src="/assets/hello.jpg"
                 alt="hello"
@@ -52,10 +52,10 @@ export default function Home() {
       {/* -------------- blog -------------- */}
 
       {/* Second panel */}
-      <div className="h-screen flex">
-        <div className="m-6 w-full h-max xl:h-stretch flex flex-col xl:flex-row rounded-xl bg-purple-100 outline outline-purple-200 shadow-xl shadow-black/30">
-          <div className="w-full xl:w-1/3 h-full flex flex-col justify-between px-8 pt-8 xl:py-16">
-            <div className="flex flex-col gap-4 xl:gap-8">
+      <div className="h-screen flex p-3 xl:p-6">
+        <div className="w-full h-[99%] xl:h-max xl:h-stretch flex flex-col xl:flex-row rounded-xl bg-purple-100 outline outline-purple-200 shadow-xl shadow-black/30">
+          <div className="w-full h-1/4 xl:w-1/3 xl:h-full flex flex-col justify-between px-8 pt-8 xl:py-16">
+            <div className="flex flex-col gap-2 xl:gap-8">
               <p className="text-stone-900 text-3xl xl:text-5xl font-serif font-bold italic">
                 this blog is a(n) (unordered) collection of my shower thoughts
               </p>
@@ -72,9 +72,9 @@ export default function Home() {
             {/* TODO: make this filterable by tag and add a search bar here*/}
           </div>
 
-          <div className="w-full xl:w-2/3 h-full p-2">
-            <div className="flex flex-col justify-between w-stretch h-full p-9 rounded-lg gap-11 outline outline-purple-200 bg-white overflow-y-scroll">
-              <div className="h-[90%] p-1 overflow-y-scroll">
+          <div className="w-full xl:w-2/3 p-2 h-3/4">
+            <div className="flex flex-col justify-between max-h-full p-5 xl:p-9 rounded-lg gap-11 outline outline-purple-200 bg-white overflow-y-scroll">
+              <div className="p-1">
                 <BlogPosts />
               </div>
               <div className="flex justify-center text-center">
@@ -250,7 +250,7 @@ const BlogPosts = () => {
               key={index}
               className="rounded-xl"
             >
-              <div className="flex flex-col justify-between items-start group rounded-xl p-4 h-36 xl:h-[18rem] outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500">
+              <div className="flex flex-col justify-between items-start group rounded-xl p-4 h-max xl:h-[18rem] outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500">
                 <div className="text-xs uppercase text-stone-500">
                   {post.date}
                 </div>
