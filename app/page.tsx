@@ -1,8 +1,11 @@
 "use client";
 import Link from "next/link";
 import { posts } from "./blog/page";
+import React, { useState } from "react";
 
 export default function Home() {
+  const [activePost, setActivePost] = useState(posts[0]);
+
   return (
     <div className="h-max w-full flex flex-col">
       {/* First panel */}
@@ -231,24 +234,32 @@ const Socials = () => {
 const BlogPosts = () => {
   return (
     <div className="grid grid-cols-2 gap-7">
-      {posts.map((post) => (
-        <Link href={post.href} key={post.key} className="rounded-xl">
-          <div
-            key={post.key}
-            className="flex flex-col justify-between group rounded-xl p-4 h-[18rem] outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500"
-          >
-            <div className="text-xs uppercase text-stone-500">{post.date}</div>
-            <div className="flex flex-col gap-4">
-              <p className="text-stone-900 text-3xl group-hover:text-stone-500 font-serif font-bold italic transition-all duration-300">
-                {post.title}
-              </p>
-              <p className="text-stone-900 text-sm group-hover:text-md transition-all duration-300">
-                {post.description}
-              </p>
-            </div>
-          </div>
-        </Link>
-      ))}
+      {/* <div className="bg-blue-300 h-[18rem]">
+        wow, this is a really good quote man
+      </div>
+      <div>wow, this is a really good quote man</div>
+      <div>wow, this is a really good quote man</div>
+      <div>wow, this is a really good quote man</div> */}
+      {posts.map(
+        (post, index) =>
+          index < 4 && (
+            <Link href="/blog" key={index} className="rounded-xl">
+              <div className="flex flex-col justify-between items-start group rounded-xl p-4 h-[18rem] outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500">
+                <div className="text-xs uppercase text-stone-500">
+                  {post.date}
+                </div>
+                <div className="flex flex-col gap-4 items-start">
+                  <p className="text-stone-900 text-3xl group-hover:text-stone-500 font-serif font-bold italic transition-all duration-300">
+                    {post.title}
+                  </p>
+                  <p className="text-stone-900 text-sm group-hover:text-md transition-all duration-300">
+                    {post.description}
+                  </p>
+                </div>
+              </div>
+            </Link>
+          )
+      )}
     </div>
   );
 };
