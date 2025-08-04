@@ -6,18 +6,30 @@ function Terminal() {
   const [messageIndex, setMessageIndex] = useState(0);
   const [messageData, setMessageData] = useState(MESSAGES[messageIndex]);
   const [input, setInput] = useState("");
+  const [terminalMessage, setTerminalMessage] = useState("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (input.toUpperCase() === "Y") {
-      setPath("/believes");
+    if (messageIndex === 0) {
+      if (input.toUpperCase() === "Y") {
+        setPath("/believes");
+      } else {
+        setPath("/disbelieves");
+      }
+      const nextMessageIndex = messageIndex + 1;
+      setMessageIndex(nextMessageIndex);
+    } else if (
+      input === "cd" ||
+      input === "ls" ||
+      input === "open PRIVATE_URL_DO_NOT_USE_OR_YOU_WILL_BE_FIRED"
+    ) {
+      messageData.terminalResponse?.map(({ command, response }) => {
+        command === input && setTerminalMessage(response);
+      });
     } else {
-      setPath("/disbelieves");
+      setTerminalMessage("Allowed commands: cd, ls, open");
     }
-
-    const nextMessageIndex = messageIndex + 1;
-    setMessageIndex(nextMessageIndex);
 
     setInput("");
   };
@@ -30,6 +42,9 @@ function Terminal() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.code !== "Space") return;
       if (messageIndex === 0) return;
+      if (!messageData.noActionRequired) return;
+
+      messageData.noActionRequired;
 
       const nextMessageIndex = messageIndex + 1;
       setMessageIndex(nextMessageIndex);
@@ -68,13 +83,14 @@ function Terminal() {
           {messageData.showInput && (
             <form onSubmit={handleSubmit}>
               <input
-                className="h-6 bg-transparent border-none outline-none"
+                className="h-6 w-full bg-transparent border-none outline-none"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 autoFocus
               ></input>
             </form>
           )}
+          {terminalMessage}
         </div>
       </div>
     </div>
