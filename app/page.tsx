@@ -30,7 +30,7 @@ export default function Home() {
           {!xl && (
             <div className="w-60 px-5 pb-6">
               <Link href="/yin-yang" className="rounded-[3rem]">
-                <div className="overflow-hidden relative rounded-[3rem] outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-offset-[16px] hover:outline-8 transition-all duration-500">
+                <div className="overflow-hidden relative rounded-[3rem] outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-8 transition-all duration-500">
                   <img
                     src="/assets/hello_square.jpg"
                     alt="hello"
@@ -54,7 +54,7 @@ export default function Home() {
           <p className="text-stone-900 text-xl font-serif font-semibold italic xl:mt-10 mb-3">
             {/* painting the town green (the town is my github activity) */}
           </p>
-          <Projects />
+          <Projects xl={xl} />
 
           {/* Socials */}
           <p className="text-stone-900 text-xl font-serif font-semibold italic mt-4 mb-1">
@@ -135,7 +135,7 @@ export default function Home() {
   );
 }
 
-const Projects = () => {
+function Projects({ xl }) {
   return (
     <div className="grid xl:grid-cols-2 gap-2 w-max-content max-w-3xl xl:w-4/5">
       {pins.map((project) => (
@@ -149,9 +149,11 @@ const Projects = () => {
             <span>{project.icon}</span>
             <p className="text-stone-900 font-bold">{project.name}</p>
           </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-stone-850 text-sm">{project.description}</p>
-          </div>
+          {xl && (
+            <div className="flex flex-col gap-1">
+              <p className="text-stone-850 text-sm">{project.description}</p>
+            </div>
+          )}
         </Link>
       ))}
 
@@ -181,7 +183,7 @@ const Projects = () => {
       </Link>
     </div>
   );
-};
+}
 
 const Socials = () => {
   const height = "2rem";
