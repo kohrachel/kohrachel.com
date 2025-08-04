@@ -1,5 +1,5 @@
 "use client";
-import { postType } from "app/blog/page";
+import { postType } from "../blog/data";
 import React from "react";
 
 export default function SinglePost({ post }: { post: postType }) {
