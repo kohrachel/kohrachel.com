@@ -1,10 +1,25 @@
 "use client";
 import Link from "next/link";
 import { posts } from "./blog/page";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function Home() {
   const [activePost, setActivePost] = useState(posts[0]);
+  const [xl, setXl] = useState(() => window.innerWidth >= 1280);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setXl(() => window.innerWidth >= 1280);
+      // const nextXl = window.innerWidth >= 1280;
+      // console.log({ nextXl });
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   return (
     <div className="h-max w-full flex flex-col">
@@ -12,19 +27,32 @@ export default function Home() {
       <div className="h-screen flex">
         {/* L: About me */}
         <div className="flex flex-col items-center justify-center w-full pl-12 xl:pl-24 pr-6">
+          {!xl && (
+            <div className="w-60 px-5 pb-6">
+              <Link href="/yin-yang" className="rounded-[3rem]">
+                <div className="overflow-hidden relative rounded-[3rem] outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-offset-[16px] hover:outline-8 transition-all duration-500">
+                  <img
+                    src="/assets/hello_square.jpg"
+                    alt="hello"
+                    className="rounded-[3rem] w-96 min-h-content hover:outline-stone-100 transition-all duration-500 hover:scale-105"
+                  />
+                </div>
+              </Link>
+            </div>
+          )}
           <div className="flex flex-col items-center justify-center gap-4 mb-3">
-            <p className="text-stone-900 text-2xl xl:text-3xl">Hi, I&apos;m</p>
-            <p className="text-stone-900 font-serif font-bold text-8xl xl:text-9xl italic">
+            {/* <p className="text-stone-900 text-2xl xl:text-3xl">Hi, I&apos;m</p> */}
+            <p className="text-stone-900 font-serif font-bold text-7xl xl:text-9xl italic">
               Rachel Koh
             </p>
             <p className="text-stone-900 text-base xl:text-xl">
-              I&apos;m a software engineer. I do full-stack development.
+              coding stories with matcha stained fingers
             </p>
           </div>
 
           {/* Pinned Projects */}
-          <p className="text-stone-900 text-xl font-serif font-semibold italic mt-10 mb-3">
-            painting the town green (the town is my github activity)
+          <p className="text-stone-900 text-xl font-serif font-semibold italic xl:mt-10 mb-3">
+            {/* painting the town green (the town is my github activity) */}
           </p>
           <Projects />
 
@@ -36,20 +64,22 @@ export default function Home() {
         </div>
 
         {/* R: Image */}
-        <div className="w-2/3 flex flex-col items-start justify-center w-max-content px-5">
-          <Link href="/about" className="rounded-3xl">
-            <div className="overflow-hidden relative rounded-3xl outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-offset-[16px] hover:outline-8 transition-all duration-500">
-              <img
-                src="/assets/hello.jpg"
-                alt="hello"
-                className="rounded-3xl w-96 min-h-content hover:outline-stone-100 transition-all duration-500 hover:scale-105"
-              />
-            </div>
-          </Link>
-        </div>
+        {xl && (
+          <div className="w-2/3 flex flex-col items-start justify-center w-max-content px-5">
+            <Link href="/yin-yang" className="rounded-3xl">
+              <div className="overflow-hidden relative rounded-3xl outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-offset-[16px] hover:outline-8 transition-all duration-500">
+                <img
+                  src="/assets/hello.jpg"
+                  alt="hello"
+                  className="rounded-3xl w-96 min-h-content hover:outline-stone-100 transition-all duration-500 hover:scale-105"
+                />
+              </div>
+            </Link>
+          </div>
+        )}
       </div>
 
-      {/* -------------- blog -------------- */}
+      {/* -------------- blog preview -------------- */}
 
       {/* Second panel */}
       <div className="h-screen flex p-3 xl:p-6">
@@ -73,7 +103,7 @@ export default function Home() {
           </div>
 
           <div className="w-full xl:w-2/3 p-2 h-3/4">
-            <div className="flex flex-col justify-between max-h-full p-5 xl:p-9 rounded-lg gap-11 outline outline-purple-200 bg-white overflow-y-scroll">
+            <div className="flex flex-col justify-between h-full p-5 xl:p-9 rounded-lg gap-11 outline outline-purple-200 bg-white overflow-y-scroll">
               <div className="p-1">
                 <BlogPosts />
               </div>
@@ -107,7 +137,7 @@ export default function Home() {
 
 const Projects = () => {
   return (
-    <div className="grid grid-cols-2 gap-2 w-max-content max-w-3xl xl:w-4/5">
+    <div className="grid xl:grid-cols-2 gap-2 w-max-content max-w-3xl xl:w-4/5">
       {pins.map((project) => (
         <Link
           href={project.href}
