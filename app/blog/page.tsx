@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 export default function Blog() {
   const params = useSearchParams();
   const [activePost, setActivePost] = useState<postType>(() => {
-    let sentData = params.get("index");
+    const sentData = params.get("index");
 
     return sentData ? posts[Number(sentData)] : posts[0];
   });
@@ -26,30 +26,22 @@ export default function Blog() {
               </p>
             </div>
             <hr className="bg-purple-300 h-0.5 w-2/3"></hr>
-            <div>
-              <p className="font-serif font-semibold text-lg italic">
-                latest posts
-              </p>
-              <ul className="text-sm list-outside list-disc pl-5">
-                <li>fresh hot news</li>
-                <li>not clickbait!</li>
-                <li>you heard it here first</li>
-                <li>like okay, but also no</li>
-              </ul>
-            </div>
+
             <div>
               <p className="font-serif font-semibold text-lg italic">
                 editor&apos;s picks
               </p>
-              <ul className="text-sm list-outside list-disc px-5">
-                <Link href="" className="w-max">
-                  <li className="underline underline-offset-1 hover:underline-offset-2 hover:decoration-purple-500 decoration-purple-200 transition-all duration-700 w-max">
-                    coming soon
-                  </li>
-                </Link>
-                <li>when we have enough to pick</li>
-                <li>this is going to be so high class</li>
-                <li>the world is not ready</li>
+              <ul className="text-sm list-outside list-disc pl-5 flex flex-col">
+                {posts.map(
+                  (post, index) =>
+                    index < 4 && (
+                      <button key={index} onClick={() => setActivePost(post)}>
+                        <li className="underline underline-offset-1 hover:underline-offset-2 hover:decoration-purple-500 decoration-purple-100 transition-all duration-700 w-max text-stone-900">
+                          {post.title}
+                        </li>
+                      </button>
+                    )
+                )}
               </ul>
             </div>
             <Link href="/" className="absolute bottom-11">
@@ -93,9 +85,6 @@ export default function Blog() {
               </button>
             ))}
           </div>
-          <p className="text-stone-900 text-4xl font-serif font-bold italic pt-4 pb-8 px-2">
-            the great list
-          </p>
         </div>
       </div>
     </div>

@@ -4,14 +4,11 @@ import { posts } from "./blog/page";
 import React, { useEffect, useState } from "react";
 
 export default function Home() {
-  const [activePost, setActivePost] = useState(posts[0]);
   const [xl, setXl] = useState(() => window.innerWidth >= 1280);
 
   useEffect(() => {
     const handleResize = () => {
       setXl(() => window.innerWidth >= 1280);
-      // const nextXl = window.innerWidth >= 1280;
-      // console.log({ nextXl });
     };
 
     window.addEventListener("resize", handleResize);
@@ -41,7 +38,6 @@ export default function Home() {
             </div>
           )}
           <div className="flex flex-col items-center justify-center gap-4 mb-3">
-            {/* <p className="text-stone-900 text-2xl xl:text-3xl">Hi, I&apos;m</p> */}
             <p className="text-stone-900 font-serif font-bold text-7xl xl:text-9xl italic">
               Rachel Koh
             </p>
@@ -98,8 +94,6 @@ export default function Home() {
                 </p>
               </div>
             </div>
-
-            {/* TODO: make this filterable by tag and add a search bar here*/}
           </div>
 
           <div className="w-full xl:w-2/3 p-2 h-3/4">
@@ -135,7 +129,7 @@ export default function Home() {
   );
 }
 
-function Projects({ xl }) {
+function Projects({ xl }: { xl: boolean }) {
   return (
     <div className="grid xl:grid-cols-2 gap-2 w-max-content max-w-3xl xl:w-4/5">
       {pins.map((project) => (
@@ -157,7 +151,7 @@ function Projects({ xl }) {
         </Link>
       ))}
 
-      {/* TODO: make projects page */}
+      {/* TODO: make projects page (maybe put in about? or create separate portfolio page) */}
       <Link
         href="https://github.com/kohrachel"
         className="group text-stone-900 text-sm flex justify-center items-center gap-2 border border-dashed w-stretch rounded-2xl p-4 bg-purple-100 border-violet-300 hover:bg-purple-200 transition-all duration-500"
@@ -268,12 +262,6 @@ const Socials = () => {
 const BlogPosts = () => {
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-7">
-      {/* <div className="bg-blue-300 h-[18rem]">
-        wow, this is a really good quote man
-      </div>
-      <div>wow, this is a really good quote man</div>
-      <div>wow, this is a really good quote man</div>
-      <div>wow, this is a really good quote man</div> */}
       {posts.map(
         (post, index) =>
           index < 4 && (
