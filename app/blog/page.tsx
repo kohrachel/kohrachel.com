@@ -2,9 +2,16 @@
 import Link from "next/link";
 import SinglePost from "@/components/SinglePost";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export default function Blog() {
-  const [activePost, setActivePost] = useState(posts[0]);
+  const params = useSearchParams();
+  const [activePost, setActivePost] = useState<postType>(() => {
+    let sentData = params.get("index");
+
+    return sentData ? posts[Number(sentData)] : posts[0];
+  });
+
   return (
     <div className="h-screen w-screen flex">
       <div className="m-4 w-full h-stretch flex rounded-xl bg-purple-100 outline outline-purple-200 shadow-xl shadow-black/30">

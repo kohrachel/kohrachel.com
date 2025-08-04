@@ -243,7 +243,11 @@ const BlogPosts = () => {
       {posts.map(
         (post, index) =>
           index < 4 && (
-            <Link href="/blog" key={index} className="rounded-xl">
+            <Link
+              href={`/blog?index=${index}`}
+              key={index}
+              className="rounded-xl"
+            >
               <div className="flex flex-col justify-between items-start group rounded-xl p-4 h-[18rem] outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500">
                 <div className="text-xs uppercase text-stone-500">
                   {post.date}
