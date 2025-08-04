@@ -4,9 +4,11 @@ import { posts } from "./blog/data";
 import React, { useEffect, useState } from "react";
 
 export default function Home() {
-  const [xl, setXl] = useState(false);
+  const [xl, setXl] = useState(true);
 
   useEffect(() => {
+    setXl(window.innerWidth >= 1280);
+
     const handleResize = () => {
       setXl(() => window.innerWidth >= 1280);
     };
