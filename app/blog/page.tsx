@@ -45,6 +45,11 @@ export default function Blog() {
                 <li>the world is not ready</li>
               </ul>
             </div>
+            <Link href="/" className="absolute bottom-11">
+              <button className="px-4 py-2 bg-purple-100 hover:bg-purple-200 outline outline-purple-100 hover:outline-dashed hover:outline-purple-700 text-purple-800 font-medium rounded-lg transition-all duration-300">
+                ← go home
+              </button>
+            </Link>
             <div className="flex gap-2 justify-between"></div>
           </div>
         </div>
@@ -104,7 +109,7 @@ export const posts: postType[] = [
     title: "you don't exist",
     href: "/you-dont-exist",
     description: "the book that just saved me that you haven't heard of",
-    date: "2024-01-01",
+    date: "2025-04-15",
     content: `A lot of things are going on at the moment. Well, a lot of things are going on at any given moment, if you ask me. I'm not aware of a moment where there aren't a lot of things going on.
               And maybe that's part of the problem. I'm reading a book currently that talks about how Buddhism (and meditation) can help us better understand the world, and it's pretty insightful. Buddhism is one of those things that the more I learn about, the less I know. For something so allegedly fundamental to my life, I don't understand it nearly enough. But this book is awesome. It was written by Robert Wright (future Rachel fact check this please), and he starts off the book by talking about how to follow the Buddhist path is to take the red pill. 
               One of my favorite traits about writing is when authors describe something so obvious that every step feels like an axiom being presented, yet when you put it all together it reveals something so great that you're just left staring in its wake in awe. This book is like that for me.
