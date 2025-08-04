@@ -1,7 +1,10 @@
 "use client";
 import Link from "next/link";
+import Terminal from "./components/Terminal";
+import React, { useState } from "react";
 
 export default function Home() {
+  return <Terminal />;
   return (
     <div className="h-max w-full flex flex-col">
       {/* First panel */}
