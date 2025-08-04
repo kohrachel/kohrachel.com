@@ -99,7 +99,7 @@ export type postType = {
   imgPath?: string;
 };
 
-const posts: postType[] = [
+export const posts: postType[] = [
   {
     title: "you don't exist",
     href: "/you-dont-exist",

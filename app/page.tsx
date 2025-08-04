@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { posts } from "./blog/page";
 
 export default function Home() {
   return (
@@ -320,42 +321,5 @@ const pins: {
         />
       </svg>
     ),
-  },
-];
-
-const posts: {
-  key: string;
-  title: string;
-  href: string;
-  description: string;
-  date: string;
-}[] = [
-  {
-    key: "post-1",
-    title: "the top of the world (is a soapbox)",
-    href: "/",
-    description: "free will v. determinism, 2025",
-    date: "2024-01-01",
-  },
-  {
-    key: "post-2",
-    title: "in which i defeat a vampire",
-    href: "/",
-    description: "creative liberty should be given sparingly",
-    date: "2024-01-02",
-  },
-  {
-    key: "post-3",
-    title: "Post 3",
-    href: "/",
-    description: "This is the content of post 3",
-    date: "2024-01-03",
-  },
-  {
-    key: "post-4",
-    title: "Post 4",
-    href: "/",
-    description: "This is the content of post 4",
-    date: "2024-01-04",
   },
 ];
