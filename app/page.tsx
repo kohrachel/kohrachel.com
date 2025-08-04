@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { posts } from "./blog/page";
+import { posts } from "./blog/data";
 import React, { useEffect, useState } from "react";
 
 export default function Home() {
