@@ -14,10 +14,6 @@ export default function Terminal() {
     e.preventDefault();
 
     const terminalData = messageData.terminalResponse;
-    // console.log({ terminalData });
-
-    // console.log("input in commands? ", terminalData?.has(input));
-
     if (messageIndex !== 0) {
       if (input.toUpperCase() === "Y") {
         setPath("/believes");
@@ -27,13 +23,8 @@ export default function Terminal() {
       const nextMessageIndex = messageIndex + 1;
       setMessageIndex(nextMessageIndex);
     } else if (terminalData && terminalData.has(input)) {
-      console.log({ input });
-      console.log("commands:", terminalData.keys().toArray);
-      console.log("response:", terminalData.get(input));
-
       const response =
-        terminalData.get(input) ??
-        `You seem lost, dear soul. How did you get here?`;
+        terminalData.get(input) ?? `You seem lost. How did you get here?`;
 
       setTerminalMessage(response);
     } else {
