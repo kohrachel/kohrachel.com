@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { posts } from "./blog/data";
 import React, { useEffect, useState } from "react";
+import { first } from "./utils";
 
 export default function Home() {
   const [xl, setXl] = useState(true);
@@ -264,30 +265,21 @@ const Socials = () => {
 const BlogPosts = () => {
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-7">
-      {posts.map(
-        (post, index) =>
-          index < 4 && (
-            <Link
-              href={`/blog?index=${index}`}
-              key={index}
-              className="rounded-xl"
-            >
-              <div className="flex flex-col justify-between items-start group rounded-xl p-4 h-max xl:h-[18rem] outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500">
-                <div className="text-xs uppercase text-stone-500">
-                  {post.date}
-                </div>
-                <div className="flex flex-col gap-4 items-start">
-                  <p className="text-stone-900 text-3xl group-hover:text-stone-500 font-serif font-bold italic transition-all duration-300">
-                    {post.title}
-                  </p>
-                  <p className="text-stone-900 text-sm group-hover:text-md transition-all duration-300">
-                    {post.description}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          )
-      )}
+      {first(posts, 4).map((post, index) => (
+        <Link href={`/blog?index=${index}`} key={index} className="rounded-xl">
+          <div className="flex flex-col justify-between items-start group rounded-xl p-4 h-max xl:h-[18rem] outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500">
+            <div className="text-xs uppercase text-stone-500">{post.date}</div>
+            <div className="flex flex-col gap-4 items-start">
+              <p className="text-stone-900 text-3xl group-hover:text-stone-500 font-serif font-bold italic transition-all duration-300">
+                {post.title}
+              </p>
+              <p className="text-stone-900 text-sm group-hover:text-md transition-all duration-300">
+                {post.description}
+              </p>
+            </div>
+          </div>
+        </Link>
+      ))}
     </div>
   );
 };

@@ -4,6 +4,7 @@ import SinglePost from "@/components/SinglePost";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { posts, postType } from "./data";
+import { first } from "app/utils";
 
 export default function BlogList() {
   const params = useSearchParams();
@@ -32,16 +33,13 @@ export default function BlogList() {
                 editor&apos;s picks
               </p>
               <ul className="text-sm list-outside list-disc pl-5 flex flex-col">
-                {posts.map(
-                  (post, index) =>
-                    index < 4 && (
-                      <button key={index} onClick={() => setActivePost(post)}>
-                        <li className="underline underline-offset-1 hover:underline-offset-2 hover:decoration-purple-500 decoration-purple-100 transition-all duration-700 w-max text-stone-900">
-                          {post.title}
-                        </li>
-                      </button>
-                    )
-                )}
+                {first(posts, 4).map((post, index) => (
+                  <button key={index} onClick={() => setActivePost(post)}>
+                    <li className="underline underline-offset-1 hover:underline-offset-2 hover:decoration-purple-500 decoration-purple-100 transition-all duration-700 w-max text-stone-900">
+                      {post.title}
+                    </li>
+                  </button>
+                ))}
               </ul>
             </div>
             <Link href="/" className="absolute bottom-11">
