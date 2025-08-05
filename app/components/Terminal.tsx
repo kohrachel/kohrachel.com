@@ -1,6 +1,6 @@
 "use client";
 import { getFirstWord } from "app/utils";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MESSAGES } from "./messages";
 
 export default function Terminal() {
@@ -9,6 +9,7 @@ export default function Terminal() {
   const [messageData, setMessageData] = useState(MESSAGES[messageIndex]);
   const [input, setInput] = useState("");
   const [terminalMessage, setTerminalMessage] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -68,20 +69,20 @@ export default function Terminal() {
   });
   return (
     <div className="w-screen h-screen p-10">
-      <div className="w-full h-full rounded-xl outline outline-1 outline-neutral-400 shadow-[0px_0px_15px_0px] shadow-black/80">
+      <div className="w-full h-full rounded-xl outline outline-1 outline-purple-300 shadow-[0px_0px_15px_0px] shadow-black/30">
         {/* Header */}
-        <div className="w-full h-[3.5%] bg-zinc-700 rounded-t-xl flex flex-row">
+        <div className="w-full h-[3.5%] bg-purple-200 rounded-t-xl flex flex-row">
           <div className="flex flex-row items-center ml-2 gap-2">
             <span className="h-3 w-3 bg-[#ff5e57] rounded-full" />
             <span className="h-3 w-3 bg-[#febc2c] rounded-full" />
             <span className="h-3 w-3 bg-[#26c93e] rounded-full" />
           </div>
-          <div className="w-full h-full flex justify-center items-center text-neutral-200 text-sm font-semibold">
+          <div className="w-full h-full flex justify-center items-centertext-sm font-semibold">
             📁 ~{path}
           </div>
         </div>
         {/* Body */}
-        <div className="w-full h-[96.5%] bg-zinc-900 rounded-b-xl text-white font-mono p-1 gap-3">
+        <div className="w-full h-[96.5%] bg-purple-100 rounded-b-xl font-mono p-1 gap-3">
           {messageData.message
             .split("\n")
             .map((chunk: string, index: number) => (
@@ -92,6 +93,7 @@ export default function Terminal() {
           {messageData.showInput && (
             <form onSubmit={handleSubmit}>
               <input
+                ref={inputRef}
                 className="h-6 w-full bg-transparent border-none outline-none"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
