@@ -8,9 +8,9 @@ import { posts, postType } from "./data";
 export default function BlogList() {
   const params = useSearchParams();
   const [activePost, setActivePost] = useState<postType>(() => {
-    const sentData = params.get("index");
+    const blogIndex = Number(params.get("index")) ?? 0;
 
-    return sentData ? posts[Number(sentData)] : posts[0];
+    return posts[blogIndex];
   });
   return (
     <div className="h-screen w-screen flex">
