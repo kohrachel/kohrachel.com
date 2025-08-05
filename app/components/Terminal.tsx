@@ -1,7 +1,8 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { MESSAGES } from "./messages";
 
-function Terminal() {
+export default function Terminal() {
   const [path, setPath] = useState("");
   const [messageIndex, setMessageIndex] = useState(0);
   const [messageData, setMessageData] = useState(MESSAGES[messageIndex]);
@@ -11,7 +12,12 @@ function Terminal() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (messageIndex === 0) {
+    const terminalData = messageData.terminalResponse;
+    // console.log({ terminalData });
+
+    // console.log("input in commands? ", terminalData?.has(input));
+
+    if (messageIndex !== 0) {
       if (input.toUpperCase() === "Y") {
         setPath("/believes");
       } else {
@@ -19,16 +25,44 @@ function Terminal() {
       }
       const nextMessageIndex = messageIndex + 1;
       setMessageIndex(nextMessageIndex);
-    } else if (
-      input === "cd" ||
-      input === "ls" ||
-      input === "open PRIVATE_URL_DO_NOT_USE_OR_YOU_WILL_BE_FIRED"
-    ) {
-      messageData.terminalResponse?.map(({ command, response }) =>
-        command === input ? setTerminalMessage(response) : null
-      );
+    } else if (terminalData && terminalData.has(input)) {
+      console.log({ input });
+      console.log("commands:", terminalData.keys().toArray);
+      console.log("response:", terminalData.get(input));
+
+      const response =
+        terminalData.get(input) ??
+        `You seem lost, dear soul. How did you get here?`;
+
+      setTerminalMessage(response);
+
+      // messageData.terminalResponse.forEach((command, response) =>
+      //   command === input ? setTerminalMessage(response) : null
+      // );
     } else {
-      setTerminalMessage("Allowed commands: cd, ls, open");
+      // Get the keys as an iterator
+      const keysIterator = terminalData?.keys();
+
+      // Convert the iterator to an array
+      const keysArray = Array.from(keysIterator ?? "");
+
+      let allowedCommands = "";
+
+      keysArray.map((command) => {
+        allowedCommands += allowedCommands !== "" ? ", " : "";
+
+        return (allowedCommands += command);
+      });
+
+      console.log({ allowedCommands });
+
+      // Stringify the array of keys
+      const jsonString = JSON.stringify(keysArray);
+
+      // const allowedCommands = JSON.stringify(Array.from(terminalData?.keys()));
+      setTerminalMessage(
+        `Unrecognized command: ${input}. Allowed commands: ${allowedCommands}`
+      );
     }
 
     setInput("");
@@ -94,5 +128,3 @@ function Terminal() {
     </div>
   );
 }
-
-export default Terminal;
