@@ -14,7 +14,7 @@ export default function Terminal() {
     e.preventDefault();
 
     const terminalData = messageData.terminalResponse;
-    if (messageIndex !== 0) {
+    if (messageIndex === 0) {
       if (input.toUpperCase() === "Y") {
         setPath("/believes");
       } else {
