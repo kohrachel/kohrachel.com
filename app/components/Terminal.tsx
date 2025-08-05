@@ -66,7 +66,7 @@ export default function Terminal() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  });
+  }, [messageIndex, messageData.noActionRequired]);
   return (
     <div className="w-screen h-screen p-10">
       <div
