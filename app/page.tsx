@@ -17,7 +17,7 @@ export default function Home() {
         <div className="flex flex-col items-center justify-center w-full xl:pl-24 xl:pr-6">
           {!xl && (
             <div className="w-60 px-5 pb-6">
-              <Link href="/yin-yang" className="rounded-[3rem]">
+              <div className="rounded-[3rem]">
                 <div className="overflow-hidden relative rounded-[3rem] outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-8 transition-all duration-500">
                   <img
                     src="/assets/hello_square.jpg"
@@ -25,7 +25,7 @@ export default function Home() {
                     className="rounded-[3rem] w-96 min-h-content hover:outline-stone-100 transition-all duration-500 hover:scale-105"
                   />
                 </div>
-              </Link>
+              </div>
             </div>
           )}
           <div className="flex flex-col items-center justify-center gap-4 mb-3">
@@ -53,7 +53,7 @@ export default function Home() {
         {/* R: Image */}
         {xl && (
           <div className="w-2/3 flex flex-col items-start justify-center w-max-content px-5">
-            <Link href="/yin-yang" className="rounded-3xl">
+            <div className="rounded-3xl">
               <div className="overflow-hidden relative rounded-3xl outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-offset-[16px] hover:outline-8 transition-all duration-500">
                 <img
                   src="/assets/hello.jpg"
@@ -61,7 +61,7 @@ export default function Home() {
                   className="rounded-3xl w-96 min-h-content hover:outline-stone-100 transition-all duration-500 hover:scale-105"
                 />
               </div>
-            </Link>
+            </div>
           </div>
         )}
       </div>
