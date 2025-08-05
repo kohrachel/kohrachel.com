@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { MESSAGES } from "./messages";
 
 function Terminal() {
@@ -24,9 +24,9 @@ function Terminal() {
       input === "ls" ||
       input === "open PRIVATE_URL_DO_NOT_USE_OR_YOU_WILL_BE_FIRED"
     ) {
-      messageData.terminalResponse?.map(({ command, response }) => {
-        command === input && setTerminalMessage(response);
-      });
+      messageData.terminalResponse?.map(({ command, response }) =>
+        command === input ? setTerminalMessage(response) : null
+      );
     } else {
       setTerminalMessage("Allowed commands: cd, ls, open");
     }
@@ -43,8 +43,6 @@ function Terminal() {
       if (event.code !== "Space") return;
       if (messageIndex === 0) return;
       if (!messageData.noActionRequired) return;
-
-      messageData.noActionRequired;
 
       const nextMessageIndex = messageIndex + 1;
       setMessageIndex(nextMessageIndex);
