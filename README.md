@@ -1,4 +1,15 @@
-# Versions:
+# Current version: `v2.1`
+
+#### Home page:
+
+![v2.1, Bondee](/image_versions/v2.1-0.png)
+![v2.1, Bondee](/image_versions/v2.1-1.png)
+
+#### Blog page:
+
+![v2.1, Bondee](/image_versions/v2.1-2.png)
+
+# Older Versions:
 
 ## v2
 
