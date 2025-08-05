@@ -58,7 +58,6 @@ export default function Terminal() {
 
       const nextMessageIndex = messageIndex + 1;
       setMessageIndex(nextMessageIndex);
-      //   window.removeEventListener("keydown", handleKeyDown);
     };
 
     window.addEventListener("keydown", handleKeyDown);
