@@ -3,23 +3,11 @@ import Link from "next/link";
 import { posts } from "./blog/data";
 import React, { useEffect, useState } from "react";
 import { first } from "./utils";
+import { useWindowSize } from "hooks/useWindowSize";
 
 export default function Home() {
-  const [xl, setXl] = useState(true);
-
-  useEffect(() => {
-    setXl(window.innerWidth >= 1280);
-
-    const handleResize = () => {
-      setXl(() => window.innerWidth >= 1280);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  const { width } = useWindowSize();
+  const xl = width ? width >= 1280 : true;
 
   return (
     <div className="h-max w-full flex flex-col">
