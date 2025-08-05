@@ -1,31 +1,47 @@
 "use client";
+import { useWindowSize } from "hooks/useWindowSize";
 import Link from "next/link";
-import Terminal from "./components/Terminal";
-import React, { useState } from "react";
+import React from "react";
+import { posts } from "./blog/data";
+import { first } from "./utils";
 
 export default function Home() {
-  return <Terminal />;
+  const { width } = useWindowSize();
+  const xl = width ? width >= 1280 : true;
+
   return (
     <div className="h-max w-full flex flex-col">
       {/* First panel */}
       <div className="h-screen flex">
         {/* L: About me */}
-        <div className="flex flex-col items-center justify-center w-full pl-12 xl:pl-24 pr-6">
+        <div className="flex flex-col items-center justify-center w-full xl:pl-24 xl:pr-6">
+          {!xl && (
+            <div className="w-60 px-5 pb-6">
+              <div className="rounded-[3rem]">
+                <div className="overflow-hidden relative rounded-[3rem] outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-8 transition-all duration-500">
+                  <img
+                    src="/assets/hello_square.jpg"
+                    alt="hello"
+                    className="rounded-[3rem] w-96 min-h-content hover:outline-stone-100 transition-all duration-500 hover:scale-105"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
           <div className="flex flex-col items-center justify-center gap-4 mb-3">
-            <p className="text-stone-900 text-2xl xl:text-3xl">Hi, I&apos;m</p>
-            <p className="text-stone-900 font-serif font-bold text-8xl xl:text-9xl italic">
+            <p className="text-stone-900 font-serif font-bold text-7xl xl:text-9xl italic">
               Rachel Koh
             </p>
             <p className="text-stone-900 text-base xl:text-xl">
-              I&apos;m a software engineer. I do full-stack development.
+              coding stories with matcha stained fingers
             </p>
           </div>
 
           {/* Pinned Projects */}
-          <p className="text-stone-900 text-xl font-serif font-semibold italic mt-10 mb-3">
-            painting the town green (the town is my github activity)
+          <p className="text-stone-900 text-xl font-serif font-semibold italic xl:mt-10 mb-3">
+            {/* painting the town green (the town is my github activity) */}
           </p>
-          <Projects />
+          <Projects xl={xl} />
 
           {/* Socials */}
           <p className="text-stone-900 text-xl font-serif font-semibold italic mt-4 mb-1">
@@ -35,43 +51,45 @@ export default function Home() {
         </div>
 
         {/* R: Image */}
-        <div className="w-2/3 flex flex-col items-start justify-center w-max-content px-5">
-          <Link href="/about" className="rounded-3xl">
-            <div className="overflow-hidden relative rounded-3xl outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-offset-[12px] hover:outline-8 transition-all duration-500">
-              <img
-                src="/assets/hello.jpg"
-                alt="hello"
-                className="rounded-3xl w-96 min-h-content hover:outline-stone-100 transition-all duration-500 hover:scale-105"
-              />
+        {xl && (
+          <div className="w-2/3 flex flex-col items-start justify-center w-max-content px-5">
+            <div className="rounded-3xl">
+              <div className="overflow-hidden relative rounded-3xl outline-[6px] outline-purple-100 outline-dotted outline-offset-8 hover:outline-purple-300 hover:outline-offset-[16px] hover:outline-8 transition-all duration-500">
+                <img
+                  src="/assets/hello.jpg"
+                  alt="hello"
+                  className="rounded-3xl w-96 min-h-content hover:outline-stone-100 transition-all duration-500 hover:scale-105"
+                />
+              </div>
             </div>
-          </Link>
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* -------------- blog -------------- */}
+      {/* -------------- blog preview -------------- */}
 
       {/* Second panel */}
-      <div className="h-screen flex">
-        <div className="m-6 w-full h-stretch flex rounded-xl bg-purple-100 outline outline-purple-200 shadow-xl shadow-black/30">
-          <div className="w-1/3 h-full flex flex-col justify-between px-8 py-16">
-            <div className="flex flex-col gap-8">
-              <p className="text-stone-900 text-5xl font-serif font-bold italic">
+      <div className="h-screen flex p-3 xl:p-6">
+        <div className="w-full h-[99%] xl:h-max xl:h-stretch flex flex-col xl:flex-row rounded-xl bg-purple-100 outline outline-purple-200 shadow-xl shadow-black/30">
+          <div className="w-full h-1/4 xl:w-1/3 xl:h-full flex flex-col justify-between px-8 pt-8 xl:py-16">
+            <div className="flex flex-col gap-2 xl:gap-8">
+              <p className="text-stone-900 text-3xl xl:text-5xl font-serif font-bold italic">
                 this blog is a(n) (unordered) collection of my shower thoughts
               </p>
               <div className="flex gap-2 justify-between">
-                <p className="text-stone-900 text-xl">
+                <p className="text-stone-900 text-md xl:text-xl">
                   here&apos;s some highlights:
                 </p>
-                <p className="text-stone-900 text-xl font-mono">{">>>>"}</p>
+                <p className="opacity-0 xl:opacity-100 text-stone-900 text-xl font-mono">
+                  {">>>>"}
+                </p>
               </div>
             </div>
-
-            {/* TODO: make this filterable by tag and add a search bar here*/}
           </div>
 
-          <div className="w-2/3 h-full p-2">
-            <div className="flex flex-col justify-between w-stretch h-full p-9 rounded-lg gap-11 outline outline-purple-200 bg-white overflow-y-scroll">
-              <div className="h-[90%] p-1 overflow-y-scroll">
+          <div className="w-full xl:w-2/3 p-2 h-3/4">
+            <div className="flex flex-col justify-between h-full p-5 xl:p-9 rounded-lg gap-11 outline outline-purple-200 bg-white overflow-y-scroll">
+              <div className="p-1">
                 <BlogPosts />
               </div>
               <div className="flex justify-center text-center">
@@ -102,9 +120,9 @@ export default function Home() {
   );
 }
 
-const Projects = () => {
+function Projects({ xl }: { xl: boolean }) {
   return (
-    <div className="grid grid-cols-2 gap-2 w-max-content max-w-3xl xl:w-4/5">
+    <div className="grid xl:grid-cols-2 gap-2 w-max-content max-w-3xl xl:w-4/5">
       {pins.map((project) => (
         <Link
           href={project.href}
@@ -116,13 +134,15 @@ const Projects = () => {
             <span>{project.icon}</span>
             <p className="text-stone-900 font-bold">{project.name}</p>
           </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-stone-850 text-sm">{project.description}</p>
-          </div>
+          {xl && (
+            <div className="flex flex-col gap-1">
+              <p className="text-stone-850 text-sm">{project.description}</p>
+            </div>
+          )}
         </Link>
       ))}
 
-      {/* TODO: make projects page */}
+      {/* TODO: make projects page (maybe put in about? or create separate portfolio page) */}
       <Link
         href="https://github.com/kohrachel"
         className="group text-stone-900 text-sm flex justify-center items-center gap-2 border border-dashed w-stretch rounded-2xl p-4 bg-purple-100 border-violet-300 hover:bg-purple-200 transition-all duration-500"
@@ -148,7 +168,7 @@ const Projects = () => {
       </Link>
     </div>
   );
-};
+}
 
 const Socials = () => {
   const height = "2rem";
@@ -232,15 +252,12 @@ const Socials = () => {
 
 const BlogPosts = () => {
   return (
-    <div className="grid grid-cols-2 gap-7">
-      {posts.map((post) => (
-        <Link href={post.href} key={post.key} className="rounded-xl">
-          <div
-            key={post.key}
-            className="flex flex-col justify-between group rounded-xl p-4 h-[18rem] outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500"
-          >
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-7">
+      {first(posts, 4).map((post, index) => (
+        <Link href={`/blog?index=${index}`} key={index} className="rounded-xl">
+          <div className="flex flex-col justify-between items-start group rounded-xl p-4 h-max xl:h-[18rem] outline-2 outline-dashed outline-purple-300 hover:outline-purple-700 transition-all duration-500">
             <div className="text-xs uppercase text-stone-500">{post.date}</div>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 items-start">
               <p className="text-stone-900 text-3xl group-hover:text-stone-500 font-serif font-bold italic transition-all duration-300">
                 {post.title}
               </p>
@@ -323,42 +340,5 @@ const pins: {
         />
       </svg>
     ),
-  },
-];
-
-const posts: {
-  key: string;
-  title: string;
-  href: string;
-  description: string;
-  date: string;
-}[] = [
-  {
-    key: "post-1",
-    title: "the top of the world (is a soapbox)",
-    href: "/",
-    description: "free will v. determinism, 2025",
-    date: "2024-01-01",
-  },
-  {
-    key: "post-2",
-    title: "in which i defeat a vampire",
-    href: "/",
-    description: "creative liberty should be given sparingly",
-    date: "2024-01-02",
-  },
-  {
-    key: "post-3",
-    title: "Post 3",
-    href: "/",
-    description: "This is the content of post 3",
-    date: "2024-01-03",
-  },
-  {
-    key: "post-4",
-    title: "Post 4",
-    href: "/",
-    description: "This is the content of post 4",
-    date: "2024-01-04",
   },
 ];
