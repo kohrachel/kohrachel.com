@@ -40,7 +40,7 @@ export default function Terminal() {
       });
 
       setTerminalMessage(
-        `Unrecognized command: ${input}. Allowed commands: ${allowedCommands}`
+        `Unrecognized command: ${input}.\nAllowed commands: ${allowedCommands}`
       );
     }
 
@@ -69,7 +69,10 @@ export default function Terminal() {
   });
   return (
     <div className="w-screen h-screen p-10">
-      <div className="w-full h-full rounded-xl outline outline-1 outline-purple-300 shadow-[0px_0px_15px_0px] shadow-black/30">
+      <div
+        className="w-full h-full rounded-xl outline outline-1 outline-purple-300 shadow-[0px_0px_15px_0px] shadow-black/30"
+        onClick={() => inputRef.current?.focus()}
+      >
         {/* Header */}
         <div className="w-full h-[3.5%] bg-purple-200 rounded-t-xl flex flex-row">
           <div className="flex flex-row items-center ml-2 gap-2">
@@ -94,14 +97,19 @@ export default function Terminal() {
             <form onSubmit={handleSubmit}>
               <input
                 ref={inputRef}
-                className="h-6 w-full bg-transparent border-none outline-none"
+                placeholder="type some commands..."
+                className="h-6 w-full bg-transparent border-none outline-none mb-3"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 autoFocus
               />
             </form>
           )}
-          {terminalMessage}
+          {terminalMessage.split("\n").map((chunk: string, index: number) => (
+            <p key={index} className="mb-3">
+              {chunk}
+            </p>
+          ))}
         </div>
       </div>
     </div>
