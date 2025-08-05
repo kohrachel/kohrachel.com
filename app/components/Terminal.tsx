@@ -14,7 +14,7 @@ export default function Terminal() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const terminalData = messageData.terminalResponse;
+    const { terminalData } = messageData;
     if (messageIndex === 0) {
       if (input.toUpperCase() === "Y") {
         setPath("/believes");

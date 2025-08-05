@@ -2,7 +2,7 @@ type messageType = {
   message: string;
   showInput: boolean;
   noActionRequired?: boolean;
-  terminalResponse?: Map<string, string>;
+  commandData?: Map<string, string>;
 };
 
 const MESSAGES: messageType[] = [
@@ -38,7 +38,7 @@ const MESSAGES: messageType[] = [
   {
     message: `TASK 1: Clone the files.`,
     showInput: true,
-    terminalResponse: new Map([
+    commandData: new Map([
       [
         "open PRIVATE_URL_DO_NOT_USE_OR_YOU_WILL_BE_FIRED",
         "SUPER-SECRET-URL-DO-NOT-COPY-ME",
