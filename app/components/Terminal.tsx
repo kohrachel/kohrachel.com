@@ -44,7 +44,7 @@ export default function Terminal() {
     } else {
       const allowedCommands = getAllowedCommands();
       setTerminalMessage(
-        `Unrecognized command: ${input}.\nAllowed commands: ${allowedCommands}`
+        `Unrecognized command: ${input}\nAllowed commands: ${allowedCommands}`
       );
     }
 
