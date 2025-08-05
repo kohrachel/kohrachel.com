@@ -3,7 +3,7 @@ import Link from "next/link";
 import SinglePost from "@/components/SinglePost";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { posts, postType } from "./data";
+import { posts, postType } from "../blog/data";
 import { first } from "app/utils";
 
 export default function BlogList() {
