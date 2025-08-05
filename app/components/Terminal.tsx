@@ -11,11 +11,24 @@ export default function Terminal() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const messageData = MESSAGES[messageIndex];
+  const { commandData } = messageData;
+
+  const getAllowedCommands = () => {
+    const commandIterator = commandData?.keys();
+    const commandArray = Array.from(commandIterator ?? "");
+
+    const allowedCommands = commandArray
+      .map((commandWithArgs) => {
+        return getFirstWord(commandWithArgs);
+      })
+      .join(", ");
+
+    return allowedCommands;
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { commandData } = messageData;
     if (messageIndex === 0) {
       if (input.toUpperCase() === "Y") {
         setPath("/believes");
@@ -29,16 +42,7 @@ export default function Terminal() {
 
       setTerminalMessage(response);
     } else {
-      const commandIterator = commandData?.keys();
-      const commandArray = Array.from(commandIterator ?? "");
-
-      let allowedCommands = "";
-      commandArray.map((commandWithArgs) => {
-        const command = getFirstWord(commandWithArgs);
-        allowedCommands += allowedCommands !== "" ? ", " : "";
-        return (allowedCommands += command);
-      });
-
+      const allowedCommands = getAllowedCommands();
       setTerminalMessage(
         `Unrecognized command: ${input}.\nAllowed commands: ${allowedCommands}`
       );
