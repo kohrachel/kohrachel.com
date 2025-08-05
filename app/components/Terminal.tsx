@@ -22,8 +22,7 @@ export default function Terminal() {
       } else {
         setPath("/disbelieves");
       }
-      const nextMessageIndex = messageIndex + 1;
-      setMessageIndex(nextMessageIndex);
+      setMessageIndex((prevMessageIndex) => prevMessageIndex + 1);
     } else if (commandData && commandData.has(input)) {
       const response =
         commandData.get(input) ?? `You seem lost. How did you get here?`;
