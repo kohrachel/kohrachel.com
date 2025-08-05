@@ -1,10 +1,10 @@
 "use client";
-import Link from "next/link";
 import SinglePost from "@/components/SinglePost";
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { posts, PostType } from "../blog/data";
 import { first } from "app/utils";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { posts, PostType } from "../blog/data";
 import { PostClickable } from "./PostClickable";
 
 export default function BlogList() {

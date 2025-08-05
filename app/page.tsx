@@ -1,9 +1,9 @@
 "use client";
-import Link from "next/link";
-import { posts } from "./blog/data";
-import React, { useEffect, useState } from "react";
-import { first } from "./utils";
 import { useWindowSize } from "hooks/useWindowSize";
+import Link from "next/link";
+import React from "react";
+import { posts } from "./blog/data";
+import { first } from "./utils";
 
 export default function Home() {
   const { width } = useWindowSize();

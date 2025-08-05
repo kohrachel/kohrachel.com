@@ -1,7 +1,6 @@
 "use client";
 import { PostType } from "../blog/data";
-import React from "react";
-import { Title, Heading, Paragraph } from "./blog-components";
+import { Heading, Paragraph, Title } from "./blog-components";
 
 export default function SinglePost({ post }: { post: PostType }) {
   const contentArray = post.content.split("\n");
