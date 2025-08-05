@@ -1,4 +1,4 @@
-function Title({ children }: { children: React.ReactNode }) {
+export function Title({ children }: { children: React.ReactNode }) {
   return (
     <h1 className="font-serif italic text-7xl font-bold pb-3 text-center">
       {children}
@@ -6,7 +6,7 @@ function Title({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Heading({ children }: { children: React.ReactNode }) {
+export function Heading({ children }: { children: React.ReactNode }) {
   return (
     <h2 className="font-serif italic font-bold text-5xl mt-6 mb-2">
       {children}
@@ -14,8 +14,6 @@ function Heading({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Paragraph({ children }: { children: React.ReactNode }) {
+export function Paragraph({ children }: { children: React.ReactNode }) {
   return <p className="text-base leading-relaxed">{children}</p>;
 }
-
-export { Title, Heading, Paragraph };
