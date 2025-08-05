@@ -3,13 +3,13 @@ import Link from "next/link";
 import SinglePost from "@/components/SinglePost";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { posts, postType } from "../blog/data";
+import { posts, PostType } from "../blog/data";
 import { first } from "app/utils";
 import { PostClickable } from "./PostClickable";
 
 export default function BlogList() {
   const params = useSearchParams();
-  const [activePost, setActivePost] = useState<postType>(() => {
+  const [activePost, setActivePost] = useState<PostType>(() => {
     const blogIndex = Number(params.get("index")) ?? 0;
 
     return posts[blogIndex];
@@ -44,7 +44,7 @@ export default function BlogList() {
 }
 
 type BlogPageSidebarProps = {
-  setActivePost: React.Dispatch<React.SetStateAction<postType>>;
+  setActivePost: React.Dispatch<React.SetStateAction<PostType>>;
 };
 
 function BlogPageSidebar({ setActivePost }: BlogPageSidebarProps) {

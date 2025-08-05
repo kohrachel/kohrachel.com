@@ -1,9 +1,9 @@
-import { postType } from "app/blog/data";
+import { PostType } from "app/blog/data";
 import React from "react";
 
 type PostClickableProps = {
-  post: postType;
-  setActivePost: React.Dispatch<React.SetStateAction<postType>>;
+  post: PostType;
+  setActivePost: React.Dispatch<React.SetStateAction<PostType>>;
 };
 
 export function PostClickable({ post, setActivePost }: PostClickableProps) {

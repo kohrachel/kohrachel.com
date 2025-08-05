@@ -1,4 +1,4 @@
-export type postType = {
+export type PostType = {
   title: string;
   href: string;
   description: string;
@@ -7,7 +7,7 @@ export type postType = {
   imgPath?: string;
 };
 
-export const posts: postType[] = [
+export const posts: PostType[] = [
   {
     title: "you don't exist",
     href: "/you-dont-exist",
