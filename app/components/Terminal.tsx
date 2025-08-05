@@ -1,4 +1,5 @@
 "use client";
+import { getFirstWord } from "app/utils";
 import React, { useEffect, useState } from "react";
 import { MESSAGES } from "./messages";
 
@@ -35,31 +36,17 @@ export default function Terminal() {
         `You seem lost, dear soul. How did you get here?`;
 
       setTerminalMessage(response);
-
-      // messageData.terminalResponse.forEach((command, response) =>
-      //   command === input ? setTerminalMessage(response) : null
-      // );
     } else {
-      // Get the keys as an iterator
-      const keysIterator = terminalData?.keys();
-
-      // Convert the iterator to an array
-      const keysArray = Array.from(keysIterator ?? "");
+      const commandIterator = terminalData?.keys();
+      const commandArray = Array.from(commandIterator ?? "");
 
       let allowedCommands = "";
-
-      keysArray.map((command) => {
+      commandArray.map((commandWithArgs) => {
+        const command = getFirstWord(commandWithArgs);
         allowedCommands += allowedCommands !== "" ? ", " : "";
-
         return (allowedCommands += command);
       });
 
-      console.log({ allowedCommands });
-
-      // Stringify the array of keys
-      const jsonString = JSON.stringify(keysArray);
-
-      // const allowedCommands = JSON.stringify(Array.from(terminalData?.keys()));
       setTerminalMessage(
         `Unrecognized command: ${input}. Allowed commands: ${allowedCommands}`
       );
