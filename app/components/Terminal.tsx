@@ -14,7 +14,7 @@ export default function Terminal() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { terminalData } = messageData;
+    const { commandData } = messageData;
     if (messageIndex === 0) {
       if (input.toUpperCase() === "Y") {
         setPath("/believes");
@@ -23,13 +23,13 @@ export default function Terminal() {
       }
       const nextMessageIndex = messageIndex + 1;
       setMessageIndex(nextMessageIndex);
-    } else if (terminalData && terminalData.has(input)) {
+    } else if (commandData && commandData.has(input)) {
       const response =
-        terminalData.get(input) ?? `You seem lost. How did you get here?`;
+        commandData.get(input) ?? `You seem lost. How did you get here?`;
 
       setTerminalMessage(response);
     } else {
-      const commandIterator = terminalData?.keys();
+      const commandIterator = commandData?.keys();
       const commandArray = Array.from(commandIterator ?? "");
 
       let allowedCommands = "";
