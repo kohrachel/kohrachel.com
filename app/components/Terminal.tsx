@@ -6,10 +6,11 @@ import { MESSAGES } from "./messages";
 export default function Terminal() {
   const [path, setPath] = useState("");
   const [messageIndex, setMessageIndex] = useState(0);
-  const [messageData, setMessageData] = useState(MESSAGES[messageIndex]);
   const [input, setInput] = useState("");
   const [terminalMessage, setTerminalMessage] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const messageData = MESSAGES[messageIndex];
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -46,10 +47,6 @@ export default function Terminal() {
 
     setInput("");
   };
-
-  useEffect(() => {
-    setMessageData(MESSAGES[messageIndex]);
-  }, [messageIndex]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
