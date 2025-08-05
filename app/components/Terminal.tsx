@@ -70,7 +70,7 @@ export default function Terminal() {
   return (
     <div className="w-screen h-screen p-10">
       <div
-        className="w-full h-full rounded-xl outline outline-1 outline-purple-300 shadow-[0px_0px_15px_0px] shadow-black/30"
+        className="w-full h-full rounded-xl outline outline-purple-200 shadow-xl shadow-black/30"
         onClick={() => inputRef.current?.focus()}
       >
         {/* Header */}
