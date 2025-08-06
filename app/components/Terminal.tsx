@@ -18,9 +18,7 @@ export default function Terminal() {
     const commandArray = Array.from(commandIterator ?? "");
 
     const allowedCommands = commandArray
-      .map((commandWithArgs) => {
-        return getFirstWord(commandWithArgs);
-      })
+      .map((commandWithArgs) => getFirstWord(commandWithArgs))
       .join(", ");
 
     return allowedCommands;
@@ -30,11 +28,8 @@ export default function Terminal() {
     e.preventDefault();
 
     if (messageIndex === 0) {
-      if (input.toUpperCase() === "Y") {
-        setPath("/believes");
-      } else {
-        setPath("/disbelieves");
-      }
+      const isBelieves = input.toUpperCase() === "Y";
+      setPath(isBelieves ? "/believes" : "/disbelieves");
       setMessageIndex((prevMessageIndex) => prevMessageIndex + 1);
     } else if (commandData && commandData.has(input)) {
       const response =
