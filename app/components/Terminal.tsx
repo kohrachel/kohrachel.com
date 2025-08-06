@@ -27,17 +27,25 @@ export default function Terminal() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const allowedCommands = getAllowedCommands();
+    const commandArray = allowedCommands.split(", ");
+
     if (messageIndex === 0) {
       const isBelieves = input.toUpperCase() === "Y";
       setPath(isBelieves ? "/believes" : "/disbelieves");
       setMessageIndex((prevMessageIndex) => prevMessageIndex + 1);
-    } else if (commandData && commandData.has(input)) {
-      const response =
-        commandData.get(input) ?? `You seem lost. How did you get here?`;
+    } else if (commandData && commandArray.includes(input)) {
+      if (getFirstWord(input) === "open" && !commandData.has(input)) {
+        setTerminalMessage(
+          `Filename not found or not specified. Use ls to list all available files.`
+        );
+      } else {
+        const response =
+          commandData.get(input) ?? `You seem lost. How did you get here?`;
 
-      setTerminalMessage(response);
+        setTerminalMessage(response);
+      }
     } else {
-      const allowedCommands = getAllowedCommands();
       setTerminalMessage(
         `Unrecognized command: ${input}\nAllowed commands: ${allowedCommands}`
       );
