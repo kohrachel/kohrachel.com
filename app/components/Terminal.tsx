@@ -90,6 +90,7 @@ export default function Terminal() {
             ))}
           {messageData.showInput && (
             <form onSubmit={handleSubmit}>
+              {/* TODO: if it is the first message, onchange should take the first letter of the input and automatically continue to the next step instead of waiting for submit */}
               <input
                 ref={inputRef}
                 placeholder="type some commands..."
