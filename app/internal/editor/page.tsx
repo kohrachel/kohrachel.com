@@ -1,5 +1,6 @@
 "use client";
 
+import { redirect } from "next/navigation";
 import { useCallback, useState } from "react";
 import {
   BaseEditor,
@@ -56,6 +57,9 @@ export type FormattedText = { text: string; bold?: true };
 export type CustomText = FormattedText;
 
 export default function MyEditor() {
+  if (process.env.NODE_ENV === "production") {
+    redirect("/");
+  }
   const [editor] = useState(() => withReact(createEditor()));
 
   const renderElement = useCallback((props: RenderElementProps) => {
