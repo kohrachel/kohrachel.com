@@ -18,6 +18,7 @@ import {
   Slate,
   withReact,
 } from "slate-react";
+import { CustomElement, CustomText } from "types/internal-editor";
 
 declare module "slate" {
   interface CustomTypes {
@@ -33,28 +34,6 @@ const initialValue: Descendant[] = [
     children: [{ text: "Awaiting your rambles" }],
   },
 ];
-
-export type ParagraphElement = {
-  type: "paragraph";
-  children: CustomText[];
-};
-
-export type HeadingElement = {
-  type: "heading";
-  level: number;
-  children: CustomText[];
-};
-
-export type CodeElement = {
-  type: "code";
-  children: CustomText[];
-};
-
-export type CustomElement = ParagraphElement | HeadingElement | CodeElement;
-
-export type FormattedText = { text: string; bold?: true };
-
-export type CustomText = FormattedText;
 
 export default function MyEditor() {
   if (process.env.NODE_ENV === "production") {
