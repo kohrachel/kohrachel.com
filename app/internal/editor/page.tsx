@@ -32,23 +32,28 @@ const initialValue: Descendant[] = [
 export default function MyEditor() {
   const [editor] = useState(() => withReact(createEditor()));
 
-  const renderElement = useCallback((props) => {
-    switch (props.element.type) {
-      case "code":
-        return <CodeElement {...props} />;
-      default:
-        return <DefaultElement {...props} />;
-    }
-  }, []);
+  const renderElement = useCallback(
+    (props: {
+      element: CustomElement;
+      attributes: React.HTMLAttributes<HTMLDivElement>;
+      children: React.ReactNode;
+    }) => {
+      switch (props.element.type) {
+        case "code":
+          return <CodeElement {...props} />;
+        default:
+          return <DefaultElement {...props} />;
+      }
+    },
+    []
+  );
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "`" && event.ctrlKey) {
       event.preventDefault();
-      // Determine whether any of the currently selected blocks are code blocks.
       const [match] = Editor.nodes(editor, {
         match: (n) => n.type === "code",
       });
-      // Toggle the block type depending on whether there's already a match.
       Transforms.setNodes(
         editor,
         { type: match ? "paragraph" : "code" },
@@ -63,7 +68,7 @@ export default function MyEditor() {
         <Editable
           renderElement={renderElement}
           onKeyDown={handleKeyDown}
-          className="p-3 rounded-lg h-full focus:outline-none"
+          className="p-7 rounded-lg h-full focus:outline-none flex flex-col gap-3"
         />
       </Slate>
     </ArcOutline>
@@ -82,16 +87,17 @@ const ArcOutline = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const CodeElement = (props) => {
+// TODO: add highlight.js support for code higlighting in here
+const CodeElement = ({ children }: { children: React.ReactNode }) => {
   return (
-    <pre {...props.attributes}>
-      <code>{props.children}</code>
+    <pre className="w-full bg-neutral-100 rounded-md outline outline-neutral-200 p-3">
+      <code className="">{children}</code>
     </pre>
   );
 };
 
-const DefaultElement = (props) => {
-  return <p {...props.attributes}>{props.children}</p>;
+const DefaultElement = ({ children }: { children: React.ReactNode }) => {
+  return <p>{children}</p>;
 };
 
 // const initialValue = [
