@@ -138,11 +138,15 @@ const CustomEditor = {
   },
 
   toggleBoldMark(editor: Editor) {
+    this.toggleMark(editor, "bold");
+  },
+
+  toggleMark(editor: Editor, mark: string) {
     const isActive = CustomEditor.isBoldMarkActive(editor);
     if (isActive) {
-      Editor.removeMark(editor, "bold");
+      Editor.removeMark(editor, mark);
     } else {
-      Editor.addMark(editor, "bold", true);
+      Editor.addMark(editor, mark, true);
     }
   },
 
