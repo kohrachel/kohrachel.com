@@ -43,12 +43,15 @@ export default function MyEditor() {
 
   const handleKeyDown = (event) => {
     if (event.key === "`" && event.ctrlKey) {
-      // Prevent the "`" from being inserted by default.
       event.preventDefault();
-      // Otherwise, set the currently selected blocks type to "code".
+      // Determine whether any of the currently selected blocks are code blocks.
+      const [match] = Editor.nodes(editor, {
+        match: (n) => n.type === "code",
+      });
+      // Toggle the block type depending on whether there's already a match.
       Transforms.setNodes(
         editor,
-        { type: "code" },
+        { type: match ? "paragraph" : "code" },
         { match: (n) => Element.isElement(n) && Editor.isBlock(editor, n) }
       );
     }
