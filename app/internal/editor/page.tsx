@@ -121,8 +121,12 @@ const Leaf = (props: RenderLeafProps) => {
 
 const CustomEditor = {
   isBoldMarkActive(editor: Editor) {
+    return this.isMarkActive(editor, "bold");
+  },
+
+  isMarkActive(editor: Editor, mark: string) {
     const marks = Editor.marks(editor);
-    return marks ? marks.bold === true : false;
+    return marks ? marks[mark as keyof typeof marks] === true : false;
   },
 
   isCodeBlockActive(editor: Editor) {
