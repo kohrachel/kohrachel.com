@@ -48,17 +48,19 @@ export default function MyEditor() {
     []
   );
 
+  const renderLeaf = useCallback((props) => {
+    return <Leaf {...props} />;
+  }, []);
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "`" && event.ctrlKey) {
       event.preventDefault();
-      const [match] = Editor.nodes(editor, {
-        match: (n) => n.type === "code",
-      });
-      Transforms.setNodes(
-        editor,
-        { type: match ? "paragraph" : "code" },
-        { match: (n) => Element.isElement(n) && Editor.isBlock(editor, n) }
-      );
+      CustomEditor.toggleCodeBlock(editor);
+    } else if (event.metaKey) {
+      if (event.key === "b") {
+        event.preventDefault();
+        CustomEditor.toggleBoldMark(editor);
+      }
     }
   };
 
@@ -67,6 +69,7 @@ export default function MyEditor() {
       <Slate editor={editor} initialValue={initialValue}>
         <Editable
           renderElement={renderElement}
+          renderLeaf={renderLeaf}
           onKeyDown={handleKeyDown}
           className="p-7 rounded-lg h-full focus:outline-none flex flex-col gap-3"
         />
@@ -98,4 +101,48 @@ const CodeElement = ({ children }: { children: React.ReactNode }) => {
 
 const DefaultElement = ({ children }: { children: React.ReactNode }) => {
   return <p>{children}</p>;
+};
+
+const Leaf = (props) => {
+  return (
+    <span
+      {...props.attributes}
+      style={{ fontWeight: props.leaf.bold ? "bold" : "normal" }}
+    >
+      {props.children}
+    </span>
+  );
+};
+
+const CustomEditor = {
+  isBoldMarkActive(editor: BaseEditor & ReactEditor) {
+    const marks = Editor.marks(editor);
+    return marks ? marks.bold === true : false;
+  },
+
+  isCodeBlockActive(editor) {
+    const [match] = Editor.nodes(editor, {
+      match: (n) => n.type === "code",
+    });
+
+    return !!match;
+  },
+
+  toggleBoldMark(editor) {
+    const isActive = CustomEditor.isBoldMarkActive(editor);
+    if (isActive) {
+      Editor.removeMark(editor, "bold");
+    } else {
+      Editor.addMark(editor, "bold", true);
+    }
+  },
+
+  toggleCodeBlock(editor) {
+    const isActive = CustomEditor.isCodeBlockActive(editor);
+    Transforms.setNodes(
+      editor,
+      { type: isActive ? null : "code" },
+      { match: (n) => Element.isElement(n) && Editor.isBlock(editor, n) }
+    );
+  },
 };
