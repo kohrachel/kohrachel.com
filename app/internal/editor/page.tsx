@@ -11,9 +11,6 @@ import {
 } from "slate";
 import { Editable, ReactEditor, Slate, withReact } from "slate-react";
 
-type CustomElement = { type: "paragraph"; children: CustomText[] };
-type CustomText = { text: string };
-
 declare module "slate" {
   interface CustomTypes {
     Editor: BaseEditor & ReactEditor;
@@ -28,6 +25,28 @@ const initialValue: Descendant[] = [
     children: [{ text: "Awaiting your rambles" }],
   },
 ];
+
+export type ParagraphElement = {
+  type: "paragraph";
+  children: CustomText[];
+};
+
+export type HeadingElement = {
+  type: "heading";
+  level: number;
+  children: CustomText[];
+};
+
+export type CodeElement = {
+  type: "code";
+  children: CustomText[];
+};
+
+export type CustomElement = ParagraphElement | HeadingElement | CodeElement;
+
+export type FormattedText = { text: string; bold?: true };
+
+export type CustomText = FormattedText;
 
 export default function MyEditor() {
   const [editor] = useState(() => withReact(createEditor()));
@@ -115,20 +134,20 @@ const Leaf = (props) => {
 };
 
 const CustomEditor = {
-  isBoldMarkActive(editor: BaseEditor & ReactEditor) {
+  isBoldMarkActive(editor: Editor) {
     const marks = Editor.marks(editor);
     return marks ? marks.bold === true : false;
   },
 
-  isCodeBlockActive(editor) {
+  isCodeBlockActive(editor: Editor) {
     const [match] = Editor.nodes(editor, {
-      match: (n) => n.type === "code",
+      match: (n) => Element.isElement(n) && n.type === "code",
     });
 
     return !!match;
   },
 
-  toggleBoldMark(editor) {
+  toggleBoldMark(editor: Editor) {
     const isActive = CustomEditor.isBoldMarkActive(editor);
     if (isActive) {
       Editor.removeMark(editor, "bold");
@@ -137,11 +156,11 @@ const CustomEditor = {
     }
   },
 
-  toggleCodeBlock(editor) {
+  toggleCodeBlock(editor: Editor) {
     const isActive = CustomEditor.isCodeBlockActive(editor);
     Transforms.setNodes(
       editor,
-      { type: isActive ? null : "code" },
+      { type: isActive ? undefined : "code" },
       { match: (n) => Element.isElement(n) && Editor.isBlock(editor, n) }
     );
   },
