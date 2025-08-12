@@ -146,7 +146,7 @@ const CustomEditor = {
 
   isCodeBlockActive(editor: Editor) {
     const [match] = Editor.nodes(editor, {
-      match: (n) => Element.isElement(n) && n.type === "code",
+      match: (node) => Element.isElement(node) && node.type === "code",
     });
 
     return !!match;
@@ -174,7 +174,10 @@ const CustomEditor = {
     Transforms.setNodes(
       editor,
       { type: isActive ? undefined : "code" },
-      { match: (n) => Element.isElement(n) && Editor.isBlock(editor, n) }
+      {
+        match: (node) =>
+          Element.isElement(node) && Editor.isBlock(editor, node),
+      }
     );
   },
 };
