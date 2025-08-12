@@ -9,7 +9,14 @@ import {
   Element,
   Transforms,
 } from "slate";
-import { Editable, ReactEditor, Slate, withReact } from "slate-react";
+import {
+  Editable,
+  ReactEditor,
+  RenderElementProps,
+  RenderLeafProps,
+  Slate,
+  withReact,
+} from "slate-react";
 
 declare module "slate" {
   interface CustomTypes {
@@ -51,23 +58,16 @@ export type CustomText = FormattedText;
 export default function MyEditor() {
   const [editor] = useState(() => withReact(createEditor()));
 
-  const renderElement = useCallback(
-    (props: {
-      element: CustomElement;
-      attributes: React.HTMLAttributes<HTMLDivElement>;
-      children: React.ReactNode;
-    }) => {
-      switch (props.element.type) {
-        case "code":
-          return <CodeElement {...props} />;
-        default:
-          return <DefaultElement {...props} />;
-      }
-    },
-    []
-  );
+  const renderElement = useCallback((props: RenderElementProps) => {
+    switch (props.element.type) {
+      case "code":
+        return <CodeElement {...props} />;
+      default:
+        return <DefaultElement {...props} />;
+    }
+  }, []);
 
-  const renderLeaf = useCallback((props) => {
+  const renderLeaf = useCallback((props: RenderLeafProps) => {
     return <Leaf {...props} />;
   }, []);
 
@@ -110,19 +110,22 @@ const ArcOutline = ({ children }: { children: React.ReactNode }) => {
 };
 
 // TODO: add highlight.js support for code higlighting in here
-const CodeElement = ({ children }: { children: React.ReactNode }) => {
+const CodeElement = ({ attributes, children }: RenderElementProps) => {
   return (
-    <pre className="w-full bg-neutral-100 rounded-md outline outline-neutral-200 p-3">
+    <pre
+      {...attributes}
+      className="w-full bg-neutral-100 rounded-md outline outline-neutral-200 p-3"
+    >
       <code className="">{children}</code>
     </pre>
   );
 };
 
-const DefaultElement = ({ children }: { children: React.ReactNode }) => {
-  return <p>{children}</p>;
+const DefaultElement = ({ attributes, children }: RenderElementProps) => {
+  return <p {...attributes}>{children}</p>;
 };
 
-const Leaf = (props) => {
+const Leaf = (props: RenderLeafProps) => {
   return (
     <span
       {...props.attributes}
