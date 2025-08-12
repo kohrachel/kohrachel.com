@@ -62,6 +62,9 @@ export default function MyEditor() {
       if (event.key === "b") {
         event.preventDefault();
         CustomEditor.toggleBoldMark(editor);
+      } else if (event.key === "i") {
+        event.preventDefault();
+        CustomEditor.toggleItalicMark(editor);
       }
     }
   };
@@ -109,11 +112,19 @@ const DefaultElement = ({ attributes, children }: RenderElementProps) => {
 };
 
 const Leaf = (props: RenderLeafProps) => {
+  const { leaf } = props;
+  let fontStyle = "";
+
+  if (leaf.bold) {
+    fontStyle += "font-bold ";
+  }
+
+  if (leaf.italic) {
+    fontStyle += "italic ";
+  }
+
   return (
-    <span
-      {...props.attributes}
-      style={{ fontWeight: props.leaf.bold ? "bold" : "normal" }}
-    >
+    <span {...props.attributes} className={`${fontStyle}`}>
       {props.children}
     </span>
   );
@@ -122,6 +133,10 @@ const Leaf = (props: RenderLeafProps) => {
 const CustomEditor = {
   isBoldMarkActive(editor: Editor) {
     return this.isMarkActive(editor, "bold");
+  },
+
+  isItalicMarkActive(editor: Editor) {
+    return this.isMarkActive(editor, "italic");
   },
 
   isMarkActive(editor: Editor, mark: string) {
@@ -141,8 +156,12 @@ const CustomEditor = {
     this.toggleMark(editor, "bold");
   },
 
+  toggleItalicMark(editor: Editor) {
+    this.toggleMark(editor, "italic");
+  },
+
   toggleMark(editor: Editor, mark: string) {
-    const isActive = CustomEditor.isBoldMarkActive(editor);
+    const isActive = CustomEditor.isMarkActive(editor, mark);
     if (isActive) {
       Editor.removeMark(editor, mark);
     } else {
