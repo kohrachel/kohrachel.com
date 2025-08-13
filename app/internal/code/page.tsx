@@ -10,14 +10,14 @@ export default function App() {
         files={{
           "/App.js": {
             code: `export default function App() { return <h1>Hello World!</h1>; }`,
-            active: true, // This file will be the active tab
+            active: true,
           },
           "/index.js": `import App from "./App";`,
           "/styles.css": `body { font-family: sans-serif; }`,
         }}
         options={{
-          showInlineErrors: true, // default - false
-          wrapContent: true, // default - false
+          showInlineErrors: true,
+          wrapContent: true,
           editorHeight: 800, // default - 300
         }}
       />
