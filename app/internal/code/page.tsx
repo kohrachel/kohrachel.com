@@ -18,7 +18,7 @@ export default function App() {
         options={{
           showInlineErrors: true, // default - false
           wrapContent: true, // default - false
-          editorHeight: 700, // default - 300
+          editorHeight: 800, // default - 300
         }}
       />
     </div>
