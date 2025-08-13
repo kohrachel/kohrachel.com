@@ -34,3 +34,38 @@ export const Dracula: SandpackTheme = {
     lineHeight: "20px",
   },
 };
+
+export const Custom: SandpackTheme = {
+  colors: {
+    surface1: "#f3e8ff",
+    surface2: "#e9d5ff",
+    surface3: "#eddefc",
+    clickable: "#3b0764",
+    base: "#ddd6fe",
+    disabled: "#b6acbf",
+    hover: "#6d28d9",
+    accent: "#a855f7",
+    error: "#ff453a",
+    errorSurface: "#fff2fc",
+  },
+  syntax: {
+    plain: "#311c42",
+    comment: {
+      color: "#b6acbf",
+      fontStyle: "italic",
+    },
+    keyword: "#8300ff",
+    tag: "#f472b6",
+    punctuation: "#682145",
+    definition: "#0061ff",
+    property: "#0083ff",
+    static: "#FF453A",
+    string: "#bf5af2",
+  },
+  font: {
+    body: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+    mono: '"Fira Mono", "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", Monaco, "Lucida Console", monospace',
+    size: "13px",
+    lineHeight: "20px",
+  },
+};
