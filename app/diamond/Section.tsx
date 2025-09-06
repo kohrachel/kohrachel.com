@@ -23,8 +23,12 @@ export function Section({
   return (
     <>
       <h1>{title}</h1>
-      <img src={imgSrc} alt="Diamond stars" className="lg:h-1/2 w-full" />
       <p>{children}</p>
+      <img
+        src={imgSrc}
+        alt="Diamond stars"
+        className="w-full sm:w-1/2 lg:w-1/3"
+      />
       <div className="flex gap-3">
         {section !== 0 && (
           <button
