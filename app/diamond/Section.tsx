@@ -22,7 +22,7 @@ export function Section({
   // const { section, setSection } = useContext(SectionContext);
   return (
     <>
-      <h1 className="text-3xl font-serif italic font-semibold">{title}</h1>
+      <h1 className="text-3xl font-serif italic font-semibold py-5">{title}</h1>
       <img
         src={imgSrc}
         alt="Diamond stars"

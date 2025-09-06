@@ -8,7 +8,7 @@ export default function Diamond() {
   const { title, imgSrc, children } = contents[section];
   return (
     // <SectionContext value={{ section, setSection }}>
-    <div className="bg-black w-full h-screen text-white flex flex-col justify-center text-center items-center xl:p-32 p-4">
+    <div className="bg-black w-full h-screen text-white flex flex-col text-center items-center xl:p-32 p-4">
       <Section
         title={title}
         imgSrc={imgSrc}
