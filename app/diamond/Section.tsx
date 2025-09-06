@@ -22,8 +22,8 @@ export function Section({
   // const { section, setSection } = useContext(SectionContext);
   return (
     <>
-      <h1>{title}</h1>
       <p>{children}</p>
+      <h1 className="text-3xl font-serif italic font-semibold">{title}</h1>
       <img
         src={imgSrc}
         alt="Diamond stars"
