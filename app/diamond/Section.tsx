@@ -22,13 +22,13 @@ export function Section({
   // const { section, setSection } = useContext(SectionContext);
   return (
     <>
-      <p>{children}</p>
       <h1 className="text-3xl font-serif italic font-semibold">{title}</h1>
       <img
         src={imgSrc}
         alt="Diamond stars"
         className="w-full sm:w-1/2 lg:w-1/3"
       />
+      <p className="overflow-auto">{children}</p>
       <div className="flex gap-3">
         {section !== 0 && (
           <button
