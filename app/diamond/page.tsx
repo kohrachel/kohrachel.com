@@ -2,12 +2,10 @@
 import { useState } from "react";
 import { Section, SectionContents } from "./Section";
 
-// const SectionContext = createContext({});
 export default function Diamond() {
   const [section, setSection] = useState(0);
   const { title, imgSrc, children } = contents[section];
   return (
-    // <SectionContext value={{ section, setSection }}>
     <div className="bg-black w-full h-screen text-white flex flex-col text-center items-center xl:p-32 p-4">
       <Section
         title={title}
@@ -18,7 +16,6 @@ export default function Diamond() {
         {children}
       </Section>
     </div>
-    // </SectionContext>
   );
 }
 
