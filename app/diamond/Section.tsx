@@ -35,7 +35,7 @@ export function Section({
             ← Back
           </button>
         )}
-        {section !== 2 && (
+        {section !== 4 && (
           <button
             aria-label="go to next section"
             className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl my-3"
