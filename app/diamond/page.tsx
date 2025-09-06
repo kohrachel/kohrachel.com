@@ -1,38 +1,41 @@
+"use client";
+import { useState } from "react";
+import { Section, SectionContents } from "./Section";
+
+// const SectionContext = createContext({});
 export default function Diamond() {
+  const [section, setSection] = useState(0);
+  const { title, imgSrc, children } = contents[section];
   return (
+    // <SectionContext value={{ section, setSection }}>
     <div className="bg-black w-full h-screen text-white flex flex-col justify-center text-center items-center xl:p-32 p-4">
-      <p>hello i'm diamond</p>
-      <img
-        src="/assets/diamond-stars.png"
-        alt="Diamond stars"
-        className="h-1/2"
-      />
-      <p>hello i'm diamond</p>
-    </div>
-  );
-}
-
-type allowedExtensions = "png";
-type imgSrcType = `/assets/${string}.${allowedExtensions}`;
-
-type SectionProps = {
-  title: string;
-  imgSrc: imgSrcType;
-  children: string;
-};
-
-function Section({ title, imgSrc, children }: SectionProps) {
-  return (
-    <>
-      <h1>{title}</h1>
-      <img src={imgSrc} alt="Diamond stars" className="h-1/2" />
-      <p>{children}</p>
-      <button
-        aria-label="go to next section"
-        className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl my-3"
+      <Section
+        title={title}
+        imgSrc={imgSrc}
+        section={section}
+        setSection={setSection}
       >
-        Next →
-      </button>
-    </>
+        {children}
+      </Section>
+    </div>
+    // </SectionContext>
   );
 }
+
+const contents: SectionContents[] = [
+  {
+    title: "This is a rock",
+    imgSrc: "/assets/rock.png",
+    children: "At first glance, it looks ordinary.",
+  },
+  {
+    title: "2",
+    imgSrc: "/assets/rock-under-pressure.png",
+    children: "pressure cooker",
+  },
+  {
+    title: "3",
+    imgSrc: "/assets/rock-broken.png",
+    children: "pressure cooker",
+  },
+];
