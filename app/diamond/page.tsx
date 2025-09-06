@@ -11,3 +11,6 @@ export default function Diamond() {
     </div>
   );
 }
+
+type allowedExtensions = "png";
+type imgSrcType = `/assets/${string}.${allowedExtensions}`;
