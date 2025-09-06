@@ -29,7 +29,7 @@ export function Section({
         className="w-full sm:w-1/2 lg:w-1/3"
       />
       <p className="overflow-auto">{children}</p>
-      <div className="flex gap-3">
+      <div className="flex gap-3 bottom-5 mt-auto">
         {section !== 0 && (
           <button
             aria-label="go to next section"
