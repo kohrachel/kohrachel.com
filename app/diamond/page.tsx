@@ -29,7 +29,7 @@ function Section({ title, imgSrc, children }: SectionProps) {
       <p>{children}</p>
       <button
         aria-label="go to next section"
-        className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl"
+        className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl my-3"
       >
         Next →
       </button>
