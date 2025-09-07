@@ -19,7 +19,6 @@ export function Section({
   section,
   setSection,
 }: SectionProps) {
-  // const { section, setSection } = useContext(SectionContext);
   return (
     <div className="flex flex-col text-center items-center h-full xl:px-32 p-9 pb-4">
       <h1 className="text-3xl font-serif italic font-semibold p-5">{title}</h1>
