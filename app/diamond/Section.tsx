@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
 type allowedExtensions = "png";
 type imgSrcType = `/assets/${string}.${allowedExtensions}`;
 export type SectionContents = {
@@ -7,20 +6,14 @@ export type SectionContents = {
   children: string;
 };
 
-export type SectionProps = SectionContents & {
-  section: number;
-  setSection: Dispatch<SetStateAction<number>>;
-};
+// export type SectionProps = SectionContents & {
+//   section: number;
+//   setSection: Dispatch<SetStateAction<number>>;
+// };
 
-export function Section({
-  title,
-  imgSrc,
-  children,
-  section,
-  setSection,
-}: SectionProps) {
+export function Section({ title, imgSrc, children }: SectionContents) {
   return (
-    <div className="flex flex-col text-center items-center h-full xl:px-32 p-9 pb-4">
+    <div className="flex flex-col text-center items-center h-[90%]">
       <h1 className="text-3xl font-serif italic font-semibold p-5">{title}</h1>
       <img
         src={imgSrc}
@@ -31,26 +24,6 @@ export function Section({
         {children.split("\n").map((paragraph, index) => (
           <p key={index}>{paragraph}</p>
         ))}
-      </div>
-      <div className="flex bottom-0 mt-auto w-full backdrop-blur-md">
-        {section !== 0 && (
-          <button
-            aria-label="go to previous section"
-            className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl my-3"
-            onClick={() => setSection((prev) => prev - 1)}
-          >
-            ← Back
-          </button>
-        )}
-        {section !== 4 && (
-          <button
-            aria-label="go to next section"
-            className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl my-3 ml-auto"
-            onClick={() => setSection((prev) => prev + 1)}
-          >
-            Next →
-          </button>
-        )}
       </div>
     </div>
   );

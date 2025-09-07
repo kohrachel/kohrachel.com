@@ -6,15 +6,30 @@ export default function Diamond() {
   const [section, setSection] = useState(0);
   const { title, imgSrc, children } = contents[section];
   return (
-    <div className="bg-black w-full h-screen text-white">
-      <Section
-        title={title}
-        imgSrc={imgSrc}
-        section={section}
-        setSection={setSection}
-      >
+    <div className="bg-black w-full h-screen text-white flex flex-col justify-between xl:px-32 p-9 pb-4">
+      <Section title={title} imgSrc={imgSrc}>
         {children}
       </Section>
+      <div className="flex bottom-0 w-full">
+        {section !== 0 && (
+          <button
+            aria-label="go to previous section"
+            className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl my-3"
+            onClick={() => setSection((prev) => prev - 1)}
+          >
+            ← Back
+          </button>
+        )}
+        {section !== 4 && (
+          <button
+            aria-label="go to next section"
+            className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl my-3 ml-auto"
+            onClick={() => setSection((prev) => prev + 1)}
+          >
+            Next →
+          </button>
+        )}
+      </div>
     </div>
   );
 }
