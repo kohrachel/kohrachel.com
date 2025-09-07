@@ -21,19 +21,19 @@ export function Section({
 }: SectionProps) {
   // const { section, setSection } = useContext(SectionContext);
   return (
-    <div className="flex flex-col text-center items-center gap-4 h-full">
+    <div className="flex flex-col text-center items-center h-full xl:px-32 px-8">
       <h1 className="text-3xl font-serif italic font-semibold py-5">{title}</h1>
       <img
         src={imgSrc}
         alt="Diamond stars"
-        className="w-full sm:w-1/2 lg:w-1/3"
+        className="w-5/6 sm:w-1/2 lg:w-1/3"
       />
       <div className="overflow-auto flex flex-col gap-3 text-start">
         {children.split("\n").map((paragraph, index) => (
           <p key={index}>{paragraph}</p>
         ))}
       </div>
-      <div className="flex gap-3 bottom-5 mt-auto">
+      <div className="flex gap-3 bottom-0 mt-auto w-[100vw] justify-center backdrop-blur-md">
         {section !== 0 && (
           <button
             aria-label="go to next section"
