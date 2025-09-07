@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { NavButtons } from "./NavButtons";
-import { Section, SectionContents } from "./Section";
+import { Section, SectionProps } from "./Section";
 
 export default function Diamond() {
   const [section, setSection] = useState(0);
@@ -16,7 +16,7 @@ export default function Diamond() {
   );
 }
 
-const contents: SectionContents[] = [
+const contents: SectionProps[] = [
   {
     title: "This is a rock",
     imgSrc: "/assets/rock.png",

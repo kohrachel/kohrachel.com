@@ -1,12 +1,12 @@
 type allowedExtensions = "png";
 type imgSrcType = `/assets/${string}.${allowedExtensions}`;
-export type SectionContents = {
+export type SectionProps = {
   title: string;
   imgSrc: imgSrcType;
   children: string;
 };
 
-export function Section({ title, imgSrc, children }: SectionContents) {
+export function Section({ title, imgSrc, children }: SectionProps) {
   return (
     <div className="flex flex-col text-center items-center h-[85%]">
       <h1 className="text-3xl font-serif italic font-semibold p-5">{title}</h1>
