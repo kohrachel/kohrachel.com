@@ -1,15 +1,24 @@
 "use client";
 import { useState } from "react";
+import BirthdayCard from "./BirthdayCard";
 import { NavButtons } from "./NavButtons";
 import { Section, SectionProps } from "./Section";
 
 export default function Diamond() {
   const [section, setSection] = useState(0);
+  const [showCard, setShowCard] = useState(false);
   const { title, imgSrc, bodyText } = contents[section];
+
+  if (showCard) return <BirthdayCard />;
+
   return (
     <div className="bg-black w-full h-screen text-white flex flex-col justify-between xl:px-32 p-9 pb-4">
       <Section title={title} imgSrc={imgSrc} bodyText={bodyText} />
-      <NavButtons section={section} setSection={setSection} />
+      <NavButtons
+        section={section}
+        setSection={setSection}
+        setShowCard={setShowCard}
+      />
     </div>
   );
 }
