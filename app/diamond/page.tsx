@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { NavButtons } from "./NavButtons";
 import { Section, SectionContents } from "./Section";
 
 export default function Diamond() {
@@ -10,26 +11,7 @@ export default function Diamond() {
       <Section title={title} imgSrc={imgSrc}>
         {children}
       </Section>
-      <div className="flex bottom-0 w-full">
-        {section !== 0 && (
-          <button
-            aria-label="go to previous section"
-            className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl my-3"
-            onClick={() => setSection((prev) => prev - 1)}
-          >
-            ← Back
-          </button>
-        )}
-        {section !== 4 && (
-          <button
-            aria-label="go to next section"
-            className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl my-3 ml-auto"
-            onClick={() => setSection((prev) => prev + 1)}
-          >
-            Next →
-          </button>
-        )}
-      </div>
+      <NavButtons section={section} setSection={setSection} />
     </div>
   );
 }
