@@ -6,7 +6,7 @@ export default function Diamond() {
   const [section, setSection] = useState(0);
   const { title, imgSrc, children } = contents[section];
   return (
-    <div className="bg-black w-full h-screen text-white xl:p-32 p-4">
+    <div className="bg-black w-full h-screen text-white">
       <Section
         title={title}
         imgSrc={imgSrc}
