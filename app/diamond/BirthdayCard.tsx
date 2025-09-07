@@ -1,12 +1,9 @@
 export default function BirthdayCard() {
   return (
     <div className="w-full h-screen bg-black text-white">
-      <div className="z-10 relative overflow-y-scroll h-full px-80 py-36">
-        <p>
-          hello i am s ome text can you see me hello i am some text can you see
-          me hello i am some text can you see me hello i am some text can you
-          see me hello i am some text can you see me hello i am some text can
-          you see me{" "}
+      <div className="z-10 relative overflow-y-scroll h-full px-80 py-36 flex flex-col gap-3">
+        <p className="font-serif font-semibold text-3xl italic">
+          Happy Birthday Mummy!
         </p>
         <p>
           hello i am s ome text can you see me hello i am some text can you see
@@ -38,47 +35,8 @@ export default function BirthdayCard() {
           see me hello i am some text can you see me hello i am some text can
           you see me{" "}
         </p>
-        <p>
-          hello i am s ome text can you see me hello i am some text can you see
-          me hello i am some text can you see me hello i am some text can you
-          see me hello i am some text can you see me hello i am some text can
-          you see me{" "}
-        </p>
-        <p>
-          hello i am s ome text can you see me hello i am some text can you see
-          me hello i am some text can you see me hello i am some text can you
-          see me hello i am some text can you see me hello i am some text can
-          you see me{" "}
-        </p>
-        <p>
-          hello i am s ome text can you see me hello i am some text can you see
-          me hello i am some text can you see me hello i am some text can you
-          see me hello i am some text can you see me hello i am some text can
-          you see me{" "}
-        </p>
-        <p>
-          hello i am s ome text can you see me hello i am some text can you see
-          me hello i am some text can you see me hello i am some text can you
-          see me hello i am some text can you see me hello i am some text can
-          you see me{" "}
-        </p>
-        <p>
-          hello i am s ome text can you see me hello i am some text can you see
-          me hello i am some text can you see me hello i am some text can you
-          see me hello i am some text can you see me hello i am some text can
-          you see me{" "}
-        </p>
-        <p>
-          hello i am s ome text can you see me hello i am some text can you see
-          me hello i am some text can you see me hello i am some text can you
-          see me hello i am some text can you see me hello i am some text can
-          you see me{" "}
-        </p>
-        <p>
-          hello i am s ome text can you see me hello i am some text can you see
-          me hello i am some text can you see me hello i am some text can you
-          see me hello i am some text can you see me hello i am some text can
-          you see me{" "}
+        <p className="font-serif font-semibold italic text-xl text-end">
+          -- Rachel
         </p>
       </div>
       <div
