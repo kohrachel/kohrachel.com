@@ -21,14 +21,18 @@ export function Section({
 }: SectionProps) {
   // const { section, setSection } = useContext(SectionContext);
   return (
-    <>
+    <div className="flex flex-col text-center items-center gap-4 h-full">
       <h1 className="text-3xl font-serif italic font-semibold py-5">{title}</h1>
       <img
         src={imgSrc}
         alt="Diamond stars"
         className="w-full sm:w-1/2 lg:w-1/3"
       />
-      <p className="overflow-auto">{children}</p>
+      {children.split("\n").map((paragraph, index) => (
+        <p key={index} className="overflow-auto">
+          {paragraph}
+        </p>
+      ))}
       <div className="flex gap-3 bottom-5 mt-auto">
         {section !== 0 && (
           <button
@@ -49,6 +53,6 @@ export function Section({
           </button>
         )}
       </div>
-    </>
+    </div>
   );
 }
