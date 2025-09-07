@@ -32,7 +32,7 @@ export function Section({
           <p key={index}>{paragraph}</p>
         ))}
       </div>
-      <div className="flex gap-3 bottom-0 mt-auto w-[100vw] justify-center backdrop-blur-md">
+      <div className="flex bottom-0 mt-auto w-full backdrop-blur-md">
         {section !== 0 && (
           <button
             aria-label="go to previous section"
@@ -45,7 +45,7 @@ export function Section({
         {section !== 4 && (
           <button
             aria-label="go to next section"
-            className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl my-3"
+            className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl my-3 ml-auto"
             onClick={() => setSection((prev) => prev + 1)}
           >
             Next →
