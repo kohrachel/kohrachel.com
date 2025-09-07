@@ -28,11 +28,11 @@ export function Section({
         alt="Diamond stars"
         className="w-full sm:w-1/2 lg:w-1/3"
       />
-      {children.split("\n").map((paragraph, index) => (
-        <p key={index} className="overflow-auto">
-          {paragraph}
-        </p>
-      ))}
+      <div className="overflow-auto flex flex-col gap-3 text-start">
+        {children.split("\n").map((paragraph, index) => (
+          <p key={index}>{paragraph}</p>
+        ))}
+      </div>
       <div className="flex gap-3 bottom-5 mt-auto">
         {section !== 0 && (
           <button
