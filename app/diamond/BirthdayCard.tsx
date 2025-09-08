@@ -14,6 +14,13 @@ export default function BirthdayCard({ returnToStart }: BirthdayCardProps) {
         <p className="font-serif font-semibold italic text-xl text-end">
           -- Rachel
         </p>
+        <button
+          aria-label="go to previous section"
+          className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl my-3"
+          onClick={returnToStart}
+        >
+          ← Return to start
+        </button>
       </div>
       <div
         className="absolute top-0 h-24 w-[95%] z-10"
