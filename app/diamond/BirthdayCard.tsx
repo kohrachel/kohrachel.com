@@ -1,4 +1,7 @@
-export default function BirthdayCard() {
+type BirthdayCardProps = {
+  returnToStart: () => void;
+};
+export default function BirthdayCard({ returnToStart }: BirthdayCardProps) {
   return (
     <div className="w-full h-screen bg-black text-white">
       <div className="z-10 relative overflow-y-scroll h-full px-20 sm:px-28 md:px-44 lg:px-64 xl:px-80 pt-24 pb-28 sm:py-36 flex flex-col gap-3">
