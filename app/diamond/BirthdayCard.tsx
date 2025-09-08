@@ -12,7 +12,7 @@ export default function BirthdayCard({ returnToStart }: BirthdayCardProps) {
           <p key={index}>{paragraph}</p>
         ))}
         <p className="font-serif font-semibold italic text-xl text-end">
-          -- Rachel
+          Love, Rachel
         </p>
         <button
           aria-label="go to previous section"
