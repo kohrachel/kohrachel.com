@@ -21,7 +21,6 @@ export function NavButtons({
           ← Back
         </button>
       )}
-      {/* {section !== 4 && ( */}
       <button
         aria-label="go to next section"
         className="outline-dotted outline-purple-100 py-3 px-4 rounded-2xl my-3 ml-auto"
@@ -35,7 +34,6 @@ export function NavButtons({
       >
         Next →
       </button>
-      {/* )} */}
     </div>
   );
 }
