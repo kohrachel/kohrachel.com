@@ -9,7 +9,12 @@ export default function Diamond() {
   const [showCard, setShowCard] = useState(false);
   const { title, imgSrc, bodyText } = contents[section];
 
-  if (showCard) return <BirthdayCard />;
+  function returnToStart() {
+    setShowCard(false);
+    setSection(0);
+  }
+
+  if (showCard) return <BirthdayCard returnToStart={returnToStart} />;
 
   return (
     <div className="bg-black w-full h-screen text-white flex flex-col justify-between xl:px-32 p-9 pb-4">
