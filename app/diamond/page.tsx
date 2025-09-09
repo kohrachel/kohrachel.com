@@ -17,7 +17,7 @@ export default function Diamond() {
   if (showCard) return <BirthdayCard returnToStart={returnToStart} />;
 
   return (
-    <div className="bg-black w-full h-screen text-white flex flex-col justify-between xl:px-32 p-9 pb-4">
+    <div className="bg-black w-full h-screen text-white flex flex-col justify-between items-center xl:px-32 p-9 pb-4">
       <Section title={title} imgSrc={imgSrc} bodyText={bodyText} />
       <NavButtons
         section={section}
