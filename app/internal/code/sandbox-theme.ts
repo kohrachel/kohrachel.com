@@ -1,0 +1,71 @@
+import { SandpackTheme } from "@codesandbox/sandpack-react";
+
+export const Dracula: SandpackTheme = {
+  colors: {
+    surface1: "#282a36",
+    surface2: "#44475a",
+    surface3: "#44475a",
+    clickable: "#6272a4",
+    base: "#f8f8f2",
+    disabled: "#6272a4",
+    hover: "#f8f8f2",
+    accent: "#bd93f9",
+    error: "#f8f8f2",
+    errorSurface: "#44475a",
+  },
+  syntax: {
+    plain: "#f8f8f2",
+    comment: {
+      color: "#6272a4",
+      fontStyle: "italic",
+    },
+    keyword: "#ff79c6",
+    tag: "#ff79c6",
+    punctuation: "#ff79c6",
+    definition: "#f8f8f2",
+    property: "#50fa7b",
+    static: "#bd93f9",
+    string: "#f1fa8c",
+  },
+  font: {
+    body: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+    mono: '"Fira Mono", "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", Monaco, "Lucida Console", monospace',
+    size: "13px",
+    lineHeight: "20px",
+  },
+};
+
+export const Custom: SandpackTheme = {
+  colors: {
+    surface1: "#f3e8ff",
+    surface2: "#e9d5ff",
+    surface3: "#eddefc",
+    clickable: "#3b0764",
+    base: "#ddd6fe",
+    disabled: "#b6acbf",
+    hover: "#6d28d9",
+    accent: "#a855f7",
+    error: "#ff453a",
+    errorSurface: "#fff2fc",
+  },
+  syntax: {
+    plain: "#311c42",
+    comment: {
+      color: "#b6acbf",
+      fontStyle: "italic",
+    },
+    keyword: "#8300ff",
+    tag: "#f472b6",
+    punctuation: "#682145",
+    definition: "#0061ff",
+    property: "#0083ff",
+    static: "#FF453A",
+    string: "#bf5af2",
+  },
+  font: {
+    body: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+    mono: '"Fira Mono", "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", Monaco, "Lucida Console", monospace',
+    size: "13px",
+    lineHeight: "20px",
+  },
+};
