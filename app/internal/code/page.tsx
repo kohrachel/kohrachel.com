@@ -1,7 +1,11 @@
 import { Sandpack } from "@codesandbox/sandpack-react";
+import { redirect } from "next/navigation";
 import { Dracula } from "./sandbox-theme";
 
 export default function App() {
+  if (process.env.NODE_ENV === "production") {
+    redirect("/");
+  }
   return (
     <div className="p-5">
       <Sandpack
