@@ -1,6 +1,26 @@
 "use client";
-export default function Chocolate({}: {}) {
+import { useState } from "react";
+export default function Chocolate() {
+  const [showSquare, setShowSquare] = useState<boolean[]>(Array(16).fill(true));
   const array = (n: number) => Array.from({ length: n }, (_, index) => index);
+
+  const handleClick = (index: number) => {
+    setShowSquare((prev) => [
+      ...prev.slice(0, index),
+      false,
+      ...prev.slice(index + 1),
+    ]);
+
+    const timeout = setTimeout(() => {
+      setShowSquare((prev) => [
+        ...prev.slice(0, index),
+        true,
+        ...prev.slice(index + 1),
+      ]);
+    }, 1000);
+    return () => clearTimeout(timeout);
+  };
+
   return (
     <div className="h-screen w-screen bg-red-500 flex flex-col items-center justify-center">
       <img
@@ -12,10 +32,12 @@ export default function Chocolate({}: {}) {
         {array(16).map((index) => (
           <img
             key={index}
-            onClick={() => console.log(index)}
+            onClick={() => handleClick(index)}
             src="/assets/chocolate-square.png"
             alt="chocolate"
-            className="object-cover"
+            className={`object-cover ${
+              showSquare[index] ? "opacity-100" : "opacity-0"
+            } transition-all duration-300`}
           />
         ))}
       </div>
