@@ -25,6 +25,8 @@ export default function Chocolate() {
     "chest",
   ];
 
+  const secretMessage = "Happy Birthday!";
+
   const handleClick = (index: number) => {
     setShowSquare((prev) => [
       ...prev.slice(0, index),
@@ -43,7 +45,10 @@ export default function Chocolate() {
   };
 
   return (
-    <div className="h-screen w-screen bg-red-500 flex flex-col items-center justify-center">
+    <div className="h-screen w-screen bg-sky-300 flex flex-col items-center justify-center">
+      <p className="text-black text-2xl font-bold text-center absolute top-28 px-10">
+        Tap the chocolate to find gems and reveal the hidden message!
+      </p>
       <img
         src="/assets/chocolate-wrapper.png"
         alt="chocolate"
@@ -72,6 +77,21 @@ export default function Chocolate() {
             } transition-all duration-300`}
           />
         ))}
+      </div>
+
+      <button
+        className="absolute bottom-20 bg-purple-500 text-white px-4 py-2 rounded-md"
+        onClick={() => {
+          alert(`The hidden message is: '${secretMessage}'`);
+        }}
+      >
+        Reveal the hidden message
+      </button>
+
+      <div className="absolute h-72 w-72 p-1 rounded-sm bg-yellow-200">
+        <p className="text-black text-2xl font-bold text-center">
+          {secretMessage}
+        </p>
       </div>
     </div>
   );
