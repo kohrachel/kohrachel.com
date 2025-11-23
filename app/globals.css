@@ -42,8 +42,13 @@
   }
 }
 
+html {
+  overflow: hidden;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Montserrat, Helvetica, sans-serif;
+  overflow: hidden;
 }
