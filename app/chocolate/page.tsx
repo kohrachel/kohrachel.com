@@ -3,7 +3,7 @@ import { useState } from "react";
 
 type ItemType = "chest" | "gems" | "busted";
 
-const SECRET_MESSAGE = `Happy birthday daddy, good gem hunting!`;
+const SECRET_MESSAGE = process.env.NEXT_PUBLIC_SECRET_MESSAGE;
 const GEMS_FOR_SECRET_MESSAGE = 49;
 const GEMS_STEP_SIZES = [1, 2, 4, 6, 8, 10];
 
@@ -107,6 +107,8 @@ export default function Chocolate() {
       clearTimeout(changeItemTimeout);
     };
   };
+
+  console.log(SECRET_MESSAGE);
 
   return (
     <div
