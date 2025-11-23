@@ -2,9 +2,11 @@
 import { useState } from "react";
 
 type ItemType = "chest" | "gems" | "busted";
+const SECRET_MESSAGE = `Happy birthday daddy, good gem hunting!`;
 
 export default function Chocolate() {
   const [showSquare, setShowSquare] = useState<boolean[]>(Array(16).fill(true));
+  const [showSecretMessage, setShowSecretMessage] = useState(false);
   const array = (n: number) => Array.from({ length: n }, (_, index) => index);
   const ITEMS: ItemType[] = [
     "chest",
@@ -24,8 +26,6 @@ export default function Chocolate() {
     "chest",
     "chest",
   ];
-
-  const secretMessage = "Happy Birthday!";
 
   const handleClick = (index: number) => {
     setShowSquare((prev) => [
@@ -81,18 +81,20 @@ export default function Chocolate() {
 
       <button
         className="absolute bottom-20 bg-purple-500 text-white px-4 py-2 rounded-md"
-        onClick={() => {
-          alert(`The hidden message is: '${secretMessage}'`);
-        }}
+        onClick={() => setShowSecretMessage(true)}
       >
         Reveal the hidden message
       </button>
 
-      <div className="absolute h-72 w-72 p-1 rounded-sm bg-yellow-200">
-        <p className="text-black text-2xl font-bold text-center">
-          {secretMessage}
-        </p>
-      </div>
+      {showSecretMessage && (
+        <div className="absolute h-72 w-72 p-3 rounded-sm bg-yellow-200 flex flex-col gap-2 overflow-y-scroll">
+          {SECRET_MESSAGE.split("\n").map((paragraph, index) => (
+            <p key={index} className="text-black text-sm">
+              {paragraph}
+            </p>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
