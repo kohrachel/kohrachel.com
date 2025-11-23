@@ -7,11 +7,28 @@ const SECRET_MESSAGE = `Happy birthday daddy, good gem hunting!`;
 const GEMS_FOR_SECRET_MESSAGE = 49;
 const GEMS_STEP_SIZES = [1, 2, 4, 6, 8, 10];
 
+const INFO_MESSAGES = {
+  gems: "You found gems!",
+  busted: "BUSTED! You lost half of your gems.",
+  chest: "Level up! Earn 2x gems per gem chest!",
+};
+
+type InfoMessage = {
+  show: boolean;
+  item: ItemType;
+  message: string;
+};
+
 export default function Chocolate() {
   const [showSquare, setShowSquare] = useState<boolean[]>(Array(16).fill(true));
   const [showSecretMessage, setShowSecretMessage] = useState(false);
   const [gems, setGems] = useState(0);
   const [level, setLevel] = useState(0);
+  const [infoMessage, setInfoMessage] = useState<InfoMessage>({
+    show: false,
+    item: "chest",
+    message: "",
+  });
   const [slideOut, setSlideOut] = useState(false);
   const isSecretMessageButtonDisabled = gems < GEMS_FOR_SECRET_MESSAGE;
 
@@ -55,12 +72,23 @@ export default function Chocolate() {
       setGems((prev) => Math.floor(prev / 2));
     }
 
+    setInfoMessage({
+      show: true,
+      item: items[index],
+      message: INFO_MESSAGES[items[index] as keyof typeof INFO_MESSAGES],
+    });
+
     const showSquareTimeout = setTimeout(() => {
       setShowSquare((prev) => [
         ...prev.slice(0, index),
         true,
         ...prev.slice(index + 1),
       ]);
+      setInfoMessage({
+        show: false,
+        item: "chest",
+        message: INFO_MESSAGES["chest"],
+      });
     }, 1000);
 
     const changeItemTimeout = setTimeout(() => {
@@ -128,14 +156,20 @@ export default function Chocolate() {
           />
         ))}
       </div>
+      {infoMessage.show && (
+        <div className="absolute bottom-64 text-white px-4 py-2 rounded-md bg-sky-500">
+          {infoMessage.message}
+        </div>
+      )}
 
       <button
         className={`absolute bottom-20 text-white px-4 py-2 rounded-md ${
           isSecretMessageButtonDisabled ? "bg-gray-400" : "bg-purple-500"
         }`}
-        disabled={isSecretMessageButtonDisabled}
         onClick={() =>
-          gems >= GEMS_FOR_SECRET_MESSAGE && setShowSecretMessage(true)
+          gems >= GEMS_FOR_SECRET_MESSAGE
+            ? setShowSecretMessage(true)
+            : alert("You do not have enough gems to reveal the hidden message")
         }
       >
         Reveal the hidden message | 49 Gems
