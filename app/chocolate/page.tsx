@@ -5,22 +5,17 @@ type ItemType = "chest" | "gems" | "busted";
 
 const SECRET_MESSAGE = `Happy birthday daddy, good gem hunting!`;
 const GEMS_FOR_SECRET_MESSAGE = 49;
-const GEMS_STEP_SIZES = [1, 2, 4, 8];
+const GEMS_STEP_SIZES = [1, 2, 4, 6, 8, 10];
 
 export default function Chocolate() {
-  const [showSquare, setShowSquare] = useState<boolean[]>(
-    Array(16).fill(false)
-  );
+  const [showSquare, setShowSquare] = useState<boolean[]>(Array(16).fill(true));
   const [showSecretMessage, setShowSecretMessage] = useState(false);
   const [gems, setGems] = useState(0);
   const [level, setLevel] = useState(0);
   const [slideOut, setSlideOut] = useState(false);
-
-  const array = (n: number) => Array.from({ length: n }, (_, index) => index);
-
   const isSecretMessageButtonDisabled = gems < GEMS_FOR_SECRET_MESSAGE;
 
-  const ITEMS: ItemType[] = [
+  const [items, setItems] = useState<ItemType[]>([
     "chest",
     "gems",
     "busted",
@@ -37,7 +32,9 @@ export default function Chocolate() {
     "chest",
     "gems",
     "busted",
-  ];
+  ]);
+
+  const array = (n: number) => Array.from({ length: n }, (_, index) => index);
 
   const handleClick = (index: number) => {
     setShowSquare((prev) => [
@@ -46,26 +43,41 @@ export default function Chocolate() {
       ...prev.slice(index + 1),
     ]);
 
-    if (ITEMS[index] === "gems") {
+    if (items[index] === "gems") {
       setGems((prev) => prev + GEMS_STEP_SIZES[level]);
     }
 
-    if (ITEMS[index] === "chest" && level < GEMS_STEP_SIZES.length - 1) {
+    if (items[index] === "chest" && level < GEMS_STEP_SIZES.length - 1) {
       setLevel((prev) => prev + 1);
     }
 
-    if (ITEMS[index] === "busted") {
+    if (items[index] === "busted") {
       setGems((prev) => Math.floor(prev / 2));
     }
 
-    const timeout = setTimeout(() => {
+    const showSquareTimeout = setTimeout(() => {
       setShowSquare((prev) => [
         ...prev.slice(0, index),
         true,
         ...prev.slice(index + 1),
       ]);
     }, 1000);
-    return () => clearTimeout(timeout);
+
+    const changeItemTimeout = setTimeout(() => {
+      const rand = Math.random();
+      const newItem = rand < 0.25 ? "gems" : rand < 0.5 ? "busted" : "chest";
+
+      setItems((prev) => [
+        ...prev.slice(0, index),
+        newItem,
+        ...prev.slice(index + 1),
+      ]);
+    }, 1200);
+
+    return () => {
+      clearTimeout(showSquareTimeout);
+      clearTimeout(changeItemTimeout);
+    };
   };
 
   return (
@@ -94,7 +106,7 @@ export default function Chocolate() {
       />
 
       <div className="absolute h-72 w-72 p-1 rounded-sm object-cover grid grid-rows-4 grid-cols-4 items-center justify-items-center bg-[#4f2c1c]">
-        {ITEMS.map((item, index) => (
+        {items.map((item, index) => (
           <img
             key={index}
             src={`/assets/${item}.png`}
