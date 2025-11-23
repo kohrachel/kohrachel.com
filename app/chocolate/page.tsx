@@ -2,29 +2,41 @@
 import { useState } from "react";
 
 type ItemType = "chest" | "gems" | "busted";
+
 const SECRET_MESSAGE = `Happy birthday daddy, good gem hunting!`;
+const GEMS_FOR_SECRET_MESSAGE = 49;
+const GEMS_STEP_SIZES = [1, 2, 4, 8];
 
 export default function Chocolate() {
-  const [showSquare, setShowSquare] = useState<boolean[]>(Array(16).fill(true));
+  const [showSquare, setShowSquare] = useState<boolean[]>(
+    Array(16).fill(false)
+  );
   const [showSecretMessage, setShowSecretMessage] = useState(false);
+  const [gems, setGems] = useState(0);
+  const [level, setLevel] = useState(0);
+  const [slideOut, setSlideOut] = useState(false);
+
   const array = (n: number) => Array.from({ length: n }, (_, index) => index);
+
+  const isSecretMessageButtonDisabled = gems < GEMS_FOR_SECRET_MESSAGE;
+
   const ITEMS: ItemType[] = [
     "chest",
-    "chest",
-    "chest",
-    "chest",
-    "gems",
-    "gems",
-    "gems",
     "gems",
     "busted",
+    "chest",
     "busted",
-    "busted",
+    "chest",
+    "chest",
+    "gems",
+    "gems",
     "busted",
     "chest",
     "chest",
     "chest",
     "chest",
+    "gems",
+    "busted",
   ];
 
   const handleClick = (index: number) => {
@@ -33,6 +45,18 @@ export default function Chocolate() {
       false,
       ...prev.slice(index + 1),
     ]);
+
+    if (ITEMS[index] === "gems") {
+      setGems((prev) => prev + GEMS_STEP_SIZES[level]);
+    }
+
+    if (ITEMS[index] === "chest" && level < GEMS_STEP_SIZES.length - 1) {
+      setLevel((prev) => prev + 1);
+    }
+
+    if (ITEMS[index] === "busted") {
+      setGems((prev) => Math.floor(prev / 2));
+    }
 
     const timeout = setTimeout(() => {
       setShowSquare((prev) => [
@@ -45,14 +69,28 @@ export default function Chocolate() {
   };
 
   return (
-    <div className="h-screen w-screen bg-sky-300 flex flex-col items-center justify-center">
+    <div
+      className="h-screen w-screen bg-sky-300 flex flex-col items-center justify-center overflow-hidden"
+      style={{ maxWidth: "100vw", maxHeight: "100vh" }}
+    >
       <p className="text-black text-2xl font-bold text-center absolute top-28 px-10">
-        Tap the chocolate to find gems and reveal the hidden message!
+        {slideOut
+          ? "Tap the chocolate to find gems and reveal the hidden message!"
+          : "Tap the chocolate wrapper to open it!"}
+      </p>
+      <p className="text-black text-sm text-center absolute top-56 px-10">
+        Each gem chest yields{" "}
+        <span className="font-bold">{GEMS_STEP_SIZES[level]}</span> gems
       </p>
       <img
         src="/assets/chocolate-wrapper.png"
         alt="chocolate"
-        className="absolute h-80 object-cover"
+        className={`absolute h-80 object-cover z-10 transition-transform duration-500 ease-in-out ${
+          slideOut ? "translate-x-full" : ""
+        }`}
+        onClick={() => {
+          setSlideOut((prev) => !prev);
+        }}
       />
 
       <div className="absolute h-72 w-72 p-1 rounded-sm object-cover grid grid-rows-4 grid-cols-4 items-center justify-items-center bg-[#4f2c1c]">
@@ -80,14 +118,22 @@ export default function Chocolate() {
       </div>
 
       <button
-        className="absolute bottom-20 bg-purple-500 text-white px-4 py-2 rounded-md"
-        onClick={() => setShowSecretMessage(true)}
+        className={`absolute bottom-20 text-white px-4 py-2 rounded-md ${
+          isSecretMessageButtonDisabled ? "bg-gray-400" : "bg-purple-500"
+        }`}
+        disabled={isSecretMessageButtonDisabled}
+        onClick={() =>
+          gems >= GEMS_FOR_SECRET_MESSAGE && setShowSecretMessage(true)
+        }
       >
-        Reveal the hidden message
+        Reveal the hidden message | 49 Gems
       </button>
+      <p className="absolute bottom-12 text-black text-sm">
+        You have <span className="font-bold">{gems}</span> gems
+      </p>
 
       {showSecretMessage && (
-        <div className="absolute h-72 w-72 p-3 rounded-sm bg-yellow-200 flex flex-col gap-2 overflow-y-scroll">
+        <div className="absolute h-80 w-80 p-3 rounded-sm bg-sky-300 flex flex-col gap-2 overflow-y-scroll">
           {SECRET_MESSAGE.split("\n").map((paragraph, index) => (
             <p key={index} className="text-black text-sm">
               {paragraph}
