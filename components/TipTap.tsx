@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Editor } from "@tiptap/core";
+import { Placeholder } from "@tiptap/extensions";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import styled from "styled-components";
@@ -16,8 +17,10 @@ interface TiptapProps {
 
 export default function Tiptap({ onEditor }: TiptapProps) {
   const editor = useEditor({
-    extensions: [StarterKit],
-    content: "<p>Hello World! 🌎️</p>",
+    extensions: [
+      StarterKit,
+      Placeholder.configure({ placeholder: "Write something…" }),
+    ],
     immediatelyRender: false,
     editorProps: {
       attributes: {
@@ -66,10 +69,16 @@ const EditorShell = styled.div`
     ${postBodyTypography}
     ${postBodyParagraphSpacing}
   }
-
   .tiptap.ProseMirror:focus,
   .tiptap.ProseMirror:focus-visible {
     outline: none;
     box-shadow: none;
+  }
+  .tiptap p.is-editor-empty::before {
+    color: var(--comment);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
   }
 `;

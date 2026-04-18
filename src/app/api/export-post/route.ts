@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
 import { toKebabCase } from "@/lib/toKebabCase";
+import { IPost } from "@/types";
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -25,9 +26,9 @@ export async function POST(request: NextRequest) {
 
   const { title, doc } = body as { title: unknown; doc: unknown };
 
-  if (typeof title !== "string") {
+  if (typeof title !== "string" || title.trim() === "") {
     return NextResponse.json(
-      { error: "`title` must be a string" },
+      { error: "`title` must be a non-empty string" },
       { status: 400 },
     );
   }
@@ -39,17 +40,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const post = doc as IPost;
+
   const basename = toKebabCase(title);
   const filename = `${basename}.json`;
   const postsDir = path.join(process.cwd(), "posts");
   const filePath = path.join(postsDir, filename);
 
-  doc.title = title;
-  doc.slug = basename;
+  post.title = title;
+  post.slug = basename;
 
   try {
     await fs.mkdir(postsDir, { recursive: true });
-    await fs.writeFile(filePath, JSON.stringify(doc, null, 2), "utf8");
+    await fs.writeFile(filePath, JSON.stringify(post, null, 2), "utf8");
   } catch (err) {
     console.error("Failed to write post:", err);
     return NextResponse.json(
