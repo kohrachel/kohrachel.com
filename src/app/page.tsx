@@ -3,6 +3,9 @@ import styled from "styled-components";
 import { IPost } from "@/types";
 import path from "path";
 import fs from "fs";
+import { ButtonLink } from "@/components/Button";
+
+const isDev = process.env.NODE_ENV === "development";
 
 export default function HomePage() {
   const posts: IPost[] = fs
@@ -22,6 +25,9 @@ export default function HomePage() {
     });
   return (
     <Home>
+      {isDev && (
+        <CreatePostButton href="/editor">Create new post</CreatePostButton>
+      )}
       <PostDrawer>
         {posts.map((post) => (
           <PostChip key={post.slug}>
@@ -81,4 +87,8 @@ const PostDescription = styled.p`
   font-size: 0.95rem;
   line-height: 1.6;
   color: var(--comment);
+`;
+
+const CreatePostButton = styled(ButtonLink)`
+  margin: var(--page-padding-inline) 0;
 `;

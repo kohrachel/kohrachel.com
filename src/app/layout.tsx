@@ -49,6 +49,11 @@ const Header = styled.header`
   left: 0;
   z-index: 10;
   border-bottom: 1px solid color-mix(in srgb, var(--comment) 45%, transparent);
+  isolation: isolate;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4rem;
 
   .backdrop {
     position: absolute;
