@@ -11,7 +11,9 @@ export default function HomePage() {
       <Content>
         <PostDrawer>
           <PostChip>
-            <PostTitle>the overwhelming anarchy of adulthood</PostTitle>
+            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
+              the overwhelming anarchy of adulthood
+            </PostTitle>
             <PostDescription>
               I&apos;m not sure if it&apos;s just me, but it seems like
               adulthood is a constant stream of overwhelming chaos. There&apos;s
@@ -19,7 +21,9 @@ export default function HomePage() {
             </PostDescription>
           </PostChip>
           <PostChip>
-            <PostTitle>the overwhelming anarchy of adulthood</PostTitle>
+            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
+              the overwhelming anarchy of adulthood
+            </PostTitle>
             <PostDescription>
               I&apos;m not sure if it&apos;s just me, but it seems like
               adulthood is a constant stream of overwhelming chaos. There&apos;s
@@ -27,7 +31,9 @@ export default function HomePage() {
             </PostDescription>
           </PostChip>
           <PostChip>
-            <PostTitle>the overwhelming anarchy of adulthood</PostTitle>
+            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
+              the overwhelming anarchy of adulthood
+            </PostTitle>
             <PostDescription>
               I&apos;m not sure if it&apos;s just me, but it seems like
               adulthood is a constant stream of overwhelming chaos. There&apos;s
@@ -35,7 +41,9 @@ export default function HomePage() {
             </PostDescription>
           </PostChip>
           <PostChip>
-            <PostTitle>the overwhelming anarchy of adulthood</PostTitle>
+            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
+              the overwhelming anarchy of adulthood
+            </PostTitle>
             <PostDescription>
               I&apos;m not sure if it&apos;s just me, but it seems like
               adulthood is a constant stream of overwhelming chaos. There&apos;s
@@ -43,7 +51,9 @@ export default function HomePage() {
             </PostDescription>
           </PostChip>
           <PostChip>
-            <PostTitle>the overwhelming anarchy of adulthood</PostTitle>
+            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
+              the overwhelming anarchy of adulthood
+            </PostTitle>
             <PostDescription>
               I&apos;m not sure if it&apos;s just me, but it seems like
               adulthood is a constant stream of overwhelming chaos. There&apos;s
@@ -51,7 +61,9 @@ export default function HomePage() {
             </PostDescription>
           </PostChip>
           <PostChip>
-            <PostTitle>the overwhelming anarchy of adulthood</PostTitle>
+            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
+              the overwhelming anarchy of adulthood
+            </PostTitle>
             <PostDescription>
               I&apos;m not sure if it&apos;s just me, but it seems like
               adulthood is a constant stream of overwhelming chaos. There&apos;s
@@ -59,7 +71,9 @@ export default function HomePage() {
             </PostDescription>
           </PostChip>
           <PostChip>
-            <PostTitle>the overwhelming anarchy of adulthood</PostTitle>
+            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
+              the overwhelming anarchy of adulthood
+            </PostTitle>
             <PostDescription>
               I&apos;m not sure if it&apos;s just me, but it seems like
               adulthood is a constant stream of overwhelming chaos. There&apos;s
@@ -67,7 +81,9 @@ export default function HomePage() {
             </PostDescription>
           </PostChip>
           <PostChip>
-            <PostTitle>the overwhelming anarchy of adulthood</PostTitle>
+            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
+              the overwhelming anarchy of adulthood
+            </PostTitle>
             <PostDescription>
               I&apos;m not sure if it&apos;s just me, but it seems like
               adulthood is a constant stream of overwhelming chaos. There&apos;s
@@ -132,14 +148,14 @@ const PostDrawer = styled.div`
   flex-direction: column;
 `;
 
-const PostChip = styled.div`
+const PostChip = styled.article`
   font-size: 0.8rem;
   line-height: 1.5;
   color: var(--foreground);
   padding: 0.5rem 1rem;
 `;
 
-const PostTitle = styled.h1`
+const PostTitle = styled(Link)`
   font-size: 1.5rem;
   line-height: 1.5;
 `;
