@@ -1,17 +1,29 @@
+/* Dracula — https://draculatheme.com/contribute */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --background: #18181a;
+  --foreground: #f8f8f2;
+  --selection: #66f;
+  --comment: #6272a4;
+  --cyan: #8be9fd;
+  --green: #50fa7b;
+  --orange: #ffb86c;
+  --pink: #ff79c6;
+  --purple: #bd93f9;
+  --red: #ff5555;
+  --yellow: #f1fa8c;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Fluid page gutters & vertical rhythm (shrink as the viewport narrows) */
+  --page-padding-inline: clamp(1rem, 0.65rem + 7vw, 10rem);
+  --page-padding-top: clamp(4rem, 2.5rem + 4.5vw, 6.5rem);
+  --page-padding-bottom: clamp(1.75rem, 1rem + 3.5vw, 6rem);
+  --header-padding-block: clamp(0.5rem, 0.35rem + 1vw, 1rem);
+  --card-padding-block: clamp(0.85rem, 0.55rem + 1.1vw, 1.25rem);
+  --card-padding-inline: clamp(0.95rem, 0.65rem + 1.2vw, 1.35rem);
 }
 
 html {
   height: 100%;
+  color-scheme: dark;
 }
 
 html,
@@ -42,8 +54,7 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+::selection {
+  background: var(--selection);
+  color: var(--foreground);
 }
