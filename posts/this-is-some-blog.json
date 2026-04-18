@@ -1,0 +1,16 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "hey champ, i love you"
+        }
+      ]
+    }
+  ],
+  "title": "this is some blog",
+  "slug": "this-is-some-blog"
+}

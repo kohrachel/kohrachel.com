@@ -1,8 +1,3 @@
-import { useMemo } from "react";
-
-const KEBAB_REGEX = /\p{Lu}/gu;
-const UNSAFE_PATH_CHARS = /[\/\\:*?"<>|]/g;
-
 /**
  * Converts a string to kebab-case.
  * - Lowercases Unicode capitals via \p{Lu}
@@ -13,9 +8,10 @@ const UNSAFE_PATH_CHARS = /[\/\\:*?"<>|]/g;
  */
 export function toKebabCase(title: string): string {
   return title
-    .replace(KEBAB_REGEX, (match) => match.toLowerCase())
-    .replace(/\s+/g, "-")
-    .replace(UNSAFE_PATH_CHARS, "")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^\w-]+/g, "") // Remove all non-word chars (except -)
+    .replace(/--+/g, "-"); // Replace multiple - with single -
 }

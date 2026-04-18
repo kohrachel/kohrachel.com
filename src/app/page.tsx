@@ -1,91 +1,39 @@
 import Link from "next/link";
 import styled from "styled-components";
+import { IPost } from "@/types";
+import path from "path";
+import fs from "fs";
 
 export default function HomePage() {
+  const posts: IPost[] = fs
+    .readdirSync(path.join(process.cwd(), "posts"))
+    .filter((file) => file.endsWith(".json"))
+    .map((file) => {
+      const content = fs.readFileSync(
+        path.join(process.cwd(), "posts", file),
+        "utf8",
+      );
+      const post = JSON.parse(content);
+      return {
+        title: post.title,
+        slug: post.slug,
+        content: post.content,
+      };
+    });
+
+  console.log(posts);
   return (
     <Home>
       <Content>
         <PostDrawer>
-          <PostChip>
-            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
-              the overwhelming anarchy of adulthood
-            </PostTitle>
-            <PostDescription>
-              I&apos;m not sure if it&apos;s just me, but it seems like
-              adulthood is a constant stream of overwhelming chaos. There&apos;s
-              always so much to do and so little time to do it.
-            </PostDescription>
-          </PostChip>
-          <PostChip>
-            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
-              the overwhelming anarchy of adulthood
-            </PostTitle>
-            <PostDescription>
-              I&apos;m not sure if it&apos;s just me, but it seems like
-              adulthood is a constant stream of overwhelming chaos. There&apos;s
-              always so much to do and so little time to do it.
-            </PostDescription>
-          </PostChip>
-          <PostChip>
-            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
-              the overwhelming anarchy of adulthood
-            </PostTitle>
-            <PostDescription>
-              I&apos;m not sure if it&apos;s just me, but it seems like
-              adulthood is a constant stream of overwhelming chaos. There&apos;s
-              always so much to do and so little time to do it.
-            </PostDescription>
-          </PostChip>
-          <PostChip>
-            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
-              the overwhelming anarchy of adulthood
-            </PostTitle>
-            <PostDescription>
-              I&apos;m not sure if it&apos;s just me, but it seems like
-              adulthood is a constant stream of overwhelming chaos. There&apos;s
-              always so much to do and so little time to do it.
-            </PostDescription>
-          </PostChip>
-          <PostChip>
-            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
-              the overwhelming anarchy of adulthood
-            </PostTitle>
-            <PostDescription>
-              I&apos;m not sure if it&apos;s just me, but it seems like
-              adulthood is a constant stream of overwhelming chaos. There&apos;s
-              always so much to do and so little time to do it.
-            </PostDescription>
-          </PostChip>
-          <PostChip>
-            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
-              the overwhelming anarchy of adulthood
-            </PostTitle>
-            <PostDescription>
-              I&apos;m not sure if it&apos;s just me, but it seems like
-              adulthood is a constant stream of overwhelming chaos. There&apos;s
-              always so much to do and so little time to do it.
-            </PostDescription>
-          </PostChip>
-          <PostChip>
-            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
-              the overwhelming anarchy of adulthood
-            </PostTitle>
-            <PostDescription>
-              I&apos;m not sure if it&apos;s just me, but it seems like
-              adulthood is a constant stream of overwhelming chaos. There&apos;s
-              always so much to do and so little time to do it.
-            </PostDescription>
-          </PostChip>
-          <PostChip>
-            <PostTitle href="/the-overwhelming-anarchy-of-adulthood">
-              the overwhelming anarchy of adulthood
-            </PostTitle>
-            <PostDescription>
-              I&apos;m not sure if it&apos;s just me, but it seems like
-              adulthood is a constant stream of overwhelming chaos. There&apos;s
-              always so much to do and so little time to do it.
-            </PostDescription>
-          </PostChip>
+          {posts.map((post) => (
+            <PostChip key={post.slug}>
+              <PostTitle href={`/${post.slug}`}>{post.title}</PostTitle>
+              <PostDescription>
+                {post.content[0]?.content[0]?.text.slice(0, 100)}...
+              </PostDescription>
+            </PostChip>
+          ))}
         </PostDrawer>
       </Content>
     </Home>

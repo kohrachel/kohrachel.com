@@ -44,6 +44,9 @@ export async function POST(request: NextRequest) {
   const postsDir = path.join(process.cwd(), "posts");
   const filePath = path.join(postsDir, filename);
 
+  doc.title = title;
+  doc.slug = basename;
+
   try {
     await fs.mkdir(postsDir, { recursive: true });
     await fs.writeFile(filePath, JSON.stringify(doc, null, 2), "utf8");
