@@ -14,8 +14,6 @@ export default async function PostPage({
     "utf8",
   );
   const postData = JSON.parse(postFile);
-
-  console.log(postData);
   return (
     <PostPageShell>
       <PostTitle>{postData.title}</PostTitle>
