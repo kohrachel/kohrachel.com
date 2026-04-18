@@ -1,8 +1,5 @@
 import styled from "styled-components";
-import {
-  postBodyBlockGap,
-  postBodyTypography,
-} from "@/lib/postBodyTypography";
+import { postBodyBlockGap, postBodyTypography } from "@/lib/postBodyTypography";
 
 /** Outer `<main>` for post and editor routes (matches `[postSlug]/page.tsx`). */
 export const PostPageShell = styled.main`
@@ -21,6 +18,7 @@ export const PostPageShell = styled.main`
 export const PostTitle = styled.span`
   font-size: 2rem;
   line-height: 1.5;
+  font-weight: 800;
 `;
 
 /**
@@ -30,6 +28,7 @@ export const PostTitle = styled.span`
 export const PostTitleInput = styled.input.attrs({ type: "text" })`
   font-size: 2rem;
   line-height: 1.5;
+  font-weight: 800;
   font-family: inherit;
   width: 100%;
   margin: 0;

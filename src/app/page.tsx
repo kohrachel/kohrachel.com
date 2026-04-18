@@ -64,7 +64,7 @@ const PostTitle = styled(Link)`
   display: inline-block;
   font-size: 1.35rem;
   line-height: 1.35;
-  font-weight: 600;
+  font-weight: 800;
   color: var(--foreground);
   margin-bottom: 0.5rem;
   transition: color 0.15s ease;
