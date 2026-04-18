@@ -1,17 +1,22 @@
 import Tiptap from "@components/TipTap";
-import styled from "styled-components";
+import {
+  PostBodyColumn,
+  PostPageShell,
+  PostTitleInput,
+} from "@/lib/postPageLayout";
 
 export default function EditorPage() {
   return (
-    <Editor>
-      <Tiptap />
-    </Editor>
+    <PostPageShell>
+      <PostTitleInput
+        name="title"
+        placeholder="[untitled blog]"
+        autoComplete="off"
+        aria-label="Post title"
+      />
+      <PostBodyColumn>
+        <Tiptap />
+      </PostBodyColumn>
+    </PostPageShell>
   );
 }
-
-const Editor = styled.div`
-  width: 100%;
-  height: 100%;
-  padding: var(--page-padding-inline);
-  background-color: blue;
-`;

@@ -1,10 +1,10 @@
-import styled from "styled-components";
+import { PostBodyColumn, PostPageShell, PostTitle } from "@/lib/postPageLayout";
 
 export default function PostPage() {
   return (
-    <Post>
-      <Title>the overwhelming anarchy of adulthood</Title>
-      <PostContent>
+    <PostPageShell>
+      <PostTitle>the overwhelming anarchy of adulthood</PostTitle>
+      <PostBodyColumn>
         <p>
           Do do voluptate Lorem pariatur elit ut veniam. Reprehenderit velit
           Lorem cillum et minim incididunt fugiat duis. Veniam duis sint dolor
@@ -32,34 +32,7 @@ export default function PostPage() {
           eiusmod id incididunt adipisicing irure occaecat Lorem sit do. Labore
           proident eiusmod Lorem esse.
         </p>
-      </PostContent>
-    </Post>
+      </PostBodyColumn>
+    </PostPageShell>
   );
 }
-
-const Post = styled.main`
-  font-size: 2rem;
-  line-height: 1.25;
-  padding-inline: var(--page-padding-inline);
-  padding-top: var(--page-padding-top);
-  padding-bottom: var(--page-padding-bottom);
-  display: flex;
-  flex-direction: column;
-  gap: 5rem;
-  align-items: center;
-`;
-
-const Title = styled.span`
-  font-size: 2rem;
-  line-height: 1.5;
-`;
-
-const PostContent = styled.div`
-  font-size: 1rem;
-  line-height: 1.5;
-  text-align: start;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 2.3rem;
-`;
