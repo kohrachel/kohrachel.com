@@ -22,18 +22,16 @@ export default function HomePage() {
     });
   return (
     <Home>
-      <Content>
-        <PostDrawer>
-          {posts.map((post) => (
-            <PostChip key={post.slug}>
-              <PostTitle href={`/${post.slug}`}>{post.title}</PostTitle>
-              <PostDescription>
-                {post.content[0]?.content[0]?.text.slice(0, 100)}...
-              </PostDescription>
-            </PostChip>
-          ))}
-        </PostDrawer>
-      </Content>
+      <PostDrawer>
+        {posts.map((post) => (
+          <PostChip key={post.slug}>
+            <PostTitle href={`/${post.slug}`}>{post.title}</PostTitle>
+            <PostDescription>
+              {post.content[0]?.content[0]?.text.slice(0, 100)}...
+            </PostDescription>
+          </PostChip>
+        ))}
+      </PostDrawer>
     </Home>
   );
 }
@@ -41,9 +39,6 @@ export default function HomePage() {
 const Home = styled.main`
   font-size: 1rem;
   line-height: 1.6;
-`;
-
-const Content = styled.div`
   padding-inline: var(--page-padding-inline);
   padding-top: var(--page-padding-top);
   padding-bottom: var(--page-padding-bottom);
