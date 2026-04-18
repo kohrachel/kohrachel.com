@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { Editor } from "@tiptap/core";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import styled from "styled-components";
@@ -8,7 +10,11 @@ import {
   postBodyTypography,
 } from "@/lib/postBodyTypography";
 
-export default function Tiptap() {
+interface TiptapProps {
+  onEditor?: (editor: Editor | null) => void;
+}
+
+export default function Tiptap({ onEditor }: TiptapProps) {
   const editor = useEditor({
     extensions: [StarterKit],
     content: "<p>Hello World! 🌎️</p>",
@@ -20,6 +26,11 @@ export default function Tiptap() {
       },
     },
   });
+
+  useEffect(() => {
+    onEditor?.(editor);
+    return () => onEditor?.(null);
+  }, [editor, onEditor]);
 
   if (!editor) {
     return <LoadingText>Loading editor…</LoadingText>;
