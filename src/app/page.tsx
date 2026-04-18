@@ -20,8 +20,6 @@ export default function HomePage() {
         content: post.content,
       };
     });
-
-  console.log(posts);
   return (
     <Home>
       <Content>
