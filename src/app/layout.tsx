@@ -29,11 +29,13 @@ export default function RootLayout({
       lang="en"
       className={`${libreBaskerville.variable} ${geistMono.variable}`}
     >
-      <Header>
-        <div className="backdrop" aria-hidden />
-        <BrandLink href="/">rachel koh</BrandLink>
-      </Header>
-      <body>{children}</body>
+      <body>
+        <Header>
+          <div className="backdrop" aria-hidden />
+          <BrandLink href="/">rachel koh</BrandLink>
+        </Header>
+        {children}
+      </body>
     </html>
   );
 }
