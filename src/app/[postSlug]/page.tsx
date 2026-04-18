@@ -13,7 +13,7 @@ export default async function PostPage({
     path.join(process.cwd(), "posts", `${postSlug}.json`),
     "utf8",
   );
-  const postData = JSON.parse(postFile);
+  const postData: IPost = JSON.parse(postFile);
   return (
     <PostPageShell>
       <PostTitle>{postData.title}</PostTitle>
