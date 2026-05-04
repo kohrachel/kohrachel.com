@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { postBodyBlockGap, postBodyTypography } from "@/lib/postBodyTypography";
+import Link from "next/link";
 
 /** Outer `<main>` for post and editor routes (matches `[postSlug]/page.tsx`). */
 export const PostPageShell = styled.main`
@@ -16,8 +17,6 @@ export const PostTitle = styled.h1`
   font-size: clamp(1.5rem, 1rem + 10vw, 4rem);
   line-height: 1;
   font-weight: 800;
-  padding-inline: var(--page-padding-inline);
-  padding-top: var(--post-page-padding-vertical);
 `;
 
 /**
@@ -56,4 +55,41 @@ export const PostBodyColumn = styled.div`
   padding-inline: var(--page-padding-inline);
   padding-bottom: var(--post-page-padding-vertical);
   background-color: var(--primary);
+`;
+
+export const TitleAndBackButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-inline: var(--page-padding-inline);
+  padding-top: var(--post-page-padding-vertical);
+`;
+
+export const BackButton = styled(Link)`
+  font-size: 1rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--header) 50%, var(--accent));
+  text-decoration: none;
+  border-radius: 0.5rem;
+  width: fit-content;
+
+  transition:
+    color 0.15s ease,
+    text-decoration 0.15s ease;
+
+  &:hover {
+    color: var(--header);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-decoration-style: solid;
+    text-underline-offset: 2px;
+  }
+`;
+
+export const PostHeaderSection = styled.header`
+  width: 100%;
+  height: min-content;
+  overflow: visible;
+  background-color: var(--background);
 `;
