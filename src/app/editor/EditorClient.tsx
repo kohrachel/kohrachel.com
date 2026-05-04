@@ -63,16 +63,19 @@ export default function EditorClient() {
       <PostBodyColumn>
         <Tiptap onEditor={handleEditorReady} />
       </PostBodyColumn>
-      <ButtonRow>
+      <ButtonWrapper>
         <Button onClick={handleExport} disabled={exporting}>
           {exporting ? "Exporting…" : "Export to JSON"}
         </Button>
-      </ButtonRow>
+      </ButtonWrapper>
     </PostPageShell>
   );
 }
 
-const ButtonRow = styled.div`
+const ButtonWrapper = styled.div`
   display: flex;
   gap: 1rem;
+  position: absolute;
+  top: var(--post-page-padding-vertical);
+  right: var(--page-padding-inline);
 `;

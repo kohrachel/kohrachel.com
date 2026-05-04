@@ -24,7 +24,8 @@ export const PostTitle = styled.h1`
  * so it reads like the post heading.
  */
 export const PostTitleInput = styled.input.attrs({ type: "text" })`
-  line-height: 1.5;
+  font-size: clamp(1.5rem, 1rem + 10vw, 4rem);
+  line-height: 1;
   font-weight: 800;
   font-family: inherit;
   width: 100%;
@@ -35,9 +36,12 @@ export const PostTitleInput = styled.input.attrs({ type: "text" })`
   color: inherit;
   outline: none;
   box-shadow: none;
+  padding-inline: var(--page-padding-inline);
+  padding-top: var(--post-page-padding-vertical);
+  font-family: var(--font-yang-bagus), Arial, Helvetica, sans-serif;
 
   &::placeholder {
-    color: color-mix(in srgb, var(--foreground) 42%, var(--comment));
+    color: color-mix(in srgb, var(--header) 70%, transparent);
   }
 
   &:focus {

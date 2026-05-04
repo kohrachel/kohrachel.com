@@ -47,7 +47,7 @@ export default function Tiptap({ onEditor }: TiptapProps) {
 }
 
 const LoadingText = styled.p`
-  color: var(--comment);
+  color: color-mix(in srgb, var(--header) 70%, transparent);
   padding: 0.5rem 0;
   margin: 0;
 `;
@@ -75,7 +75,7 @@ const EditorShell = styled.div`
     box-shadow: none;
   }
   .tiptap p.is-editor-empty::before {
-    color: var(--comment);
+    color: color-mix(in srgb, var(--header) 70%, transparent);
     content: attr(data-placeholder);
     float: left;
     height: 0;

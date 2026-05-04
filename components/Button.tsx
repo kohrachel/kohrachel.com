@@ -7,7 +7,7 @@ const buttonStyles = css`
   padding: 0.6rem 1.25rem;
   border-radius: 16px;
   background: var(--primary);
-  color: var(--text);
+  color: var(--header);
   cursor: pointer;
   transition: background 0.15s ease;
 
