@@ -22,6 +22,7 @@ export default function HomePage() {
         title: post.title,
         slug: post.slug,
         content: post.content,
+        publishedAt: post.publishedAt,
       };
     });
   return (
@@ -38,9 +39,13 @@ export default function HomePage() {
           {posts.map((post) => (
             <PostChip key={post.slug}>
               <PostTitle href={`/${post.slug}`}>{post.title}</PostTitle>
-              <PostDescription>
-                {post.content[0]?.content[0]?.text.slice(0, 100)}...
-              </PostDescription>
+              <p>
+                {new Date(post.publishedAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </p>
             </PostChip>
           ))}
         </PostDrawer>
@@ -156,7 +161,7 @@ const AboutMe = styled(Section)`
 `;
 const PostChip = styled.article`
   font-size: 0.8rem;
-  line-height: 1.55;
+  line-height: 1.5;
   color: var(--foreground);
 `;
 
@@ -166,7 +171,6 @@ const PostTitle = styled(Link)`
   line-height: 1.35;
   font-weight: 800;
   color: var(--foreground);
-  margin-bottom: 0.5rem;
   transition: color 0.15s ease;
 
   &:hover {
