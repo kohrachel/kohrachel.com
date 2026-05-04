@@ -12,18 +12,21 @@
   --red: #ff5555;
   --yellow: #f1fa8c;
 
-  --text: hsl(0, 33%, 98%);
-  --background: hsl(94, 28%, 60%);
-  --primary: hsl(173, 64%, 15%);
+  --header: hsl(132, 14%, 93%);
+  --text: hsl(0, 0%, 12%);
+  --background: hsl(94, 23%, 48%);
+  --primary: hsl(148, 65%, 14%);
   --secondary: hsl(58, 31%, 24%);
+  --tertiary: hsl(30, 48%, 32%);
   --accent: hsl(58, 89%, 83%);
+  --selection: hsl(173, 64%, 15%);
 
   /* Fluid page gutters & vertical rhythm (shrink as the viewport narrows) */
-  --page-padding-inline: clamp(1rem, 0.65rem + 7vw, 10rem);
-  --page-padding-top: clamp(6rem, 4rem + 4.5vw, 8rem);
+  --page-padding-inline: clamp(0.5rem, 0.65rem + 7vw, 10rem);
+  --page-padding-vertical: clamp(6rem, 4rem + 4.5vw, 8rem);
   --page-padding-bottom: clamp(1.75rem, 1rem + 3.5vw, 6rem);
   --header-padding-block: clamp(0.5rem, 0.35rem + 1vw, 1rem);
-  --card-padding-block: clamp(0.85rem, 0.55rem + 1.1vw, 1.25rem);
+  --card-padding-block: clamp(1.5rem, 0.85rem + 1.1vw, 2rem);
   --card-padding-inline: clamp(0.95rem, 0.65rem + 1.2vw, 1.35rem);
 }
 
@@ -42,9 +45,11 @@ body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  color: var(--foreground);
+  color: var(--text);
   background: var(--background);
-  font-family: var(--font-libre-baskerville), Arial, Helvetica, sans-serif;
+  font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -56,7 +61,10 @@ h4,
 h5,
 h6 {
   font-family: var(--font-yang-bagus), Arial, Helvetica, sans-serif;
+  text-box: trim-both cap alphabetic;
+  color: var(--header);
 }
+
 * {
   box-sizing: border-box;
   padding: 0;

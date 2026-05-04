@@ -3,21 +3,21 @@ import { postBodyBlockGap, postBodyTypography } from "@/lib/postBodyTypography";
 
 /** Outer `<main>` for post and editor routes (matches `[postSlug]/page.tsx`). */
 export const PostPageShell = styled.main`
-  font-size: 2rem;
   line-height: 1.25;
   padding-inline: var(--page-padding-inline);
-  padding-top: var(--page-padding-top);
-  padding-bottom: var(--page-padding-bottom);
+  padding-top: var(--page-padding-vertical);
+  padding-bottom: var(--page-padding-vertical);
   display: flex;
   flex-direction: column;
   gap: 5rem;
   align-items: center;
+  background-color: var(--primary);
 `;
 
 /** Post heading (matches `Title` in `[postSlug]/page.tsx`). */
-export const PostTitle = styled.span`
-  font-size: 2rem;
-  line-height: 1.5;
+export const PostTitle = styled.h1`
+  font-size: clamp(2rem, 1rem + 10vw, 5rem);
+  line-height: 1;
   font-weight: 800;
 `;
 

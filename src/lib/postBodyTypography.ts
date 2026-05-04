@@ -8,8 +8,6 @@ export const postBodyBlockGap = "2.3rem";
  * Use inside TipTap’s `.ProseMirror` or other body containers — not for titles.
  */
 export const postBodyTypography = css`
-  font-size: 1rem;
-  line-height: 1.5;
   text-align: start;
 `;
 

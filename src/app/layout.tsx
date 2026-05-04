@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Libre_Baskerville } from "next/font/google";
+import { Geist_Mono, Libre_Baskerville, Poppins } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import styled from "styled-components";
@@ -8,6 +8,12 @@ import Link from "next/link";
 const yangBagus = localFont({
   src: "./fonts/yang-bagus.otf",
   variable: "--font-yang-bagus",
+});
+
+const poppins = Poppins({
+  variable: "--font-poppins",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -21,7 +27,7 @@ const libreBaskerville = Libre_Baskerville({
 });
 
 export const metadata: Metadata = {
-  title: "rachel koh",
+  title: "Rachel Koh",
   description: "matcha-addled rabbit holes",
 };
 
@@ -33,13 +39,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${libreBaskerville.variable} ${geistMono.variable} ${yangBagus.variable}`}
+      className={`${libreBaskerville.variable} ${geistMono.variable} ${yangBagus.variable} ${poppins.variable}`}
     >
       <body>
-        <Header>
+        {/* <Header>
           <div className="backdrop" aria-hidden />
           <BrandLink href="/">rachel koh</BrandLink>
-        </Header>
+        </Header> */}
         {children}
       </body>
     </html>
