@@ -19,12 +19,13 @@
   --secondary: hsl(58, 31%, 24%);
   --tertiary: hsl(30, 48%, 32%);
   --accent: hsl(58, 89%, 83%);
-  --selection: hsl(173, 64%, 15%);
+  --selection: hsl(164, 58%, 30%);
 
   /* Fluid page gutters & vertical rhythm (shrink as the viewport narrows) */
   --page-padding-inline: clamp(0.5rem, 0.65rem + 7vw, 10rem);
   --page-padding-vertical: clamp(6rem, 4rem + 4.5vw, 8rem);
   --page-padding-bottom: clamp(1.75rem, 1rem + 3.5vw, 6rem);
+  --post-page-padding-vertical: clamp(3.5rem, 2rem + 4.5vw, 8rem);
   --header-padding-block: clamp(0.5rem, 0.35rem + 1vw, 1rem);
   --card-padding-block: clamp(1.5rem, 0.85rem + 1.1vw, 2rem);
   --card-padding-inline: clamp(0.95rem, 0.65rem + 1.2vw, 1.35rem);
@@ -45,7 +46,7 @@ body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  color: var(--text);
+  color: var(--header);
   background: var(--background);
   font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
   font-size: 18px;
