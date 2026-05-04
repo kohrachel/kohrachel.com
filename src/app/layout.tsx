@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Libre_Baskerville } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import styled from "styled-components";
 import Link from "next/link";
+
+const yangBagus = localFont({
+  src: "./fonts/yang-bagus.otf",
+  variable: "--font-yang-bagus",
+});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -10,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 const libreBaskerville = Libre_Baskerville({
-  variable: "--font-body",
+  variable: "--font-libre-baskerville",
   subsets: ["latin"],
 });
 
@@ -27,7 +33,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${libreBaskerville.variable} ${geistMono.variable}`}
+      className={`${libreBaskerville.variable} ${geistMono.variable} ${yangBagus.variable}`}
     >
       <body>
         <Header>
@@ -78,7 +84,7 @@ const BrandLink = styled(Link)`
   font-size: 1.125rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: var(--purple);
+  color: var(--primary);
   text-shadow: 0 0 24px color-mix(in srgb, var(--purple) 35%, transparent);
   transition:
     color 0.15s ease,

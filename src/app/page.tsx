@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { IPost } from "@/types";
 import path from "path";
 import fs from "fs";
-import { ButtonLink } from "@/components/Button";
+import { ButtonLink } from "@components/Button";
 
 const isDev = process.env.NODE_ENV === "development";
 

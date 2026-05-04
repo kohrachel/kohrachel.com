@@ -9,7 +9,7 @@ import {
   PostPageShell,
   PostTitleInput,
 } from "@/lib/postPageLayout";
-import { Button } from "@/components/Button";
+import { Button } from "@components/Button";
 
 export default function EditorClient() {
   const [title, setTitle] = useState("");
