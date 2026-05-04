@@ -7,10 +7,27 @@ import {
   BackButton,
 } from "@/lib/postPageLayout";
 import { IPost } from "@/types";
+import { JSONContent } from "@tiptap/core";
 import path from "path";
 import Clouds from "@components/Clouds";
 import fs from "fs";
+import { createElement } from "react";
 import styled from "styled-components";
+
+function renderNode(node: JSONContent, index: number) {
+  const text = node.content?.[0]?.text ?? "";
+
+  switch (node.type) {
+    case "heading": {
+      const level = Math.min(Math.max(node.attrs?.level ?? 1, 1), 6);
+      return createElement(`h${level}`, { key: index }, text);
+    }
+    case "paragraph":
+      return <p key={index}>{text}</p>;
+    default:
+      return null;
+  }
+}
 
 export default async function PostPage({
   params,
@@ -41,13 +58,8 @@ export default async function PostPage({
       </PostHeaderSection>
 
       <PostBodyColumn>
-        {postData.content.map(
-          (
-            item: { content: { type: string; text: string }[] },
-            index: number,
-          ) => {
-            return <p key={index}>{item.content[0]?.text}</p>;
-          },
+        {(postData.content as JSONContent[]).map((node, index) =>
+          renderNode(node, index),
         )}
       </PostBodyColumn>
     </PostPageShell>

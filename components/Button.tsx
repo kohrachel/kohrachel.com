@@ -23,6 +23,7 @@ const buttonStyles = css`
 
 export const Button = styled.button`
   ${buttonStyles}
+  border: none;
 `;
 
 export const ButtonLink = styled(Link)`

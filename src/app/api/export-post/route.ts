@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
 
   post.title = title;
   post.slug = basename;
+  post.publishedAt = new Date().toISOString();
 
   try {
     await fs.mkdir(postsDir, { recursive: true });

@@ -1,5 +1,9 @@
 import styled from "styled-components";
-import { postBodyBlockGap, postBodyTypography } from "@/lib/postBodyTypography";
+import {
+  postBodyBlockGap,
+  postBodyHeadingStyles,
+  postBodyTypography,
+} from "@/lib/postBodyTypography";
 import Link from "next/link";
 
 /** Outer `<main>` for post and editor routes (matches `[postSlug]/page.tsx`). */
@@ -52,6 +56,7 @@ export const PostTitleInput = styled.input.attrs({ type: "text" })`
 /** Body column: title + paragraphs, or the TipTap surface (matches `PostContent`). */
 export const PostBodyColumn = styled.div`
   ${postBodyTypography}
+  ${postBodyHeadingStyles}
   width: 100%;
   display: flex;
   flex-direction: column;

@@ -8,6 +8,7 @@ import StarterKit from "@tiptap/starter-kit";
 import styled from "styled-components";
 import {
   postBodyParagraphSpacing,
+  postBodyHeadingStyles,
   postBodyTypography,
 } from "@/lib/postBodyTypography";
 
@@ -68,6 +69,7 @@ const EditorShell = styled.div`
 
     ${postBodyTypography}
     ${postBodyParagraphSpacing}
+    ${postBodyHeadingStyles}
   }
   .tiptap.ProseMirror:focus,
   .tiptap.ProseMirror:focus-visible {
