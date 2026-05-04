@@ -10,6 +10,7 @@ import { IPost } from "@/types";
 import path from "path";
 import Clouds from "@components/Clouds";
 import fs from "fs";
+import styled from "styled-components";
 
 export default async function PostPage({
   params,
@@ -28,6 +29,13 @@ export default async function PostPage({
         <TitleAndBackButtonWrapper>
           <BackButton href="/">← go back</BackButton>
           <PostTitle>{postData.title}</PostTitle>
+          <PublishedAt>
+            {new Date(postData.publishedAt).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </PublishedAt>
         </TitleAndBackButtonWrapper>
         <Clouds width="5120" height="357" />
       </PostHeaderSection>
@@ -45,3 +53,9 @@ export default async function PostPage({
     </PostPageShell>
   );
 }
+
+const PublishedAt = styled.span`
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--header);
+`;
