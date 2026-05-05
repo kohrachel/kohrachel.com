@@ -66,7 +66,6 @@ export default function HomePage() {
 
 const Home = styled.main`
   font-size: 1rem;
-  line-height: 1.6;
   padding-inline: var(--page-padding-inline);
   padding-top: var(--page-padding-vertical);
   padding-bottom: var(--page-padding-vertical);

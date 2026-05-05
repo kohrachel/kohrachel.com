@@ -14,16 +14,40 @@ import fs from "fs";
 import { createElement } from "react";
 import styled from "styled-components";
 
-function renderNode(node: JSONContent, index: number) {
-  const text = node.content?.[0]?.text ?? "";
+function renderInlineContent(node: JSONContent): React.ReactNode {
+  return node.content?.map((child) => child.text ?? null) ?? null;
+}
 
+function renderNode(node: JSONContent, index: number): React.ReactNode {
   switch (node.type) {
     case "heading": {
       const level = Math.min(Math.max(node.attrs?.level ?? 1, 1), 6);
-      return createElement(`h${level}`, { key: index }, text);
+      return createElement(
+        `h${level}`,
+        { key: index },
+        renderInlineContent(node),
+      );
     }
     case "paragraph":
-      return <p key={index}>{text}</p>;
+      return <p key={index}>{renderInlineContent(node)}</p>;
+    case "bulletList":
+      return (
+        <ul key={index}>
+          {node.content?.map((child, i) => renderNode(child, i))}
+        </ul>
+      );
+    case "orderedList":
+      return (
+        <ol key={index} start={node.attrs?.start ?? 1}>
+          {node.content?.map((child, i) => renderNode(child, i))}
+        </ol>
+      );
+    case "listItem":
+      return (
+        <li key={index}>
+          {node.content?.map((child, i) => renderNode(child, i))}
+        </li>
+      );
     default:
       return null;
   }

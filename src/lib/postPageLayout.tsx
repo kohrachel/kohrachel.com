@@ -2,13 +2,13 @@ import styled from "styled-components";
 import {
   postBodyBlockGap,
   postBodyHeadingStyles,
+  postBodyListStyles,
   postBodyTypography,
 } from "@/lib/postBodyTypography";
 import Link from "next/link";
 
 /** Outer `<main>` for post and editor routes (matches `[postSlug]/page.tsx`). */
 export const PostPageShell = styled.main`
-  line-height: 1.25;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -57,6 +57,7 @@ export const PostTitleInput = styled.input.attrs({ type: "text" })`
 export const PostBodyColumn = styled.div`
   ${postBodyTypography}
   ${postBodyHeadingStyles}
+  ${postBodyListStyles}
   width: 100%;
   display: flex;
   flex-direction: column;
