@@ -14,6 +14,7 @@ export const PostPageShell = styled.main`
   align-items: center;
   height: 100vh;
   overflow-y: scroll;
+  overflow-x: hidden;
 `;
 
 /** Post heading (matches `Title` in `[postSlug]/page.tsx`). */
