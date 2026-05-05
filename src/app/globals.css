@@ -22,7 +22,7 @@
   --selection: hsl(164, 58%, 30%);
 
   /* Fluid page gutters & vertical rhythm (shrink as the viewport narrows) */
-  --page-padding-inline: clamp(0.5rem, 0.65rem + 7vw, 10rem);
+  --page-padding-inline: clamp(0.5rem, 18vw, 20rem);
   --page-padding-vertical: clamp(6rem, 4rem + 4.5vw, 8rem);
   --page-padding-bottom: clamp(1.75rem, 1rem + 3.5vw, 6rem);
   --post-page-padding-vertical: clamp(3.5rem, 2rem + 4.5vw, 8rem);

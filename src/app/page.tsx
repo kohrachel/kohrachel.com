@@ -77,7 +77,7 @@ const Home = styled.main`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 3rem;
+  gap: 4rem;
 `;
 
 const BentoBox = styled.section`
@@ -105,7 +105,7 @@ const Title = styled.h1`
   font-size: clamp(3rem, 2rem + 10vw, 7rem);
   text-align: center;
   line-height: 1;
-  color: var(--header);
+  color: var(--accent);
 `;
 
 const SectionTitle = styled.h2`
