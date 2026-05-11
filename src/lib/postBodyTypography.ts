@@ -104,6 +104,70 @@ export const postBodyListStyles = css`
   }
 `;
 
+/** Table styles shared by saved posts and the TipTap editing surface. */
+export const postBodyTableStyles = css`
+  .tableWrapper {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  th,
+  td {
+    position: relative;
+    min-width: 8rem;
+    padding: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--header) 35%, transparent);
+    vertical-align: top;
+  }
+
+  th {
+    background: color-mix(in srgb, var(--selection) 40%, transparent);
+    color: var(--accent);
+    font-weight: 700;
+    text-align: left;
+  }
+
+  th > *,
+  td > * {
+    margin: 0;
+  }
+
+  th p + p,
+  td p + p {
+    margin-top: 0.75rem;
+  }
+
+  .selectedCell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+
+  .column-resize-handle {
+    position: absolute;
+    top: 0;
+    right: -2px;
+    bottom: -2px;
+    width: 4px;
+    background-color: var(--accent);
+    pointer-events: none;
+  }
+
+  .resize-cursor {
+    cursor: ew-resize;
+    cursor: col-resize;
+  }
+`;
+
 /** Paragraph rhythm for block flow (editor); mirrors stacked `<p>` spacing in the post layout. */
 export const postBodyParagraphSpacing = css`
   p {
