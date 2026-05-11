@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Editor } from "@tiptap/core";
+import type { Editor, JSONContent } from "@tiptap/core";
 import { Placeholder } from "@tiptap/extensions";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -14,14 +14,16 @@ import {
 
 interface TiptapProps {
   onEditor?: (editor: Editor | null) => void;
+  content?: JSONContent;
 }
 
-export default function Tiptap({ onEditor }: TiptapProps) {
+export default function Tiptap({ onEditor, content }: TiptapProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
       Placeholder.configure({ placeholder: "Write something…" }),
     ],
+    content,
     immediatelyRender: false,
     editorProps: {
       attributes: {
