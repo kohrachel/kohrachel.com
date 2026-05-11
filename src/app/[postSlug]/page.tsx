@@ -6,8 +6,8 @@ import {
   TitleAndBackButtonWrapper,
   BackButton,
 } from "@/lib/postPageLayout";
-import { IPost } from "@/types";
-import { JSONContent } from "@tiptap/core";
+import type { IPost } from "@/types";
+import type { JSONContent } from "@tiptap/core";
 import path from "path";
 import Clouds from "@components/Clouds";
 import fs from "fs";
