@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import styled from "styled-components";
 import Link from "next/link";
+import StyledComponentsRegistry from "@/lib/StyledComponentsRegistry";
 
 const yangBagus = localFont({
   src: "./fonts/yang-bagus.otf",
@@ -42,11 +43,13 @@ export default function RootLayout({
       className={`${libreBaskerville.variable} ${geistMono.variable} ${yangBagus.variable} ${poppins.variable}`}
     >
       <body>
-        {/* <Header>
-          <div className="backdrop" aria-hidden />
-          <BrandLink href="/">rachel koh</BrandLink>
-        </Header> */}
-        {children}
+        <StyledComponentsRegistry>
+          {/* <Header>
+            <div className="backdrop" aria-hidden />
+            <BrandLink href="/">rachel koh</BrandLink>
+          </Header> */}
+          {children}
+        </StyledComponentsRegistry>
       </body>
     </html>
   );

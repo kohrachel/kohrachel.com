@@ -30,6 +30,7 @@ export const postBodyHeadingStyles = css`
     padding-top: 2rem;
     padding-bottom: 1rem;
     color: var(--accent);
+    letter-spacing: 0.05rem;
   }
 
   h1 {

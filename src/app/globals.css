@@ -12,12 +12,12 @@
   --red: #ff5555;
   --yellow: #f1fa8c;
 
-  --header: hsl(132, 14%, 93%);
+  --header: hsl(42, 35%, 94%);
   --text: hsl(0, 0%, 12%);
   --background: hsl(94, 23%, 48%);
   --primary: hsl(148, 65%, 14%);
-  --secondary: hsl(58, 31%, 24%);
-  --tertiary: hsl(30, 48%, 32%);
+  --secondary: hsl(28, 23%, 38%);
+  --tertiary: hsl(36, 31%, 68%);
   --accent: hsl(58, 89%, 83%);
   --selection: hsl(164, 58%, 30%);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { Editor } from "@tiptap/core";
+import type { Editor, JSONContent } from "@tiptap/core";
 import styled from "styled-components";
 import Tiptap from "@components/TipTap";
 import {
@@ -11,8 +11,16 @@ import {
 } from "@/lib/postPageLayout";
 import { Button } from "@components/Button";
 
-export default function EditorClient() {
-  const [title, setTitle] = useState("");
+interface EditorClientProps {
+  initialTitle?: string;
+  initialContent?: JSONContent;
+}
+
+export default function EditorClient({
+  initialTitle,
+  initialContent,
+}: EditorClientProps) {
+  const [title, setTitle] = useState(initialTitle ?? "");
   const editorRef = useRef<Editor | null>(null);
   const [exporting, setExporting] = useState(false);
 
@@ -61,7 +69,7 @@ export default function EditorClient() {
         onChange={(e) => setTitle(e.target.value)}
       />
       <PostBodyColumn>
-        <Tiptap onEditor={handleEditorReady} />
+        <Tiptap onEditor={handleEditorReady} content={initialContent} />
       </PostBodyColumn>
       <ButtonWrapper>
         <Button onClick={handleExport} disabled={exporting}>
