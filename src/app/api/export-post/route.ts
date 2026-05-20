@@ -5,32 +5,6 @@ import { randomUUID } from "crypto";
 import { toKebabCase } from "@/lib/toKebabCase";
 import { IPost } from "@/types";
 
-async function findPostSlugById(postsDir: string, id: string) {
-  let files: string[];
-
-  try {
-    files = await fs.readdir(postsDir);
-  } catch {
-    return undefined;
-  }
-
-  for (const file of files) {
-    if (!file.endsWith(".json")) continue;
-
-    try {
-      const raw = await fs.readFile(path.join(postsDir, file), "utf8");
-      const post = JSON.parse(raw) as Partial<IPost>;
-
-      if (post.id === id) {
-        return file.slice(0, -".json".length);
-      }
-    } catch {
-      // Ignore malformed post files while looking for this id.
-    }
-  }
-
-  return undefined;
-}
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -80,23 +54,20 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (originalSlug !== undefined) {
-    if (typeof originalSlug !== "string") {
-      return NextResponse.json(
-        { error: "`originalSlug` must be a string when provided" },
-        { status: 400 },
-      );
-    }
-
-    if (!/^[\w-]+$/.test(originalSlug)) {
-      return NextResponse.json(
-        { error: "`originalSlug` is not a valid slug" },
-        { status: 400 },
-      );
-    }
+  if (originalSlug !== undefined && typeof originalSlug !== "string") {
+    return NextResponse.json(
+      { error: "`originalSlug` must be a string when provided" },
+      { status: 400 },
+    );
   }
 
-  const post = doc as IPost;
+  if (typeof originalSlug === "string" && !/^[\w-]+$/.test(originalSlug)) {
+    return NextResponse.json(
+      { error: "`originalSlug` is not a valid slug" },
+      { status: 400 },
+    );
+  }
+
   const postId = typeof id === "string" ? id : randomUUID();
 
   const basename = toKebabCase(title);
@@ -104,13 +75,17 @@ export async function POST(request: NextRequest) {
   const postsDir = path.join(process.cwd(), "posts");
   const filePath = path.join(postsDir, filename);
 
-  const existingSlug = await findPostSlugById(postsDir, postId);
+  const existingSlug =
+    typeof id === "string" ? await findPostSlugById(postsDir, id) : undefined;
   const slugToDelete = existingSlug ?? originalSlug;
 
-  post.id = postId;
-  post.title = title;
-  post.slug = basename;
-  post.publishedAt = new Date().toISOString();
+  const post: IPost = {
+    ...(doc as IPost),
+    id: postId,
+    title,
+    slug: basename,
+    publishedAt: new Date().toISOString(),
+  };
 
   try {
     await fs.mkdir(postsDir, { recursive: true });
@@ -129,4 +104,31 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json({ ok: true, filename, id: postId, slug: basename });
+}
+
+async function findPostSlugById(postsDir: string, id: string) {
+  let files: string[];
+
+  try {
+    files = await fs.readdir(postsDir);
+  } catch {
+    return undefined;
+  }
+
+  for (const file of files) {
+    if (!file.endsWith(".json")) continue;
+
+    try {
+      const raw = await fs.readFile(path.join(postsDir, file), "utf8");
+      const post = JSON.parse(raw) as Partial<IPost>;
+
+      if (post.id === id) {
+        return file.slice(0, -".json".length);
+      }
+    } catch {
+      // Ignore malformed post files while looking for this id.
+    }
+  }
+
+  return undefined;
 }
