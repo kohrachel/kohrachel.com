@@ -34,13 +34,13 @@ export const postBodyHeadingStyles = css`
   }
 
   h1 {
-    font-size: 2.6rem;
+    font-size: 3rem;
   }
   h2 {
-    font-size: 1.9rem;
+    font-size: 2.3rem;
   }
   h3 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
   }
   h4 {
     font-size: 1.15rem;
@@ -63,7 +63,7 @@ export const postBodyListStyles = css`
   ul,
   ol {
     margin: 0;
-    padding: 1.7rem 1.5rem;
+    padding: 1.7rem 2rem;
     display: flex;
     flex-direction: column;
   }
@@ -84,7 +84,7 @@ export const postBodyListStyles = css`
   /* Nested lists: tighter gap, indented, different marker */
   li > ul,
   li > ol {
-    padding: 0 1.4rem;
+    padding: 0 2rem;
   }
 
   li > ul {
