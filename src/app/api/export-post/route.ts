@@ -5,6 +5,9 @@ import { randomUUID } from "node:crypto";
 import { toKebabCase } from "@/lib/toKebabCase";
 import type { IPost } from "@/types";
 
+const FILE_ALREADY_EXISTS_ERROR_CODE = "EEXIST";
+const WRITE_FILE = "w";
+const WRITE_FILE_ONLY_IF_NEW = "wx";
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -70,7 +73,7 @@ export async function POST(request: NextRequest) {
 
   const postId = typeof id === "string" ? id : randomUUID();
 
-  const basename = toKebabCase(title);
+  const basename = toPostSlug(title);
   const filename = `${basename}.json`;
   const postsDir = path.join(process.cwd(), "posts");
   const filePath = path.join(postsDir, filename);
@@ -87,15 +90,32 @@ export async function POST(request: NextRequest) {
     publishedAt: new Date().toISOString(),
   };
 
+  const isSavingExistingSlug = slugToDelete === basename;
+  const writeFlag = isSavingExistingSlug
+    ? WRITE_FILE
+    : WRITE_FILE_ONLY_IF_NEW;
+
   try {
     await fs.mkdir(postsDir, { recursive: true });
-    await fs.writeFile(filePath, JSON.stringify(post, null, 2), "utf8");
+    await fs.writeFile(filePath, JSON.stringify(post, null, 2), {
+      encoding: "utf8",
+      flag: writeFlag,
+    });
 
     if (slugToDelete && slugToDelete !== basename) {
       const oldFilePath = path.join(postsDir, `${slugToDelete}.json`);
       await fs.rm(oldFilePath, { force: true });
     }
   } catch (err) {
+    const error = err as NodeJS.ErrnoException;
+
+    if (error.code === FILE_ALREADY_EXISTS_ERROR_CODE) {
+      return NextResponse.json(
+        { error: `A post with slug \`${basename}\` already exists` },
+        { status: 409 },
+      );
+    }
+
     console.error("Failed to write post:", err);
     return NextResponse.json(
       { error: "Failed to write file" },
@@ -131,4 +151,14 @@ async function findPostSlugById(postsDir: string, id: string) {
   }
 
   return undefined;
+}
+
+const DEFAULT_POST_SLUG = "untitled";
+
+function toPostSlug(title: string) {
+  return (
+    toKebabCase(title)
+      // Remove leading and trailing hyphens.
+      .replace(/^-+|-+$/g, "") || DEFAULT_POST_SLUG
+  );
 }
