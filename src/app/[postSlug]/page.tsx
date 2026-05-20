@@ -68,7 +68,10 @@ export default async function PostPage({
     <PostPageShell>
       <PostHeaderSection>
         <TitleAndBackButtonWrapper>
-          <BackButton href="/">← go back</BackButton>
+          <PostActions>
+            <BackButton href="/">← go back</BackButton>
+            <BackButton href={`/editor/${postData.slug ?? postSlug}`}>edit</BackButton>
+          </PostActions>
           <PostTitle>{postData.title}</PostTitle>
           <PublishedAt>
             {new Date(postData.publishedAt).toLocaleDateString("en-US", {
@@ -89,6 +92,12 @@ export default async function PostPage({
     </PostPageShell>
   );
 }
+
+const PostActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
 
 const PublishedAt = styled.span`
   font-size: 0.875rem;

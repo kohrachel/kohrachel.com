@@ -30,5 +30,12 @@ export default async function EditorPage({
     content: post.content as unknown as JSONContent[],
   };
 
-  return <EditorClient initialTitle={post.title} initialContent={doc} />;
+  return (
+    <EditorClient
+      initialTitle={post.title}
+      initialContent={doc}
+      postId={post.id}
+      originalSlug={post.slug ?? slug}
+    />
+  );
 }

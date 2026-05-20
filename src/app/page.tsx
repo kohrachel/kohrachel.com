@@ -38,7 +38,10 @@ export default function HomePage() {
           <SectionTitle>Posts</SectionTitle>
           {posts.map((post) => (
             <PostChip key={post.slug}>
-              <PostTitle href={`/${post.slug}`}>{post.title}</PostTitle>
+              <PostTitleRow>
+                <PostTitle href={`/${post.slug}`}>{post.title}</PostTitle>
+                {isDev && <EditPostLink href={`/editor/${post.slug}`}>edit</EditPostLink>}
+              </PostTitleRow>
               <p>
                 {new Date(post.publishedAt).toLocaleDateString("en-US", {
                   year: "numeric",
@@ -164,6 +167,13 @@ const PostChip = styled.article`
   color: var(--foreground);
 `;
 
+const PostTitleRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+`;
+
 const PostTitle = styled(Link)`
   display: inline-block;
   font-size: 1.35rem;
@@ -184,6 +194,19 @@ const PostTitle = styled(Link)`
 const PostDescription = styled.p`
   font-size: 0.95rem;
   line-height: 1.6;
+`;
+
+const EditPostLink = styled(Link)`
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--foreground) 55%, var(--accent));
+  text-decoration: none;
+
+  &:hover {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 `;
 
 const CreatePostButton = styled(ButtonLink)`
