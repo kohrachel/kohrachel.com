@@ -7,14 +7,11 @@
  * - Falls back to "untitled" if result is empty
  */
 export function toKebabCase(title: string): string {
-  return (
-    title
-      .toString()
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, "-") // Replace spaces with -
-      .replace(/[^\w-]+/g, "") // Remove all non-word chars (except -)
-      .replace(/--+/g, "-") // Replace multiple - with single -
-      .replace(/^-+|-+$/g, "") || "untitled"
-  );
+  return title
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^\w-]+/g, "") // Remove all non-word chars (except -)
+    .replace(/--+/g, "-"); // Replace multiple - with single -
 }
