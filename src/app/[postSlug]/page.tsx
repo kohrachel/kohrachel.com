@@ -18,6 +18,18 @@ function renderInlineContent(node: JSONContent): React.ReactNode {
   return node.content?.map((child) => child.text ?? null) ?? null;
 }
 
+function getTableCellProps(node: JSONContent) {
+  const width = Array.isArray(node.attrs?.colwidth)
+    ? node.attrs?.colwidth[0]
+    : undefined;
+
+  return {
+    colSpan: node.attrs?.colspan ?? 1,
+    rowSpan: node.attrs?.rowspan ?? 1,
+    style: width ? { width: `${width}px` } : undefined,
+  };
+}
+
 function renderNode(node: JSONContent, index: number): React.ReactNode {
   switch (node.type) {
     case "heading": {
@@ -47,6 +59,28 @@ function renderNode(node: JSONContent, index: number): React.ReactNode {
         <li key={index}>
           {node.content?.map((child, i) => renderNode(child, i))}
         </li>
+      );
+    case "table":
+      return (
+        <div className="tableWrapper" key={index}>
+          <table>
+            <tbody>{node.content?.map((child, i) => renderNode(child, i))}</tbody>
+          </table>
+        </div>
+      );
+    case "tableRow":
+      return <tr key={index}>{node.content?.map((child, i) => renderNode(child, i))}</tr>;
+    case "tableHeader":
+      return (
+        <th key={index} {...getTableCellProps(node)}>
+          {node.content?.map((child, i) => renderNode(child, i))}
+        </th>
+      );
+    case "tableCell":
+      return (
+        <td key={index} {...getTableCellProps(node)}>
+          {node.content?.map((child, i) => renderNode(child, i))}
+        </td>
       );
     default:
       return null;
