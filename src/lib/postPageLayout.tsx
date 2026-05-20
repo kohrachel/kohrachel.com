@@ -22,27 +22,29 @@ export const PostTitle = styled.h1`
   font-size: clamp(1.5rem, 1rem + 10vw, 4rem);
   line-height: 1;
   font-weight: 800;
+  margin: 0;
 `;
 
 /**
  * Title field for the editor — same type metrics as `PostTitle`, input chrome removed
  * so it reads like the post heading.
  */
-export const PostTitleInput = styled.input.attrs({ type: "text" })`
+export const PostTitleInput = styled.textarea.attrs({ rows: 1 })`
   font-size: clamp(1.5rem, 1rem + 10vw, 4rem);
   line-height: 1;
   font-weight: 800;
   font-family: inherit;
   width: 100%;
+  min-height: 1em;
   margin: 0;
   padding: 0;
   border: none;
+  resize: none;
+  field-sizing: content;
   background: transparent;
   color: inherit;
   outline: none;
   box-shadow: none;
-  padding-inline: var(--page-padding-inline);
-  padding-top: var(--post-page-padding-vertical);
   font-family: var(--font-yang-bagus), Arial, Helvetica, sans-serif;
 
   &::placeholder {

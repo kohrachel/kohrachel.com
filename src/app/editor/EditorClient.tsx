@@ -11,12 +11,14 @@ import {
   PostHeaderSection,
   PostPageShell,
   PostTitleInput,
+  TitleAndBackButtonWrapper,
 } from "@/lib/postPageLayout";
 import { Button } from "@components/Button";
 
 interface EditorClientProps {
   initialTitle?: string;
   initialContent?: JSONContent;
+  initialPublishedAt?: string;
   postId?: string;
   originalSlug?: string;
 }
@@ -24,6 +26,7 @@ interface EditorClientProps {
 export default function EditorClient({
   initialTitle,
   initialContent,
+  initialPublishedAt,
   postId,
   originalSlug,
 }: EditorClientProps) {
@@ -82,18 +85,29 @@ export default function EditorClient({
 
   return (
     <PostPageShell>
-      <EditorBackButton type="button" onClick={handleBack}>
-        ← View post
-      </EditorBackButton>
       <PostHeaderSection>
-        <PostTitleInput
-          name="title"
-          placeholder="[untitled blog]"
-          autoComplete="off"
-          aria-label="Post title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+        <TitleAndBackButtonWrapper>
+          <EditorBackButton type="button" onClick={handleBack}>
+            ← View post
+          </EditorBackButton>
+          <PostTitleInput
+            name="title"
+            placeholder="[untitled blog]"
+            autoComplete="off"
+            aria-label="Post title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          {initialPublishedAt && (
+            <PublishedAt>
+              {new Date(initialPublishedAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </PublishedAt>
+          )}
+        </TitleAndBackButtonWrapper>
         <Clouds width="5120" height="357" />
       </PostHeaderSection>
       <PostBodyColumn>
@@ -109,10 +123,6 @@ export default function EditorClient({
 }
 
 const EditorBackButton = styled.button`
-  position: absolute;
-  top: 2rem;
-  left: var(--page-padding-inline);
-  z-index: 20;
   font: inherit;
   font-size: 1rem;
   font-weight: 600;
@@ -139,11 +149,17 @@ const EditorBackButton = styled.button`
   }
 `;
 
+const PublishedAt = styled.span`
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--header);
+`;
+
 const ButtonWrapper = styled.div`
   display: flex;
   gap: 1rem;
   position: absolute;
-  top: 2rem;
+  top: var(--post-page-padding-vertical);
   right: var(--page-padding-inline);
   z-index: 20;
 `;

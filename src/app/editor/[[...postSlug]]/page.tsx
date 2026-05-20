@@ -34,6 +34,7 @@ export default async function EditorPage({
     <EditorClient
       initialTitle={post.title}
       initialContent={doc}
+      initialPublishedAt={post.publishedAt}
       postId={post.id}
       originalSlug={post.slug ?? slug}
     />
