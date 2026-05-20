@@ -1,10 +1,10 @@
 import styled from "styled-components";
 import {
-  postBodyBlockGap,
   postBodyHeadingStyles,
   postBodyListStyles,
   postBodyTableStyles,
   postBodyTypography,
+  postBodyParagraphSpacing,
 } from "@/lib/postBodyTypography";
 import Link from "next/link";
 
@@ -64,10 +64,10 @@ export const PostBodyColumn = styled.div`
   ${postBodyHeadingStyles}
   ${postBodyListStyles}
   ${postBodyTableStyles}
+  ${postBodyParagraphSpacing}
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: ${postBodyBlockGap};
   padding-inline: var(--page-padding-inline);
   padding-bottom: var(--post-page-padding-vertical);
   background-color: var(--primary);

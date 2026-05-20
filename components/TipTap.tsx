@@ -43,6 +43,30 @@ export default function Tiptap({ onEditor, content }: TiptapProps) {
         spellcheck: "true",
       },
     },
+    onUpdate({ editor: updatedEditor }) {
+      const { selection } = updatedEditor.state;
+      const parentText = selection.$from.parent.textContent;
+
+      if (
+        selection.empty &&
+        selection.$from.depth === 1 &&
+        selection.$from.parent.type.name === "paragraph" &&
+        parentText.toLowerCase() === "/table"
+      ) {
+        const tableContent = createTableContent();
+        const tableNode = updatedEditor.state.schema.nodeFromJSON(tableContent);
+        const from = selection.$from.before(1);
+        const to = selection.$from.after(1);
+        const cursorPos = from + tableNode.nodeSize + 1;
+
+        updatedEditor
+          .chain()
+          .focus()
+          .insertContentAt({ from, to }, [tableContent, { type: "paragraph" }])
+          .setTextSelection(cursorPos)
+          .run();
+      }
+    },
   });
 
   useEffect(() => {
@@ -62,6 +86,19 @@ export default function Tiptap({ onEditor, content }: TiptapProps) {
   );
 }
 
+function createTableContent(): JSONContent {
+  return {
+    type: "table",
+    content: Array.from({ length: 3 }, (_, rowIndex) => ({
+      type: "tableRow",
+      content: Array.from({ length: 3 }, () => ({
+        type: rowIndex === 0 ? "tableHeader" : "tableCell",
+        content: [{ type: "paragraph" }],
+      })),
+    })),
+  };
+}
+
 function TableToolbar({ editor }: { editor: Editor }) {
   const runTableCommand = (command: () => boolean) => () => {
     command();
@@ -73,11 +110,15 @@ function TableToolbar({ editor }: { editor: Editor }) {
       <ToolbarButton
         type="button"
         onClick={runTableCommand(() =>
-          editor.chain().focus().insertTable({
-            rows: 3,
-            cols: 3,
-            withHeaderRow: true,
-          }).run(),
+          editor
+            .chain()
+            .focus()
+            .insertTable({
+              rows: 3,
+              cols: 3,
+              withHeaderRow: true,
+            })
+            .run(),
         )}
       >
         Insert table
