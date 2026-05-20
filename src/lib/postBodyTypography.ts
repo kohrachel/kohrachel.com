@@ -34,13 +34,13 @@ export const postBodyHeadingStyles = css`
   }
 
   h1 {
-    font-size: 2.6rem;
+    font-size: 3rem;
   }
   h2 {
-    font-size: 1.9rem;
+    font-size: 2.3rem;
   }
   h3 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
   }
   h4 {
     font-size: 1.15rem;
@@ -63,7 +63,7 @@ export const postBodyListStyles = css`
   ul,
   ol {
     margin: 0;
-    padding: 1.7rem 1.5rem;
+    padding: 1.7rem 2rem;
     display: flex;
     flex-direction: column;
   }
@@ -84,7 +84,7 @@ export const postBodyListStyles = css`
   /* Nested lists: tighter gap, indented, different marker */
   li > ul,
   li > ol {
-    padding: 0 1.4rem;
+    padding: 0 2rem;
   }
 
   li > ul {
@@ -101,6 +101,70 @@ export const postBodyListStyles = css`
 
   li > ol ol {
     list-style-type: lower-roman;
+  }
+`;
+
+/** Table styles shared by saved posts and the TipTap editing surface. */
+export const postBodyTableStyles = css`
+  .tableWrapper {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  th,
+  td {
+    position: relative;
+    min-width: 8rem;
+    padding: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--header) 35%, transparent);
+    vertical-align: top;
+  }
+
+  th {
+    background: color-mix(in srgb, var(--selection) 40%, transparent);
+    color: var(--accent);
+    font-weight: 700;
+    text-align: left;
+  }
+
+  th > *,
+  td > * {
+    margin: 0;
+  }
+
+  th p + p,
+  td p + p {
+    margin-top: 0.75rem;
+  }
+
+  .selectedCell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+
+  .column-resize-handle {
+    position: absolute;
+    top: 0;
+    right: -2px;
+    bottom: -2px;
+    width: 4px;
+    background-color: var(--accent);
+    pointer-events: none;
+  }
+
+  .resize-cursor {
+    cursor: ew-resize;
+    cursor: col-resize;
   }
 `;
 

@@ -1,30 +1,23 @@
+"use client";
+
 import Link from "next/link";
 import styled from "styled-components";
 import { IPost } from "@/types";
-import path from "path";
-import fs from "fs";
 import { ButtonLink } from "@components/Button";
 import { media } from "@/styles/breakpoints";
+import { useEffect, useState } from "react";
 
 const isDev = process.env.NODE_ENV === "development";
 
 export default function HomePage() {
-  const posts: IPost[] = fs
-    .readdirSync(path.join(process.cwd(), "posts"))
-    .filter((file) => file.endsWith(".json"))
-    .map((file) => {
-      const content = fs.readFileSync(
-        path.join(process.cwd(), "posts", file),
-        "utf8",
-      );
-      const post = JSON.parse(content);
-      return {
-        title: post.title,
-        slug: post.slug,
-        content: post.content,
-        publishedAt: post.publishedAt,
-      };
-    });
+  const [posts, setPosts] = useState<IPost[]>([]);
+
+  useEffect(() => {
+    fetch("/api/get-posts")
+      .then((res) => res.json())
+      .then(setPosts);
+  }, []);
+
   return (
     <Home>
       <Title>rachel koh</Title>
@@ -106,6 +99,10 @@ const Title = styled.h1`
   text-align: center;
   line-height: 1;
   color: var(--accent);
+  -webkit-text-stroke: 0.8rem var(--primary);
+  paint-order: stroke fill;
+  cursor: default;
+  letter-spacing: 0.2rem;
 `;
 
 const SectionTitle = styled.h2`

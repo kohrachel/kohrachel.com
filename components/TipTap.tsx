@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import type { Editor, JSONContent } from "@tiptap/core";
+import { TableKit } from "@tiptap/extension-table";
 import { Placeholder } from "@tiptap/extensions";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -9,6 +10,7 @@ import styled from "styled-components";
 import {
   postBodyParagraphSpacing,
   postBodyHeadingStyles,
+  postBodyTableStyles,
   postBodyTypography,
 } from "@/lib/postBodyTypography";
 
@@ -21,6 +23,16 @@ export default function Tiptap({ onEditor, content }: TiptapProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
+      TableKit.configure({
+        table: {
+          HTMLAttributes: {
+            class: "post-table",
+          },
+          resizable: true,
+          renderWrapper: true,
+          cellMinWidth: 128,
+        },
+      }),
       Placeholder.configure({ placeholder: "Write something…" }),
     ],
     content,
@@ -30,6 +42,30 @@ export default function Tiptap({ onEditor, content }: TiptapProps) {
         class: "tiptap",
         spellcheck: "true",
       },
+    },
+    onUpdate({ editor: updatedEditor }) {
+      const { selection } = updatedEditor.state;
+      const parentText = selection.$from.parent.textContent;
+
+      if (
+        selection.empty &&
+        selection.$from.depth === 1 &&
+        selection.$from.parent.type.name === "paragraph" &&
+        parentText.toLowerCase() === "/table"
+      ) {
+        const tableContent = createTableContent();
+        const tableNode = updatedEditor.state.schema.nodeFromJSON(tableContent);
+        const from = selection.$from.before(1);
+        const to = selection.$from.after(1);
+        const cursorPos = from + tableNode.nodeSize + 1;
+
+        updatedEditor
+          .chain()
+          .focus()
+          .insertContentAt({ from, to }, [tableContent, { type: "paragraph" }])
+          .setTextSelection(cursorPos)
+          .run();
+      }
     },
   });
 
@@ -44,8 +80,106 @@ export default function Tiptap({ onEditor, content }: TiptapProps) {
 
   return (
     <EditorShell>
+      <TableToolbar editor={editor} />
       <EditorContent editor={editor} />
     </EditorShell>
+  );
+}
+
+function createTableContent(): JSONContent {
+  return {
+    type: "table",
+    content: Array.from({ length: 3 }, (_, rowIndex) => ({
+      type: "tableRow",
+      content: Array.from({ length: 3 }, () => ({
+        type: rowIndex === 0 ? "tableHeader" : "tableCell",
+        content: [{ type: "paragraph" }],
+      })),
+    })),
+  };
+}
+
+function TableToolbar({ editor }: { editor: Editor }) {
+  const runTableCommand = (command: () => boolean) => () => {
+    command();
+    editor.commands.focus();
+  };
+
+  return (
+    <Toolbar aria-label="Table controls">
+      <ToolbarButton
+        type="button"
+        onClick={runTableCommand(() =>
+          editor
+            .chain()
+            .focus()
+            .insertTable({
+              rows: 3,
+              cols: 3,
+              withHeaderRow: true,
+            })
+            .run(),
+        )}
+      >
+        Insert table
+      </ToolbarButton>
+      <ToolbarButton
+        type="button"
+        onClick={runTableCommand(() =>
+          editor.chain().focus().addRowAfter().run(),
+        )}
+      >
+        Add row
+      </ToolbarButton>
+      <ToolbarButton
+        type="button"
+        onClick={runTableCommand(() =>
+          editor.chain().focus().addColumnAfter().run(),
+        )}
+      >
+        Add column
+      </ToolbarButton>
+      <ToolbarButton
+        type="button"
+        onClick={runTableCommand(() =>
+          editor.chain().focus().deleteRow().run(),
+        )}
+      >
+        Delete row
+      </ToolbarButton>
+      <ToolbarButton
+        type="button"
+        onClick={runTableCommand(() =>
+          editor.chain().focus().deleteColumn().run(),
+        )}
+      >
+        Delete column
+      </ToolbarButton>
+      <ToolbarButton
+        type="button"
+        onClick={runTableCommand(() =>
+          editor.chain().focus().toggleHeaderRow().run(),
+        )}
+      >
+        Toggle header
+      </ToolbarButton>
+      <ToolbarButton
+        type="button"
+        onClick={runTableCommand(() =>
+          editor.chain().focus().mergeOrSplit().run(),
+        )}
+      >
+        Merge/split
+      </ToolbarButton>
+      <ToolbarButton
+        type="button"
+        onClick={runTableCommand(() =>
+          editor.chain().focus().deleteTable().run(),
+        )}
+      >
+        Delete table
+      </ToolbarButton>
+    </Toolbar>
   );
 }
 
@@ -57,6 +191,8 @@ const LoadingText = styled.p`
 
 const EditorShell = styled.div`
   width: 100%;
+
+  ${postBodyTableStyles}
 
   .tiptap.ProseMirror {
     margin: 0;
@@ -72,6 +208,7 @@ const EditorShell = styled.div`
     ${postBodyTypography}
     ${postBodyParagraphSpacing}
     ${postBodyHeadingStyles}
+    ${postBodyTableStyles}
   }
   .tiptap.ProseMirror:focus,
   .tiptap.ProseMirror:focus-visible {
@@ -84,5 +221,28 @@ const EditorShell = styled.div`
     float: left;
     height: 0;
     pointer-events: none;
+  }
+`;
+
+const Toolbar = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+const ToolbarButton = styled.button`
+  border: 1px solid color-mix(in srgb, var(--header) 45%, transparent);
+  border-radius: 999px;
+  padding: 0.4rem 0.7rem;
+  background: color-mix(in srgb, var(--primary) 85%, var(--header));
+  color: var(--header);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent);
   }
 `;
