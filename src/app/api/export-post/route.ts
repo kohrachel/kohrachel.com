@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-import fs from "fs/promises";
-import { randomUUID } from "crypto";
+import { type NextRequest, NextResponse } from "next/server";
+import path from "node:path";
+import fs from "node:fs/promises";
+import { randomUUID } from "node:crypto";
 import { toKebabCase } from "@/lib/toKebabCase";
-import { IPost } from "@/types";
+import type { IPost } from "@/types";
 
 
 export async function POST(request: NextRequest) {
