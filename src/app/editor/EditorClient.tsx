@@ -83,7 +83,7 @@ export default function EditorClient({
   return (
     <PostPageShell>
       <EditorBackButton type="button" onClick={handleBack}>
-        ← Back
+        ← View post
       </EditorBackButton>
       <PostHeaderSection>
         <PostTitleInput
