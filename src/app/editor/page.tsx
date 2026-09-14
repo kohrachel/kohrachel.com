@@ -1,5 +1,5 @@
-import { Suspense } from "react"
-import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor"
+import { Suspense } from "react";
+import { SimpleEditor } from "@/components/tiptap/templates/simple/simple-editor";
 
 export default function Page() {
   // The Tiptap editor is a client component that reads unstable values
@@ -9,5 +9,5 @@ export default function Page() {
     <Suspense fallback={null}>
       <SimpleEditor />
     </Suspense>
-  )
+  );
 }
