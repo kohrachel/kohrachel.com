@@ -1,5 +1,5 @@
 import { revalidateTag } from "next/cache";
-import { Post } from "@/db/entities";
+import { Post } from "@/db/schema";
 
 export function postTag(id?: number) {
   return id ? `post-${id}` : "posts";

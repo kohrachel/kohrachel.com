@@ -6,7 +6,7 @@ import { SimpleEditor } from "@/components/tiptap/templates/simple/simple-editor
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { savePost } from "@/server/posts/upsert";
-import type { IPost } from "@/db/entities";
+import type { IPost } from "@/db/schema";
 
 export function EditorWithSave() {
   const editorRef = useRef<Editor | null>(null);
@@ -24,8 +24,8 @@ export function EditorWithSave() {
     setIsSaving(true);
     try {
       await savePost({
-        title: title || null,
-        description: description || null,
+        title,
+        description,
         content: editor.getJSON() as IPost["content"],
       });
     } catch (error) {

@@ -1,5 +1,6 @@
 import {
   bigint,
+  foreignKey,
   pgPolicy,
   pgTable,
   primaryKey,
@@ -16,18 +17,28 @@ export const postsTags = pgTable.withRLS(
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`now()`)
       .notNull(),
-    postId: bigint("post_id", { mode: "number" })
-      .notNull()
-      .references(() => posts.id, { onDelete: "cascade", onUpdate: "cascade" }),
-    tagId: bigint("tag_id", { mode: "number" })
-      .notNull()
-      .references(() => tags.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    postId: bigint("post_id", { mode: "number" }).notNull(),
+    tagId: bigint("tag_id", { mode: "number" }).notNull(),
   },
   (table) => [
     primaryKey({
       columns: [table.id, table.postId, table.tagId],
       name: "posts_tags_pkey",
     }),
+    foreignKey({
+      columns: [table.postId],
+      foreignColumns: [posts.id],
+      name: "posts_tags_post_id_fkey",
+    })
+      .onDelete("cascade")
+      .onUpdate("cascade"),
+    foreignKey({
+      columns: [table.tagId],
+      foreignColumns: [tags.id],
+      name: "posts_tags_tag_id_fkey",
+    })
+      .onDelete("cascade")
+      .onUpdate("cascade"),
     pgPolicy("Enable read access for all users", {
       for: "select",
       using: sql`true`,

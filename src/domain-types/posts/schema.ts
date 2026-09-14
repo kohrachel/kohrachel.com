@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { IPost } from "@/db/entities";
+import { IPost } from "@/db/schema";
 
 export const upsertPostSchema = z.object({
   id: z.number().int().positive().optional(),
-  title: z.string().nullish(),
-  description: z.string().nullish(),
+  title: z.string().optional(),
+  description: z.string().optional(),
   content: z.custom<IPost["content"]>().optional(),
 });
 

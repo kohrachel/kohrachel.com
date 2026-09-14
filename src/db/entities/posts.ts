@@ -1,9 +1,11 @@
 import {
   bigint,
+  boolean,
   integer,
   jsonb,
   pgPolicy,
   pgTable,
+  primaryKey,
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
@@ -13,15 +15,16 @@ import type { JSONContent } from "@tiptap/core";
 export const posts = pgTable.withRLS(
   "posts",
   {
-    id: bigint({ mode: "number" })
-      .primaryKey()
-      .generatedByDefaultAsIdentity({ name: "Posts_id_seq" }),
+    id: bigint({ mode: "number" }).generatedByDefaultAsIdentity({
+      name: "Posts_id_seq",
+    }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`now()`)
       .notNull(),
-    title: text(),
-    description: text(),
+    title: text().default("").notNull(),
+    description: text().default("").notNull(),
     viewCount: integer("view_count").default(0),
+    isPublished: boolean("is_published").default(false).notNull(),
     content: jsonb()
       .$type<JSONContent>()
       .default({ type: "doc", content: [] })
@@ -30,7 +33,8 @@ export const posts = pgTable.withRLS(
       .default(sql`now()`)
       .notNull(),
   },
-  () => [
+  (table) => [
+    primaryKey({ columns: [table.id], name: "Posts_pkey" }),
     pgPolicy("Enable insert for authenticated users only", {
       for: "insert",
       to: ["authenticated"],

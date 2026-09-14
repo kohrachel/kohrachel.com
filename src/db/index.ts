@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { relations } from "./entities/relations";
+import { relations } from "./relations";
 
 config({ path: ".env" }); // or .env.local
 
