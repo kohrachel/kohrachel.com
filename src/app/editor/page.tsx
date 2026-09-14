@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { SimpleEditor } from "@/components/tiptap/templates/simple/simple-editor";
+import { EditorWithSave } from "./editor-with-save";
 
 export default function Page() {
   // The Tiptap editor is a client component that reads unstable values
@@ -7,7 +7,7 @@ export default function Page() {
   // stream as dynamic content rather than be prerendered into the static shell.
   return (
     <Suspense fallback={null}>
-      <SimpleEditor />
+      <EditorWithSave />
     </Suspense>
   );
 }

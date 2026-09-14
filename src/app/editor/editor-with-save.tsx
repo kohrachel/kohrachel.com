@@ -48,13 +48,13 @@ export function EditorWithSave() {
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Post title"
+            placeholder="[untitled]"
             className="h-auto border-0 bg-transparent dark:bg-transparent px-0 py-2 text-4xl font-bold shadow-none focus-visible:ring-0 md:text-4xl"
           />
           <Input
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Add a description"
+            placeholder="[no description]"
             className="h-auto border-0 bg-transparent dark:bg-transparent px-0 py-1 text-lg text-muted-foreground shadow-none focus-visible:ring-0 md:text-lg"
           />
         </div>

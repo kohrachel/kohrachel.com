@@ -55,9 +55,8 @@ body,
 }
 
 .simple-editor-wrapper {
-  width: 100vw;
-  height: 100vh;
-  overflow: auto;
+  width: 100%;
+  height: auto;
 }
 
 .simple-editor-search-and-replace {
@@ -69,7 +68,7 @@ body,
 }
 
 .simple-editor-content {
-  max-width: 648px;
+  max-width: var(--measure, 80ch);
   width: 100%;
   margin: 0 auto;
   height: 100%;
@@ -80,7 +79,7 @@ body,
 
 .simple-editor-content .tiptap.ProseMirror.simple-editor {
   flex: 1;
-  padding: 3rem 3rem 30vh;
+  padding: 2.5rem 3rem 30vh;
 }
 
 @media screen and (max-width: 480px) {
@@ -92,6 +91,6 @@ body,
   }
 
   .simple-editor-content .tiptap.ProseMirror.simple-editor {
-    padding: 1rem 1.5rem 30vh;
+    padding: 2.5rem 3rem 30vh;
   }
 }

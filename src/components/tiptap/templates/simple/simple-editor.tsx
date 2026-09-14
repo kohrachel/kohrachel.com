@@ -18,7 +18,7 @@ import { Highlight } from "@tiptap/extension-highlight";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
 import { FindAndReplace } from "@tiptap/extension-find-and-replace";
-import { Selection } from "@tiptap/extensions";
+import { Placeholder, Selection } from "@tiptap/extensions";
 
 // --- UI Primitives ---
 import { Button } from "@/components/tiptap/ui-primitive/button";
@@ -261,6 +261,9 @@ export function SimpleEditor({
         upload: handleImageUpload,
         onError: (error) => console.error("Upload failed:", error),
       }),
+      Placeholder.configure({
+        placeholder: "enter some text here! :)"
+      })
     ],
     content: { type: "doc", content: [] },
   });
