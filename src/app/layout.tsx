@@ -4,6 +4,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeScript } from "@/components/theme-script";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const yangBagus = localFont({
   variable: "--font-yang-bagus",
@@ -49,16 +51,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         inter.variable,
       )}
     >
+      <head>
+        <ThemeScript />
+      </head>
       <body className="min-h-full flex flex-col">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="mx-auto w-full max-w-measure flex flex-1 flex-col p-12">
-            {children}
-          </div>
+        <ThemeProvider>
+          <TooltipProvider>
+            <div className="mx-auto w-full max-w-measure flex flex-1 flex-col p-12">
+              {children}
+            </div>
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>
