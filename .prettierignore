@@ -1,0 +1,21 @@
+# Build artifacts / generated output
+build
+coverage
+.next
+out
+.vercel
+
+# Generated / non-authored files
+next-env.d.ts
+*.tsbuildinfo
+
+# Lockfiles
+bun.lock
+
+# Generated Drizzle migrations / snapshots
+src/db/migrations
+
+# Vendored Tiptap template code (kept as-is so it can be updated upstream
+# without formatting churn — mirrors the eslint ignore).
+src/components/tiptap
+src/lib/tiptap-utils.ts
