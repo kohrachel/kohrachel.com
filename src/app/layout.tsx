@@ -3,6 +3,7 @@ import { Geist_Mono, Inter, Poppins } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const yangBagus = localFont({
   variable: "--font-yang-bagus",
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn(
         "h-full",
         "antialiased",
@@ -48,9 +50,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       )}
     >
       <body className="min-h-full flex flex-col">
-        <div className="mx-auto w-full max-w-measure flex flex-1 flex-col p-12">
-          {children}
-        </div>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="mx-auto w-full max-w-measure flex flex-1 flex-col p-12">
+            {children}
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
