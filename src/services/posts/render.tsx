@@ -3,7 +3,11 @@ import type { CSSProperties, ReactNode } from "react";
 import { assertExhaustive } from "@/lib/utils";
 
 /** Wraps text/inline content in the marks applied to a text node. */
-function applyMarks(node: JSONContent, children: ReactNode, key: number): ReactNode {
+function applyMarks(
+  node: JSONContent,
+  children: ReactNode,
+  key: number,
+): ReactNode {
   const marks = node.marks ?? [];
   return marks.reduceRight<ReactNode>((acc, mark, i) => {
     const markKey = `${key}-mark-${i}`;
@@ -25,7 +29,10 @@ function applyMarks(node: JSONContent, children: ReactNode, key: number): ReactN
       case "highlight": {
         const color = mark.attrs?.color as string | undefined;
         return (
-          <mark key={markKey} style={color ? { backgroundColor: color } : undefined}>
+          <mark
+            key={markKey}
+            style={color ? { backgroundColor: color } : undefined}
+          >
             {acc}
           </mark>
         );
@@ -53,7 +60,9 @@ function applyMarks(node: JSONContent, children: ReactNode, key: number): ReactN
   }, children);
 }
 
-function textStyleToCss(attrs: Record<string, unknown> | undefined): CSSProperties | undefined {
+function textStyleToCss(
+  attrs: Record<string, unknown> | undefined,
+): CSSProperties | undefined {
   if (!attrs) return undefined;
   const style: CSSProperties = {};
   if (typeof attrs.color === "string") style.color = attrs.color;
@@ -92,12 +101,7 @@ export function renderNode(node: JSONContent, key: number): ReactNode {
     case "heading": {
       const level = (node.attrs?.level as number | undefined) ?? 1;
       const Tag = `h${Math.min(Math.max(level, 1), 6)}` as
-        | "h1"
-        | "h2"
-        | "h3"
-        | "h4"
-        | "h5"
-        | "h6";
+        "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
       return (
         <Tag key={key} style={textAlignStyle(node)}>
           {renderChildren(node)}
