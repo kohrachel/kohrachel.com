@@ -3,10 +3,11 @@
 import { useCallback, useRef, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { SimpleEditor } from "@/components/tiptap/templates/simple/simple-editor";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { savePost } from "@/server/posts/upsert";
 import type { IPost } from "@/db/schema";
+import { ButtonWithIcon } from "@/components/ui/button-with-icon";
+import { SaveIcon } from "@hugeicons/core-free-icons";
 
 export function EditorWithSave() {
   const editorRef = useRef<Editor | null>(null);
@@ -58,14 +59,15 @@ export function EditorWithSave() {
             className="h-auto border-0 bg-transparent dark:bg-transparent px-0 py-1 text-lg text-muted-foreground shadow-none focus-visible:ring-0 md:text-lg"
           />
         </div>
-        <Button
+        <ButtonWithIcon
           size="lg"
           onClick={handleSave}
           disabled={isSaving}
-          className="mt-2 h-9 px-6 text-sm"
+          className="h-9 px-3 text-sm align-center"
+          icon={SaveIcon}
         >
           {isSaving ? "Saving..." : "Save"}
-        </Button>
+        </ButtonWithIcon>
       </div>
       <SimpleEditor onEditorReady={handleEditorReady} />
     </div>

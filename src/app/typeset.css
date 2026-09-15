@@ -54,14 +54,15 @@
 
     /* Headings. */
     &:where(h1, h2, h3, h4, h5, h6) {
-      color: var(--color-foreground, currentColor);
+      color: var(--color-primary, currentColor);
       font-family: var(--typeset-font-heading);
       font-weight: 600;
       margin-block-end: 0;
     }
     &:where(h1) {
-      font-size: 1.75em;
+      font-size: 4rem;
       line-height: 1.3;
+      letter-spacing: 0.06ch;
       margin-block-start: var(--typeset-flow);
     }
     &:where(h2) {

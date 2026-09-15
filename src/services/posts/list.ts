@@ -9,10 +9,13 @@ export function listPostService({ postIds }: ListInput) {
   } else {
     cacheTag(postTag());
   }
-  cacheLife("hours");
+  cacheLife("minutes");
 
   return db.query.posts.findMany({
-    where: postIds ? { id: { in: postIds } } : undefined,
+    where: {
+      isPublished: true,
+      ...(postIds ? { id: { in: postIds } } : {}),
+    },
     orderBy: { updatedAt: "desc" },
   });
 }

@@ -3,6 +3,7 @@
 
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./typeset.css";
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -55,6 +56,11 @@
 :root {
   /* Reading measure: ideal line length for body text. */
   --measure: 80ch;
+
+  /* Fluid page gutters & vertical rhythm (grow/shrink with the viewport) */
+  --page-padding-inline: clamp(1rem, -11rem + 37vw, 27vw);
+  --page-padding-top: clamp(2rem, 4vw, 8rem);
+  --page-padding-bottom: clamp(1.75rem, 1rem + 3.5vw, 6rem);
   --font-sans: var(--font-poppins), var(--font-inter);
   --font-heading: var(--font-yang-bagus);
   --font-mono: var(--font-geist-mono);
@@ -136,4 +142,15 @@
   html {
     @apply font-sans;
   }
+}
+
+/* Fluid headings: scale with the viewport (overrides typeset defaults). */
+.typeset :where(h1) {
+  font-size: clamp(1.9rem, 1.3rem + 3vw, 3rem);
+}
+.typeset :where(h2) {
+  font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.25rem);
+}
+.typeset :where(h3) {
+  font-size: clamp(1.2rem, 1rem + 1vw, 1.6rem);
 }

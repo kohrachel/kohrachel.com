@@ -7,9 +7,9 @@ export default async function Home() {
   const posts = await listPosts({});
 
   return (
-    <main>
-      <h1>Posts</h1>
-      <ul className="max-w-full text-center">
+    <main className="text-center">
+      <h1>rachel koh</h1>
+      <ul className="p-0!">
         {posts.map(({ id, title, description }, index) => (
           <li key={id} className="inline">
             <PostText id={id} title={title} description={description} />
