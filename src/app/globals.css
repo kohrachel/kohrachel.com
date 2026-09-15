@@ -61,6 +61,11 @@
   --page-padding-inline: clamp(1rem, -11rem + 37vw, 27vw);
   --page-padding-top: clamp(2rem, 4vw, 8rem);
   --page-padding-bottom: clamp(1.75rem, 1rem + 3.5vw, 6rem);
+
+  /* Home page: same fluid approach, less aggressive max padding. */
+  --home-padding-inline: clamp(1rem, -2rem + 12vw, 10rem);
+  --home-padding-top: clamp(2rem, 4vw, 6rem);
+  --home-padding-bottom: clamp(1.75rem, 1rem + 3.5vw, 5rem);
   --font-sans: var(--font-poppins), var(--font-inter);
   --font-heading: var(--font-yang-bagus);
   --font-mono: var(--font-geist-mono);

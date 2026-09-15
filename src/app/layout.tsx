@@ -57,18 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
           <TooltipProvider>
-            <div
-              className="typeset w-full flex flex-1 flex-col"
-              style={
-                {
-                  paddingInline: "var(--page-padding-inline)",
-                  paddingTop: "var(--page-padding-top)",
-                  paddingBottom: "var(--page-padding-bottom)",
-                  ["--typeset-size" as string]:
-                    "clamp(0.95rem, 0.85rem + 0.4vw, 1.125rem)",
-                } as React.CSSProperties
-              }
-            >
+            <div className="typeset w-full flex flex-1 flex-col">
               {children}
             </div>
           </TooltipProvider>
