@@ -18,12 +18,12 @@ export default function Header() {
       <img
         src={`rachel-${activeVariant + 1}.PNG`}
         alt="Rachel Koh"
-        className="h-full mt-0"
+        className="h-3/4 md:h-full mt-0"
       />
       <img
         src={`koh-${activeVariant + 1}.PNG`}
         alt="Rachel Koh"
-        className="h-full mt-0"
+        className="h-3/4 md:h-full mt-0"
       />
     </header>
   );
