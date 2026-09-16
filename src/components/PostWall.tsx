@@ -23,15 +23,19 @@ export default function WallOfText({ posts }: { posts: Post[] }) {
   return (
     <ul className="p-0! mt-0! text-justify">
       {posts.map(({ id, title }) => (
-        <li key={title} className="inline p-0!">
-          <MainContent id={id} active={activePostId === id}>
+        <li key={`title-${id}`} className="inline p-0!">
+          <MainContent
+            id={id}
+            active={activePostId === id}
+            className="text-6xl no-underline hover:underline"
+          >
             {title}
           </MainContent>
           <Separator separatorIcon={DotIcon} />
         </li>
       ))}
       {posts.map(({ id, description }, index) => (
-        <li key={description} className="inline p-0!">
+        <li key={`desc-${id}`} className="inline p-0!">
           <MainContent id={id} active={activePostId === id}>
             {description}
           </MainContent>

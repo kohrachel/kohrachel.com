@@ -5,17 +5,19 @@ export default function MainContent({
   id,
   children,
   active,
+  className,
 }: {
   id: number;
   children: React.ReactNode;
   active: boolean;
+  className?: string;
 }) {
   return (
     <Link
       href={`/${id}`}
-      className={`inline align-middle cursor-pointer transition-colors duration-300 ${
+      className={`inline align-middle cursor-pointer transition-all duration-300 ${
         active ? "text-primary" : "text-green-800"
-      }`}
+      } ${className}`}
     >
       {children}
     </Link>

@@ -15,6 +15,11 @@ const eslintConfig = defineConfig([
     "src/components/tiptap/**",
     "src/components/theme-provider.tsx",
   ]),
+  {
+    rules: {
+      "@next/next/no-img-element": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
