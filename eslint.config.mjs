@@ -5,9 +5,7 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
@@ -18,6 +16,24 @@ const eslintConfig = defineConfig([
   {
     rules: {
       "@next/next/no-img-element": "off",
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@supabase/supabase-js", "@supabase/*"],
+              message:
+                "Import storage via '@/services/storage' instead. The Supabase SDK is only allowed in src/services/storage/* (see docs/storage-and-auth-plan.md §A8).",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/services/storage/**"],
+    rules: {
+      "no-restricted-imports": "off",
     },
   },
 ]);
