@@ -1,12 +1,22 @@
 import PostSection from "@/components/PostSection";
 import Header from "@/components/Header";
 import { listPosts } from "@/server/posts/list";
+import { storage, BUCKETS } from "@/services/storage";
+
+const HEADER_VARIANTS = 5;
 
 export default async function Home() {
   const posts = await listPosts({});
+  const variants = Array.from({ length: HEADER_VARIANTS }, (_, i) => i + 1);
+  const rachelSrcs = variants.map((n) =>
+    storage.getPublicUrl(BUCKETS.resources, `rachel-${n}.PNG`),
+  );
+  const kohSrcs = variants.map((n) =>
+    storage.getPublicUrl(BUCKETS.resources, `koh-${n}.PNG`),
+  );
   return (
     <main className="text-center flex flex-1 flex-col gap-8 px-(--home-padding-inline) pt-(--home-padding-top) pb-(--home-padding-bottom)">
-      <Header />
+      <Header rachelSrcs={rachelSrcs} kohSrcs={kohSrcs} />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="grid grid-cols-2 lg:col-span-4 lg:grid-cols-subgrid gap-6">
           <article className="lg:col-span-4 bg-blue-500">
@@ -25,7 +35,7 @@ export default async function Home() {
 export function MusicArticle() {
   return (
     <article className="lg:col-span-4 bg-stone-200 px-4 pt-5 pb-12">
-      <div className="bg-stone-900 w-full h-full">hello</div>
+      <div className="bg-stone-900 w-full h-full">books</div>
     </article>
   );
 }
