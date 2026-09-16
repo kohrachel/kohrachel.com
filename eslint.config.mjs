@@ -1,10 +1,28 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import tailwindcss from "eslint-plugin-tailwindcss";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  // Surface non-canonical / unnecessary arbitrary Tailwind classes as warnings
+  // (e.g. `duration-[0.5s]` -> `duration-500`).
+  tailwindcss.configs.recommended,
+  {
+    settings: {
+      tailwindcss: {
+        // Tailwind v4 entry stylesheet used to resolve the theme.
+        cssConfigPath: "src/app/globals.css",
+      },
+    },
+    rules: {
+      // Custom utility classes (bookThreeD, bookMetaText, ...) are intentional.
+      "tailwindcss/no-custom-classname": "off",
+      // Leave class ordering to Prettier / manual authoring.
+      "tailwindcss/classnames-order": "off",
+    },
+  },
   globalIgnores([
     ".next/**",
     "out/**",

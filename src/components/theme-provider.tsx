@@ -74,11 +74,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     // Force a reflow so the transition-disabling style takes effect.
     window.getComputedStyle(document.body);
-    const timeout = window.setTimeout(() => {
-      document.head.removeChild(style);
-    }, 1);
+    const removeStyle = () => {
+      if (style.parentNode) style.parentNode.removeChild(style);
+    };
+    const timeout = window.setTimeout(removeStyle, 1);
 
-    return () => window.clearTimeout(timeout);
+    // Always remove the style on cleanup too. Otherwise, under StrictMode the
+    // cleanup fires before the timeout, leaking a leftover <style> that keeps
+    // `transition: none !important` applied to everything permanently.
+    return () => {
+      window.clearTimeout(timeout);
+      removeStyle();
+    };
   }, [resolvedTheme]);
 
   const setTheme = useCallback((next: Theme) => {
