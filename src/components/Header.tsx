@@ -11,94 +11,102 @@ type HeaderProps = {
 const FRAME_COUNT = 6;
 const CYCLE_DURATION = "3s";
 // Cap the rendered header height on very large screens (px).
-const MAX_HEIGHT = 224;
+const MAX_HEIGHT = 180;
 
-// Known source dimensions (width x height). The foreground drives the layout;
-// its height is a vertical strip of FRAME_COUNT frames, so one frame is
-// SHEET_HEIGHT / FRAME_COUNT tall. Because these are constants we can reserve
-// the exact box immediately (even during SSR) — no measuring, no layout shift.
-const FRAME_WIDTH = 2000; // foreground sheet width
-const SHEET_HEIGHT = 2100;
-const FRAME_ASPECT = FRAME_WIDTH / (SHEET_HEIGHT / FRAME_COUNT);
-// Cap width so the aspect-driven height never exceeds MAX_HEIGHT, and never
-// upscale past the source resolution.
-const MAX_WIDTH = Math.min(FRAME_WIDTH, MAX_HEIGHT * FRAME_ASPECT);
+function useFrameAspect(src: string) {
+  // Aspect ratio (width / height) of a single frame, plus the native frame width.
+  const [aspect, setAspect] = useState<number | null>(null);
+  const [nativeWidth, setNativeWidth] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      const frameHeight = img.naturalHeight / FRAME_COUNT;
+      setAspect(img.naturalWidth / frameHeight);
+      setNativeWidth(img.naturalWidth);
+    };
+    img.src = src;
+  }, [src]);
+
+  return { aspect, nativeWidth };
+}
 
 /**
  * Sprite-sheet header. Each source PNG is a vertical strip of 6 frames.
  *
- * The foreground fills the width fully (never cropped) and its frame aspect
- * ratio sets the header height. The background is painted behind it at the same
- * height, centered horizontally, and is allowed to be cropped if wider.
+ * The foreground drives the height: it always fits within the available width
+ * (screen minus page padding) and its frame aspect ratio sets the header
+ * height, so it never gets cropped and shrinks with the viewport.
  *
- * A single frame is isolated with `background-size` (the full sheet is 6x the
- * header height) and stepped through with a `steps(6)` animation
+ * The background is intentionally wider than the foreground. It's centered on
+ * screen at the same height and shown in full — it overflows the foreground and
+ * is only clipped at the available width (i.e. if the screen is too narrow to
+ * fit it). On very wide screens the background simply doesn't reach the edges.
+ *
+ * A single frame is isolated with `background-size: <w> 600%` (the full sheet
+ * is 6x the header height) and stepped through with a `steps(6)` animation
  * (see joshwcomeau.com/animation/sprites).
  */
 export default function Header({ background, foreground }: HeaderProps) {
-  // Whether the sprite sheets have finished loading (drives the placeholder).
-  const [loaded, setLoaded] = useState(false);
+  const fg = useFrameAspect(foreground);
+  const bg = useFrameAspect(background);
 
-  useEffect(() => {
-    let alive = true;
-    const preload = (src: string) =>
-      new Promise<void>((resolve) => {
-        const img = new Image();
-        img.onload = img.onerror = () => resolve();
-        img.src = src;
-      });
-    Promise.all([preload(foreground), preload(background)]).then(() => {
-      if (alive) setLoaded(true);
-    });
-    return () => {
-      alive = false;
-    };
-  }, [foreground, background]);
+  // Cap the foreground width so its aspect-driven height never exceeds
+  // MAX_HEIGHT, and never upscale past the source resolution.
+  const maxWidth =
+    fg.aspect != null && fg.nativeWidth != null
+      ? Math.min(fg.nativeWidth, MAX_HEIGHT * fg.aspect)
+      : undefined;
 
+  const ready = fg.aspect != null;
   const spriteAnimation = `headerSprite ${CYCLE_DURATION} steps(${FRAME_COUNT}) infinite`;
 
-  const layerBase: CSSProperties = {
-    position: "absolute",
-    inset: 0,
+  const spriteLayer: CSSProperties = {
     backgroundRepeat: "no-repeat",
     backgroundPositionX: "center",
     backgroundPositionY: "0%",
     animation: spriteAnimation,
-    opacity: loaded ? 1 : 0,
-    transition: "opacity 0.3s ease",
   };
 
   return (
-    <header
-      className="relative w-full mx-auto overflow-hidden"
-      style={{ maxWidth: MAX_WIDTH, aspectRatio: FRAME_ASPECT }}
-    >
-      {/* Loading placeholder: occupies the exact header box until sheets load. */}
-      {!loaded && (
+    // Outer clips at the available (padded) width and centers everything.
+    <div className="w-full flex justify-center overflow-hidden">
+      <header
+        className="relative w-full"
+        style={{
+          maxWidth,
+          aspectRatio: fg.aspect ?? undefined,
+          visibility: ready ? "visible" : "hidden",
+        }}
+      >
+        {/* Background: wider than the header, centered on screen, shown in full. */}
         <div
           aria-hidden
-          className="absolute inset-0 bg-stone-800 animate-pulse"
+          style={{
+            ...spriteLayer,
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            aspectRatio: bg.aspect ?? undefined,
+            backgroundImage: `url("${background}")`,
+            backgroundSize: `100% ${FRAME_COUNT * 100}%`,
+          }}
         />
-      )}
-      {/* Background: matches header height, cropped horizontally if wider. */}
-      <div
-        aria-hidden
-        style={{
-          ...layerBase,
-          backgroundImage: `url("${background}")`,
-          backgroundSize: `auto ${FRAME_COUNT * 100}%`,
-        }}
-      />
-      {/* Foreground: fills the width fully (never cropped). */}
-      <div
-        aria-hidden
-        style={{
-          ...layerBase,
-          backgroundImage: `url("${foreground}")`,
-          backgroundSize: `100% ${FRAME_COUNT * 100}%`,
-        }}
-      />
-      <span className="sr-only">Rachel Koh</span>
-    </header>
+        {/* Foreground: fills the header width, never cropped. */}
+        <div
+          aria-hidden
+          style={{
+            ...spriteLayer,
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `url("${foreground}")`,
+            backgroundSize: `100% ${FRAME_COUNT * 100}%`,
+          }}
+        />
+        <span className="sr-only">Rachel Koh</span>
+      </header>
+    </div>
   );
 }
