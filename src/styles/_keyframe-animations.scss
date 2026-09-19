@@ -1,3 +1,10 @@
+@keyframes headerSprite {
+  to {
+    /* 6 frames stepped over 0% -> 120% yields frame positions 0/20/40/60/80/100% */
+    background-position-y: 120%;
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

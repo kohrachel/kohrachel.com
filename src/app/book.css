@@ -1,17 +1,35 @@
-.bookPerspective {
-  perspective: 500px;
+/*
+ * The book's 3D side faces (page edges). Kept in CSS because the striped
+ * `linear-gradient` + `background-size` are impractical as Tailwind arbitrary
+ * values. Everything else (perspective, preserve-3d, transitions, hover flip)
+ * lives inline via Tailwind utilities + the `group` pattern.
+ */
+
+/* Seamless auto-scrolling marquee. The track holds two copies of the list, so
+ * translating by one copy (-50%) loops back to the identical starting frame.
+ * Duration is set inline (scales with the number of books). */
+.bookMarquee {
+  animation: bookMarquee var(--marquee-duration, 20s) linear infinite;
 }
 
-.bookThreeD {
-  transform-style: preserve-3d;
-  transform-origin: center;
-  transition: transform 0.5s ease-in-out;
+/* TODO: slow down (instead of pausing) while hovered. Changing
+ * `animation-duration` here causes a positional jump, so revisit this as a
+ * client component using the Web Animations API (`animation.playbackRate`) to
+ * ramp the speed smoothly. */
+.bookMarquee:hover {
+  animation-play-state: paused;
 }
 
-.bookMetaText {
-  transition:
-    opacity 0.5s ease-in-out,
-    transform 0.5s ease-in-out;
+@keyframes bookMarquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bookMarquee {
+    animation: none;
+  }
 }
 
 .bookThreeD:before {
@@ -46,13 +64,4 @@
   transform: translateY(0) translateX(0) translateZ(0) rotateX(-90deg);
   transform-origin: top;
   height: var(--book-height, 30px);
-}
-
-.bookPerspectiveContainer:hover .bookThreeD {
-  transform: rotateX(80deg) rotate(45deg) scale(0.75);
-}
-
-.bookPerspectiveContainer:hover .bookMetaText {
-  opacity: 100;
-  transform: translateY(0);
 }

@@ -13,6 +13,12 @@ const yangBagus = localFont({
   fallback: ["system-ui", "sans-serif"],
 });
 
+const tiny = localFont({
+  variable: "--font-tiny",
+  src: "./fonts/tiny-variable.ttf",
+  fallback: ["system-ui", "sans-serif"],
+});
+
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
@@ -47,6 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         "antialiased",
         poppins.variable,
         yangBagus.variable,
+        tiny.variable,
         geistMono.variable,
         inter.variable,
       )}

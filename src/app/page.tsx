@@ -1,101 +1,85 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import PostSection from "@/components/PostSection";
 import Header from "@/components/Header";
+import { Books } from "@/components/Books";
+import { YouTube } from "@/components/YouTube";
+import { QuirkyLine } from "@/components/QuirkyLine";
 import { listPosts } from "@/server/posts/list";
 import { storage, BUCKETS } from "@/services/storage";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
-
-const HEADER_VARIANTS = 5;
 
 export default async function Home() {
   const posts = await listPosts({});
-  const variants = Array.from({ length: HEADER_VARIANTS }, (_, i) => i + 1);
-  const rachelSrcs = variants.map((n) =>
-    storage.getPublicUrl(BUCKETS.resources, `rachel-${n}.PNG`),
+  const headerBackground = storage.getPublicUrl(
+    BUCKETS.resources,
+    "header-background.png",
   );
-  const kohSrcs = variants.map((n) =>
-    storage.getPublicUrl(BUCKETS.resources, `koh-${n}.PNG`),
+  const headerForeground = storage.getPublicUrl(
+    BUCKETS.resources,
+    "header-foreground.png",
+  );
+  const kodakFrame = storage.getPublicUrl(
+    BUCKETS.resources,
+    "kodak-frame-1.png",
   );
   return (
-    <main className="text-center flex flex-col gap-8 px-(--home-padding-inline) pt-(--home-padding-top) pb-(--home-padding-bottom)">
-      <Header rachelSrcs={rachelSrcs} kohSrcs={kohSrcs} />
+    <main className="text-center flex flex-col items-center gap-8 px-(--home-padding-inline) pt-(--home-padding-top) pb-(--home-padding-bottom)">
+      <Header background={headerBackground} foreground={headerForeground} />
+      <Suspense>
+        <QuirkyLine />
+      </Suspense>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="grid grid-cols-2 lg:col-span-4 lg:grid-cols-subgrid gap-6">
-          <MusicArticle />
-          <MusicArticle />
-        </div>
-
+        <ul
+          className="bg-stone-900 lg:col-span-4 p-3 font-tiny"
+          data-not-typeset
+        >
+          {[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+            20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+          ].map((_, i) => (
+            <li
+              key={i}
+              style={{
+                fontVariationSettings: `'wght' ${i * 10 + 20}`,
+                letterSpacing: `${i * 0.01}em`,
+              }}
+              className="leading-5"
+            >
+              girl makes stuff on the internet
+            </li>
+          ))}
+          {[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+            20, 21, 22, 23, 24, 25, 26, 27, 28,
+          ].map((_, i) => (
+            <li
+              key={i}
+              style={{
+                fontVariationSettings: `'wght' ${300 - (i * 10 + 20)}`,
+                letterSpacing: `${0.28 - i * 0.01}em`,
+              }}
+              className="leading-5"
+            >
+              girl makes stuff on the internet
+            </li>
+          ))}
+        </ul>
         <PostSection posts={posts} className="lg:col-span-8" />
       </div>
       <Books />
+      <YouTube kodakFrame={kodakFrame} />
     </main>
   );
 }
 
-export function MusicArticle() {
+export function About() {
   return (
-    <article className="lg:col-span-4 bg-stone-200 px-4 pt-5 pb-12">
-      <div className="bg-stone-900 size-full">books</div>
-    </article>
-  );
-}
-export function Books() {
-  const { title, author, coverSrc } = {
-    title: "The Da Vinci Code",
-    author: "Dan Brown",
-    coverSrc:
-      "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1579621267i/968.jpg",
-  };
-  return (
-    <article className="" data-not-typeset>
-      <ul className="flex gap-5">
-        <Book title={title} author={author} coverSrc={coverSrc} />
-        <Book title={title} author={author} coverSrc={coverSrc} />
-        <Book title={title} author={author} coverSrc={coverSrc} />
+    <article className="lg:col-span-4 bg-stone-900 p-4">
+      <ul>
+        <li>computer science</li>
+        <li>mathematics</li>
+        <li>physics</li>
+        <li>history</li>
       </ul>
     </article>
-  );
-}
-
-export function Book({
-  title,
-  author,
-  coverSrc,
-}: {
-  title: string;
-  author: string;
-  coverSrc: string;
-}) {
-  return (
-    <Link
-      href="/"
-      className="block w-full rounded-xl bg-stone-800 border border-stone-700 p-16 hover:bg-accent/70 transition-colors duration-500 bookPerspectiveContainer"
-    >
-      <div className="flex justify-center items-center bookPerspective">
-        <div className="text-left absolute -top-6 -inset-x-6 opacity-0 -translate-y-4 bookMetaText">
-          <h3 className="text-lg font-bold leading-1.2 text-primary">
-            {title}
-          </h3>
-          <p className="text-base text-gray-600">{author}</p>
-        </div>
-        <div
-          className='relative shrink-0 w-full max-w-30 after:block after:content-[""] after:bg-gray-100 after:w-[calc(100%+0.5px)] after:absolute after:left-0 after:rounded-l-md after:border-y-[3px] after:border-l-4 after:border-gray-800 before:block before:content-[""] before:bg-white before:h-[calc(100%+0.5px)] before:absolute before:right-0 before:top-0 before:border-x-[3px] before:border-x-gray-800 before:border-t-[3px] before:border-t-gray-200 bookThreeD'
-          style={{ "--book-height": "32px" } as React.CSSProperties}
-        >
-          <img
-            src={coverSrc}
-            alt={title}
-            className="block w-full rounded-[3px]"
-          />
-        </div>
-        <div className="absolute font-bold text-sm -bottom-6 -inset-x-6 opacity-0 translate-y-4 bookMetaText">
-          <span className="inline-flex items-center underline decoration-dotted underline-offset-[6px] decoration-2">
-            View on Goodreads
-            <HugeiconsIcon icon={ArrowUpRight01Icon} />
-          </span>
-        </div>
-      </div>
-    </Link>
   );
 }
