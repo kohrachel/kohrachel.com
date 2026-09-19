@@ -1,3 +1,15 @@
+@keyframes tinyWeightWave {
+  0%,
+  100% {
+    font-variation-settings: "wght" 20;
+    letter-spacing: 0em;
+  }
+  50% {
+    font-variation-settings: "wght" 300;
+    letter-spacing: 0.28em;
+  }
+}
+
 @keyframes headerSprite {
   to {
     /* 6 frames stepped over 0% -> 120% yields frame positions 0/20/40/60/80/100% */
