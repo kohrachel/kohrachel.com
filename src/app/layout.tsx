@@ -23,6 +23,15 @@ const basteleur = localFont({
   fallback: ["system-ui", "sans-serif"],
 });
 
+const lcd = localFont({
+  variable: "--font-lcd",
+  src: [
+    { path: "./fonts/lcd.ttf", style: "normal" },
+    { path: "./fonts/lcd-italic.ttf", style: "italic" },
+  ],
+  fallback: ["ui-monospace", "monospace"],
+});
+
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
@@ -61,6 +70,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         yangBagus.variable,
         tiny.variable,
         basteleur.variable,
+        lcd.variable,
         geistMono.variable,
         inter.variable,
       )}
