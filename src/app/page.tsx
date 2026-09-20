@@ -83,16 +83,14 @@ export default async function Home() {
                 </Link>
               </li>
               <li className="flex gap-3 items-center">
-                <span className="flex gap-1">
-                  <HugeiconsIcon icon={BookMarkedIcon} />
-                  <Link
-                    href="https://goodreads.com/kohrachel"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Goodreads (@kohrachel)
-                  </Link>
-                </span>
+                <HugeiconsIcon icon={BookMarkedIcon} />
+                <Link
+                  href="https://goodreads.com/kohrachel"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Goodreads (@kohrachel)
+                </Link>
               </li>
             </ul>
           </div>
