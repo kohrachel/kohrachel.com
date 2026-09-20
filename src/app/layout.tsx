@@ -3,8 +3,6 @@ import { Geist_Mono, Inter, Poppins } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeScript } from "@/components/theme-script";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const yangBagus = localFont({
@@ -54,7 +52,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
+      style={{ colorScheme: "dark" }}
       className={cn(
+        "dark",
         "h-full",
         "antialiased",
         poppins.variable,
@@ -65,17 +65,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         inter.variable,
       )}
     >
-      <head>
-        <ThemeScript />
-      </head>
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>
-          <TooltipProvider>
-            <div className="typeset w-full flex flex-1 flex-col">
-              {children}
-            </div>
-          </TooltipProvider>
-        </ThemeProvider>
+        <TooltipProvider>
+          <div className="typeset w-full flex flex-1 flex-col">{children}</div>
+        </TooltipProvider>
       </body>
     </html>
   );
