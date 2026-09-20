@@ -12,11 +12,8 @@ import {
   GraduationScrollIcon,
   LaptopProgrammingIcon,
   MaskTheater02Icon,
-  ColosseumIcon,
   PhysicsIcon,
   BookMarkedIcon,
-  SpaceshipIcon,
-  Comet02Icon,
   Location01Icon,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
