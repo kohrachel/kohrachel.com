@@ -6,6 +6,20 @@ import { YouTube } from "@/components/YouTube";
 import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
 import { listPosts } from "@/server/posts/list";
 import { storage, BUCKETS } from "@/services/storage";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  GithubIcon,
+  GraduationScrollIcon,
+  LaptopProgrammingIcon,
+  MaskTheater02Icon,
+  ColosseumIcon,
+  PhysicsIcon,
+  BookMarkedIcon,
+  SpaceshipIcon,
+  Comet02Icon,
+  Location01Icon,
+} from "@hugeicons/core-free-icons";
+import Link from "next/link";
 
 export default async function Home() {
   const posts = await listPosts({});
@@ -28,7 +42,68 @@ export default async function Home() {
         <QuoteOfTheDay />
       </Suspense>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <ul
+        <section className="bg-stone-900 lg:col-span-4 p-7 flex flex-col justify-between">
+          <div>
+            <span className="font-basteleur text-primary">{`about rachel? why?`}</span>
+            <ul className="py-5 flex flex-col gap-2 list-none m-0 [&>li]:m-0 [&>li]:p-0 p-0 text-start">
+              <li className="flex gap-3 items-center">
+                <HugeiconsIcon icon={GraduationScrollIcon} />
+                {`CS, physics, math @ vandy '27`}
+              </li>
+              <li className="flex gap-3 items-center">
+                <HugeiconsIcon icon={LaptopProgrammingIcon} />
+                <span>
+                  {`prev: swe intern @`}
+                  <Link href="https://trytreater.com/">Treater</Link>
+                </span>
+              </li>
+              <li className="flex gap-3 items-center">
+                <HugeiconsIcon icon={MaskTheater02Icon} />
+                {`undiagnosed theatre kid`}
+              </li>
+              <li className="flex gap-3 items-center">
+                <HugeiconsIcon icon={PhysicsIcon} />
+                {`i want nuclear fusion so bad`}
+              </li>
+              <li className="flex gap-3 items-center">
+                <HugeiconsIcon icon={Location01Icon} />
+                {`earth, probably`}
+              </li>
+            </ul>
+            <span className="font-basteleur text-primary">{`wdym i have to socialize`}</span>
+            <ul className="py-5 flex flex-col gap-2 list-none m-0 [&>li]:m-0 [&>li]:p-0 p-0 text-start">
+              <li className="flex gap-3 items-center">
+                <HugeiconsIcon icon={GithubIcon} />
+                <Link
+                  href="https://github.com/kohrachel"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Github (@kohrachel)
+                </Link>
+              </li>
+              <li className="flex gap-3 items-center">
+                <span className="flex gap-1">
+                  <HugeiconsIcon icon={BookMarkedIcon} />
+                  <Link
+                    href="https://goodreads.com/kohrachel"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Goodreads (@kohrachel)
+                  </Link>
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <p className="text-sm italic">
+            rachel told me to tell you that the world is still{" "}
+            <span className="font-basteleur text-primary">beautiful</span>, like
+            a dumpster fire of stardust
+          </p>
+        </section>
+        {/* <ul
           className="bg-stone-900 lg:col-span-4 p-3 font-tiny list-none m-0 [&>li]:m-0 [&>li]:p-0"
           data-not-typeset
         >
@@ -46,7 +121,7 @@ export default async function Home() {
               girl makes stuff on the internet
             </li>
           ))}
-        </ul>
+        </ul> */}
         <PostSection posts={posts} className="lg:col-span-8" />
       </div>
       <Books />

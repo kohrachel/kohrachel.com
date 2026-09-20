@@ -12,7 +12,7 @@ export async function QuoteOfTheDay() {
   return (
     <section
       data-not-typeset
-      className="w-full flex flex-col items-center justify-center gap-2 bg-stone-900 p-6 text-center"
+      className="w-full flex flex-col items-center justify-center gap-2 bg-stone-900 p-6 text-center font-basteleur"
     >
       <p>{quote}</p>
     </section>

@@ -19,6 +19,12 @@ const tiny = localFont({
   fallback: ["system-ui", "sans-serif"],
 });
 
+const basteleur = localFont({
+  variable: "--font-basteleur",
+  src: "./fonts/Basteleur-Bold.otf",
+  fallback: ["system-ui", "sans-serif"],
+});
+
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
@@ -54,6 +60,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         poppins.variable,
         yangBagus.variable,
         tiny.variable,
+        basteleur.variable,
         geistMono.variable,
         inter.variable,
       )}
