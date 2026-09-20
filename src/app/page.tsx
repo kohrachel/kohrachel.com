@@ -120,7 +120,9 @@ export default async function Home() {
         <PostSection posts={posts} className="lg:col-span-8" />
       </div>
       <Books />
-      <YouTube kodakFrame={kodakFrame} />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+        <YouTube kodakFrame={kodakFrame} className="lg:col-span-7" />
+      </div>
     </main>
   );
 }

@@ -93,10 +93,13 @@ export default function PostSection({
         <ul className="flex-1 overflow-auto">
           {posts.map((post, i) => (
             <li key={post.id} onMouseEnter={() => setSelected(i)}>
-              <Link
-                href={`/${post.id}`}
-                onClick={(e) => e.stopPropagation()}
-                className={`flex items-start gap-1 cursor-pointer px-2 py-1 ${
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelected(i);
+                }}
+                className={`flex w-full text-start items-start gap-1 cursor-pointer px-2 py-1 ${
                   i === selected
                     ? "bg-black text-[oklch(0.6937_0.0534_132.56)]"
                     : "hover:bg-black/10"
@@ -109,7 +112,7 @@ export default function PostSection({
                 <span className="min-w-0 break-words whitespace-normal">
                   {post.title || "untitled"}
                 </span>
-              </Link>
+              </button>
             </li>
           ))}
         </ul>
@@ -126,17 +129,15 @@ export default function PostSection({
           </span>
         </div>
         {active ? (
-          <div
-            className="flex-1 min-h-0 flex flex-col cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              openPost(active);
-            }}
-          >
+          <div className="flex-1 min-h-0 flex flex-col">
             <div className="flex-1 overflow-auto p-4 space-y-3">
-              <h2 className="text-lg font-bold uppercase tracking-wide leading-tight font-lcd">
+              <Link
+                href={`/${active.id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="block w-fit text-lg font-bold uppercase tracking-wide leading-tight font-lcd hover:underline"
+              >
                 {active.title || "untitled"}
-              </h2>
+              </Link>
               {active.description && (
                 <p className="opacity-70 italic">{active.description}</p>
               )}

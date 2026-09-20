@@ -22,12 +22,21 @@ function buildKeyframes(n: number): string {
   return `@keyframes ${ANIM_NAME} { ${stops.join(" ")} }`;
 }
 
-export function YouTube({ kodakFrame }: { kodakFrame: string }) {
+export function YouTube({
+  kodakFrame,
+  className = "",
+}: {
+  kodakFrame: string;
+  className?: string;
+}) {
   const n = VIDEOS.length;
   const slides = n > 1 ? [...VIDEOS, VIDEOS[0]] : VIDEOS;
 
   return (
-    <article className="lg:col-span-4 relative aspect-836/535 w-full">
+    <article
+      className={`relative aspect-836/535 w-full ${className}`}
+      data-not-typeset
+    >
       {/* Content aligned to the frame's transparent 16:9 window. */}
       <div className="group absolute left-[6.699%] top-[17.009%] w-[83.971%] h-[73.645%] overflow-hidden">
         {n > 1 ? (
