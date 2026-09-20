@@ -105,11 +105,13 @@ export default function PostSection({
                     : "hover:bg-black/10"
                 }`}
               >
-                <span className="w-2 shrink-0">{i === selected ? "›" : ""}</span>
+                <span className="w-2 shrink-0">
+                  {i === selected ? "›" : ""}
+                </span>
                 <span className="opacity-60 shrink-0">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span className="min-w-0 break-words whitespace-normal">
+                <span className="min-w-0 wrap-break-word whitespace-normal">
                   {post.title || "untitled"}
                 </span>
               </button>
