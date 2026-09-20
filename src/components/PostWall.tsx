@@ -1,45 +1,34 @@
 "use client";
 
 import { DotIcon } from "@hugeicons/core-free-icons";
-import MainContent, { Separator } from "./PostWallElement";
+import { Separator } from "./PostWallElement";
 import { useEffect, useState } from "react";
-import { Post } from "@/db/schema";
 
 const CYCLE_INTERVAL_MS = 3000;
 
-export default function WallOfText({ posts }: { posts: Post[] }) {
-  const [activePostIndex, setActivePostIndex] = useState<number>(0);
+export default function WallOfText({ people }: { people: string[] }) {
+  const [activeIndex, setActiveIndex] = useState<number>(0);
 
-  // Cycle the active post through all ids over time.
+  // Cycle the active person through all entries over time.
   useEffect(() => {
     const interval = setInterval(() => {
-      setActivePostIndex((prev) => (prev + 1) % posts.length);
+      setActiveIndex((prev) => (prev + 1) % people.length);
     }, CYCLE_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [posts]);
-
-  const activePostId = posts[activePostIndex].id;
+  }, [people]);
 
   return (
-    <ul className="p-0! mt-0! text-justify">
-      {posts.map(({ id, title }) => (
-        <li key={`title-${id}`} className="inline p-0!">
-          <MainContent
-            id={id}
-            active={activePostId === id}
-            className="text-6xl no-underline hover:underline"
+    <ul className="list-none p-0! mt-0! text-justify" data-not-typeset>
+      {people.map((name, index) => (
+        <li key={name} className="inline p-0!">
+          <span
+            className={`inline align-middle transition-all duration-300 ${
+              activeIndex === index ? "text-primary" : "text-green-800"
+            }`}
           >
-            {title}
-          </MainContent>
-          <Separator separatorIcon={DotIcon} />
-        </li>
-      ))}
-      {posts.map(({ id, description }, index) => (
-        <li key={`desc-${id}`} className="inline p-0!">
-          <MainContent id={id} active={activePostId === id}>
-            {description}
-          </MainContent>
-          {index !== posts.length - 1 && <Separator separatorIcon={DotIcon} />}
+            {name}
+          </span>
+          {index !== people.length - 1 && <Separator separatorIcon={DotIcon} />}
         </li>
       ))}
     </ul>

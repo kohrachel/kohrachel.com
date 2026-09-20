@@ -3,18 +3,24 @@ import { HugeiconsIcon, IconSvgElement } from "@hugeicons/react";
 
 export default function MainContent({
   id,
+  href,
+  external,
   children,
   active,
   className,
 }: {
   id: number;
+  href?: string;
+  external?: boolean;
   children: React.ReactNode;
   active: boolean;
   className?: string;
 }) {
   return (
     <Link
-      href={`/${id}`}
+      href={href ?? `/${id}`}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
       className={`inline align-middle cursor-pointer transition-all duration-300 ${
         active ? "text-primary" : "text-green-800"
       } ${className}`}
