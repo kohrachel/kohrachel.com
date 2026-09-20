@@ -64,24 +64,31 @@ export default function PostSection({
       return;
     }
 
-    if (lower === "ls" || lower === "help") {
-      setError("commands: ls · <n> (preview) · open <name> (full post)");
-      return;
-    }
-
-    setError(`unknown command: ${cmd}`);
+    setError("available commands: ls · open <name>");
   }
 
   return (
     <section
-      className={`grid grid-cols-9 grid-rows-[1fr_auto] max-h-140 list-none text-start bg-[oklch(0.6937_0.0534_132.56)] text-black text-sm border-4 border-black/70 font-mono ${className}`}
+      className={`grid grid-cols-9 grid-rows-[auto_1fr_auto] h-[70dvh] min-h-100 max-h-140 list-none text-start bg-[oklch(0.6937_0.0534_132.56)] text-black text-sm border-4 border-black/70 rounded-lg overflow-hidden font-mono ${className}`}
       data-not-typeset
       onClick={() => inputRef.current?.focus()}
     >
+      {/* Window title bar */}
+      <div className="col-span-9 flex items-center gap-2 px-3 py-1.5 border-b-2 border-black/70 bg-black text-[oklch(0.6937_0.0534_132.56)]">
+        <span className="flex gap-1.5" aria-hidden>
+          <span className="size-3 rounded-full border border-black/40 bg-current opacity-90" />
+          <span className="size-3 rounded-full border border-black/40 bg-current opacity-60" />
+          <span className="size-3 rounded-full border border-black/40 bg-current opacity-40" />
+        </span>
+        <span className="mx-auto text-xs tracking-widest opacity-80">
+          ~/rachelkoh — {posts.length} docs
+        </span>
+      </div>
+
       {/* Left panel — list of available documents */}
       <div className="col-span-2 min-h-0 flex flex-col border-r-2 border-black/70 bg-[oklch(0.6937_0.0534_132.56)] text-black overflow-hidden">
-        <div className="px-2 py-1 text-xs uppercase tracking-widest border-b border-current/40 shrink-0">
-          documents
+        <div className="px-2 py-1 text-xs tracking-wide border-b border-current/40 shrink-0 opacity-70">
+          % ls ~/posts
         </div>
         <ul className="flex-1 overflow-auto">
           {posts.map((post, i) => (
@@ -89,16 +96,19 @@ export default function PostSection({
               <Link
                 href={`/${post.id}`}
                 onClick={(e) => e.stopPropagation()}
-                className={`block cursor-pointer truncate px-2 py-1 ${
+                className={`flex items-start gap-1 cursor-pointer px-2 py-1 ${
                   i === selected
                     ? "bg-black text-[oklch(0.6937_0.0534_132.56)]"
                     : "hover:bg-black/10"
                 }`}
               >
-                <span className="opacity-60">
+                <span className="w-2 shrink-0">{i === selected ? "›" : ""}</span>
+                <span className="opacity-60 shrink-0">
                   {String(i + 1).padStart(2, "0")}
-                </span>{" "}
-                {post.title || "untitled"}
+                </span>
+                <span className="min-w-0 break-words whitespace-normal">
+                  {post.title || "untitled"}
+                </span>
               </Link>
             </li>
           ))}
@@ -107,8 +117,10 @@ export default function PostSection({
 
       {/* Right pane — selected document contents */}
       <div className="col-span-7 min-h-0 flex flex-col bg-[oklch(0.6937_0.0534_132.56)] text-black overflow-hidden">
-        <div className="flex items-center justify-between px-3 py-1 text-xs uppercase tracking-widest border-b border-current/40 shrink-0">
-          <span>{active ? `doc ${selected + 1}/${posts.length}` : "—"}</span>
+        <div className="flex items-center justify-between px-3 py-1 text-xs tracking-wide border-b border-current/40 shrink-0">
+          <span className="opacity-70">
+            % cat {active ? `"${active.title || active.id}"` : "—"}
+          </span>
           <span className="opacity-60">
             {active ? humanDate(active.createdAt) : ""}
           </span>
@@ -158,18 +170,25 @@ export default function PostSection({
         }}
         className="col-span-9 flex items-center gap-2 h-9 px-3 border-t-2 border-black/70 bg-[oklch(0.6937_0.0534_132.56)] text-black"
       >
-        <span className="select-none shrink-0">
-          {error ? `! ${error}` : ">"}
+        <span className="select-none shrink-0 font-bold">
+          {error ?? "~/rachelkoh %"}
         </span>
-        <input
-          ref={inputRef}
-          value={command}
-          onChange={(e) => setCommand(e.target.value)}
-          spellCheck={false}
-          autoComplete="off"
-          placeholder="available commands (ls · open <name>)"
-          className="w-full bg-transparent outline-none border-none focus:ring-0 placeholder:text-current/40 text-current caret-current"
-        />
+        <div className="relative flex-1">
+          <input
+            ref={inputRef}
+            value={command}
+            onChange={(e) => setCommand(e.target.value)}
+            spellCheck={false}
+            autoComplete="off"
+            className="w-full bg-transparent outline-none border-none focus:ring-0 text-current caret-current"
+          />
+          {command === "" && (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-4 w-2 bg-black animate-[terminalBlink_1s_steps(1)_infinite]"
+            />
+          )}
+        </div>
       </form>
     </section>
   );
