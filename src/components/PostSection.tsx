@@ -2,6 +2,7 @@
 
 import { Post } from "@/db/schema";
 import { renderNode } from "@/services/posts/render";
+import { humanDate } from "@/lib/utils";
 import { useMemo, useRef, useState } from "react";
 
 export default function PostSection({
@@ -83,11 +84,13 @@ export default function PostSection({
       <div className="col-span-7 flex flex-col border-2 border-black/70 bg-black text-[oklch(0.82_0.09_132.56)] overflow-hidden">
         <div className="flex items-center justify-between px-3 py-1 text-xs uppercase tracking-widest border-b border-current/40 shrink-0">
           <span>{active ? `doc ${selected + 1}/${posts.length}` : "—"}</span>
-          <span className="opacity-60">{active?.viewCount ?? 0} views</span>
+          <span className="opacity-60">
+            {active ? humanDate(active.createdAt) : ""}
+          </span>
         </div>
         {active ? (
           <div className="flex-1 overflow-auto p-4 space-y-3">
-            <h2 className="text-lg font-bold uppercase tracking-wide leading-tight">
+            <h2 className="text-lg font-bold uppercase tracking-wide leading-tight font-lcd">
               {active.title || "untitled"}
             </h2>
             {active.description && (
