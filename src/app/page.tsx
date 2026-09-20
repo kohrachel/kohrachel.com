@@ -1,69 +1,147 @@
-import Image from "next/image";
+import { Suspense } from "react";
+import PostSection from "@/components/PostSection";
+import Header from "@/components/Header";
+import { Books } from "@/components/Books";
+import { YouTube } from "@/components/YouTube";
+import PostWall from "@/components/PostWall";
+import { PEOPLE } from "@/lib/constants/people";
+import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
+import { listPosts } from "@/server/posts/list";
+import { storage, BUCKETS } from "@/services/storage";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  GithubIcon,
+  GraduationScrollIcon,
+  LaptopProgrammingIcon,
+  MaskTheater02Icon,
+  PhysicsIcon,
+  BookMarkedIcon,
+  Location01Icon,
+} from "@hugeicons/core-free-icons";
+import Link from "next/link";
 
-export default function Home() {
+export default async function Home() {
+  const posts = await listPosts({});
+  const headerBackground = storage.getPublicUrl(
+    BUCKETS.resources,
+    "header-background.png",
+  );
+  const headerForeground = storage.getPublicUrl(
+    BUCKETS.resources,
+    "header-foreground.png",
+  );
+  const kodakFrame = storage.getPublicUrl(
+    BUCKETS.resources,
+    "kodak-frame-1.png",
+  );
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="text-center flex flex-col items-center gap-8 px-(--home-padding-inline) pt-(--home-padding-top) pb-(--home-padding-bottom)">
+      <Header background={headerBackground} foreground={headerForeground} />
+      <Suspense>
+        <QuoteOfTheDay />
+      </Suspense>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <section className="bg-stone-900 lg:col-span-4 p-7 flex flex-col justify-between">
+          <div>
+            <span className="font-basteleur text-primary">{`about rachel? why?`}</span>
+            <ul className="py-5 flex flex-col gap-2 list-none m-0 [&>li]:m-0 [&>li]:p-0 p-0 text-start">
+              <li className="flex gap-3 items-center">
+                <HugeiconsIcon icon={GraduationScrollIcon} />
+                {`CS, physics, math @ vandy '27`}
+              </li>
+              <li className="flex gap-3 items-center">
+                <HugeiconsIcon icon={LaptopProgrammingIcon} />
+                <span>
+                  {`prev: swe intern @`}
+                  <Link href="https://trytreater.com/">Treater</Link>
+                </span>
+              </li>
+              <li className="flex gap-3 items-center">
+                <HugeiconsIcon icon={MaskTheater02Icon} />
+                {`undiagnosed theatre kid`}
+              </li>
+              <li className="flex gap-3 items-center">
+                <HugeiconsIcon icon={PhysicsIcon} />
+                {`i want nuclear fusion so bad`}
+              </li>
+              <li className="flex gap-3 items-center">
+                <HugeiconsIcon icon={Location01Icon} />
+                {`earth, probably`}
+              </li>
+            </ul>
+            <span className="font-basteleur text-primary">{`wdym i have to socialize`}</span>
+            <ul className="py-5 flex flex-col gap-2 list-none m-0 [&>li]:m-0 [&>li]:p-0 p-0 text-start">
+              <li className="flex gap-3 items-center">
+                <HugeiconsIcon icon={GithubIcon} />
+                <Link
+                  href="https://github.com/kohrachel"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Github (@kohrachel)
+                </Link>
+              </li>
+              <li className="flex gap-3 items-center">
+                <HugeiconsIcon icon={BookMarkedIcon} />
+                <Link
+                  href="https://goodreads.com/kohrachel"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Goodreads (@kohrachel)
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <p className="text-sm italic">
+            rachel told me to tell you that the world is still{" "}
+            <span className="font-basteleur text-primary">beautiful</span>, like
+            a dumpster fire of stardust
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        </section>
+        {/* <ul
+          className="bg-stone-900 lg:col-span-4 p-3 font-tiny list-none m-0 [&>li]:m-0 [&>li]:p-0"
+          data-not-typeset
+        >
+          {Array.from({ length: 30 }).map((_, i) => (
+            <li
+              key={i}
+              className="leading-5"
+              style={{
+                // Stagger each line so the weight wave travels down the list,
+                // looping forever.
+                animation: "tinyWeightWave 4s ease-in-out infinite",
+                animationDelay: `${-(i * (4 / 30))}s`,
+              }}
+            >
+              girl makes stuff on the internet
+            </li>
+          ))}
+        </ul> */}
+        <PostSection posts={posts} className="lg:col-span-8" />
+      </div>
+      <Books />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+        <YouTube kodakFrame={kodakFrame} className="lg:col-span-7" />
+        <section className="bg-stone-900 lg:col-span-5 p-7 flex flex-col gap-5">
+          <span className="font-basteleur text-primary">{`people i admire`}</span>
+          <PostWall people={PEOPLE} />
+        </section>
+      </div>
+    </main>
+  );
+}
+
+export function About() {
+  return (
+    <article className="lg:col-span-4 bg-stone-900 p-4">
+      <ul>
+        <li>computer science</li>
+        <li>mathematics</li>
+        <li>physics</li>
+        <li>history</li>
+      </ul>
+    </article>
   );
 }

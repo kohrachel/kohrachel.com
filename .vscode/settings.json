@@ -1,0 +1,9 @@
+{
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore",
+  // Prefer the Tailwind CSS IntelliSense extension for these files when present.
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
+}

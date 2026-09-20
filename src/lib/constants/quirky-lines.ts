@@ -1,0 +1,17 @@
+export const QUIRKY_LINES = [
+  "(don't) negative prompt",
+  "A lot of your life is prewritten. for example, no amount of trying will turn you into a dinosaur",
+  "being kind is the most underrated, dangerous thing you could ever do",
+  "Flies can taste through their feet. That fly already had some of your pizza.",
+  "i know the tragedy of the commons. i live it every day between my waking and sleeping selves",
+  "Learn a bit of quantum physics, meet a lot of conspiracy theorists",
+  "Never ever frame anything important as a tug of war between two parties",
+  "terrible news just in: A penguin is not a perfect cylinder",
+  "The line between war hero and war criminal is so blurry, it's like it doesn't exist",
+  "The map is not (it will never be) the territory",
+  "The word for tea in every language comes from either 'cha' (north china) or 'teh' (south china)",
+  "to be normal is boring, but to be abnormal is an insult",
+  "Villainy is in the eye of the beholder",
+  "what is humanity if not art and language?",
+  "You would want humanity to prevail, right?",
+];

@@ -1,0 +1,380 @@
+{
+  "version": "8",
+  "dialect": "postgres",
+  "id": "0138d315-04c9-4485-b658-ce4de9c94a42",
+  "prevIds": [
+    "b84f04e5-a1e0-44ab-993f-71e71d8b3e88"
+  ],
+  "ddl": [
+    {
+      "isRlsEnabled": true,
+      "name": "posts",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": true,
+      "name": "tags",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": true,
+      "name": "posts_tags",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "byDefault",
+        "name": "Posts_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "9223372036854775807",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "posts"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "posts"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "''",
+      "generated": null,
+      "identity": null,
+      "name": "title",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "posts"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "''",
+      "generated": null,
+      "identity": null,
+      "name": "description",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "posts"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "name": "view_count",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "posts"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'{\"type\":\"doc\",\"content\":[]}'",
+      "generated": null,
+      "identity": null,
+      "name": "content",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "posts"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "posts"
+    },
+    {
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "byDefault",
+        "name": "Tags_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "9223372036854775807",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "tags"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "tags"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "tags"
+    },
+    {
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "byDefault",
+        "name": "posts_tags_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "9223372036854775807",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "posts_tags"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "posts_tags"
+    },
+    {
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "post_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "posts_tags"
+    },
+    {
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "tag_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "posts_tags"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "post_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "posts",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "CASCADE",
+      "onDelete": "CASCADE",
+      "name": "posts_tags_post_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "posts_tags"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "tag_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "tags",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "CASCADE",
+      "onDelete": "CASCADE",
+      "name": "posts_tags_tag_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "posts_tags"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": true,
+      "name": "Posts_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "posts"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": true,
+      "name": "Tags_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "tags"
+    },
+    {
+      "columns": [
+        "id",
+        "post_id",
+        "tag_id"
+      ],
+      "nameExplicit": true,
+      "name": "posts_tags_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "posts_tags"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "name"
+      ],
+      "nullsNotDistinct": false,
+      "name": "Tags_name_key",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "tags"
+    },
+    {
+      "as": "PERMISSIVE",
+      "for": "INSERT",
+      "roles": [
+        "authenticated"
+      ],
+      "using": null,
+      "withCheck": "true",
+      "name": "Enable insert for authenticated users only",
+      "entityType": "policies",
+      "schema": "public",
+      "table": "posts"
+    },
+    {
+      "as": "PERMISSIVE",
+      "for": "SELECT",
+      "roles": [
+        "public"
+      ],
+      "using": "true",
+      "withCheck": null,
+      "name": "Enable read access for all users",
+      "entityType": "policies",
+      "schema": "public",
+      "table": "posts"
+    },
+    {
+      "as": "PERMISSIVE",
+      "for": "UPDATE",
+      "roles": [
+        "authenticated"
+      ],
+      "using": "true",
+      "withCheck": "true",
+      "name": "Enable update for authenticated users only",
+      "entityType": "policies",
+      "schema": "public",
+      "table": "posts"
+    },
+    {
+      "as": "PERMISSIVE",
+      "for": "SELECT",
+      "roles": [
+        "public"
+      ],
+      "using": "true",
+      "withCheck": null,
+      "name": "Enable read access for all users",
+      "entityType": "policies",
+      "schema": "public",
+      "table": "tags"
+    },
+    {
+      "as": "PERMISSIVE",
+      "for": "SELECT",
+      "roles": [
+        "public"
+      ],
+      "using": "true",
+      "withCheck": null,
+      "name": "Enable read access for all users",
+      "entityType": "policies",
+      "schema": "public",
+      "table": "posts_tags"
+    }
+  ],
+  "renames": []
+}
