@@ -16,6 +16,6 @@ export function listPostService({ postIds }: ListInput) {
       isPublished: true,
       ...(postIds ? { id: { in: postIds } } : {}),
     },
-    orderBy: { updatedAt: "desc" },
+    orderBy: { createdAt: "desc" },
   });
 }
