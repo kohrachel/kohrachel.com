@@ -37,10 +37,10 @@ export function PeopleSection({ className }: { className?: string }) {
       />
       <span className="font-basteleur text-primary">{`why i admire them`}</span>
       <div
-        className="flex w-full min-h-32 items-center rounded-lg border-4 border-black/70 bg-[url('/flowers-blur.jpg')] bg-cover bg-center p-5"
+        className="relative flex w-full min-h-32 items-center overflow-hidden rounded-lg border-4 border-black/70 bg-[url('/flowers-blur.jpg')] bg-cover bg-center p-5 before:absolute before:inset-0 before:bg-black/50"
         data-not-typeset
       >
-        <p className="w-full text-center font-semibold text-primary">{PEOPLE[activeIndex].reason}</p>
+        <p className="relative z-10 w-full text-center font-semibold text-primary">{PEOPLE[activeIndex].reason}</p>
       </div>
     </section>
   );
