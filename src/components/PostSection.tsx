@@ -2,7 +2,11 @@
 
 import { Post } from "@/db/schema";
 import Link from "next/link";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+
+// A Next.js <Link> that can be animated by Motion.
+const MotionLink = motion.create(Link);
 
 // A little palette of accent colors a card flips to on hover.
 const ACCENTS = [
@@ -76,35 +80,70 @@ export default function PostSection({
       data-not-typeset
     >
       {posts.length ? (
-        posts.map((post, i) => {
-          const layout = layouts[i];
-          if (!layout) return null;
-          const { top, left, rotate, accent } = layout;
-          return (
-            <Link
-              key={post.id}
-              href={`/${post.id}`}
-              style={
-                {
-                  top: `${MARGIN + top * availH}px`,
-                  left: `${MARGIN + left * availW}px`,
-                  "--rotate": `${rotate}deg`,
-                  "--accent": accent,
-                } as React.CSSProperties
-              }
-              className="group absolute z-[1] flex w-60 max-sm:w-44 flex-col gap-3 rounded-md border-2 border-black bg-white p-5 text-start text-black no-underline shadow-sm transition-[transform,background-color,z-index] duration-100 [transform:rotate(var(--rotate))] hover:z-50 hover:bg-[var(--accent)] hover:[transform:rotate(0deg)_scale(1.04)] focus-visible:z-50 focus-visible:[transform:rotate(0deg)_scale(1.04)] focus-visible:outline-none"
-            >
-              <span className="font-heading text-2xl leading-tight group-hover:underline max-sm:text-lg">
-                {post.title || "untitled"}
-              </span>
-              {post.description && (
-                <span className="font-sans text-sm italic opacity-80 max-sm:text-xs">
-                  {post.description}
-                </span>
-              )}
-            </Link>
-          );
-        })
+        <AnimatePresence>
+          {size.h > 0 &&
+            posts.map((post, i) => {
+              const layout = layouts[i];
+              if (!layout) return null;
+              const { top, left, rotate, accent } = layout;
+              const finalTop = MARGIN + top * availH;
+              const finalLeft = MARGIN + left * availW;
+              return (
+                <MotionLink
+                  key={post.id}
+                  href={`/${post.id}`}
+                  className="group absolute flex w-60 max-sm:w-44 flex-col gap-3 rounded-md border-2 border-black p-5 text-start text-black no-underline shadow-sm focus-visible:outline-none"
+                  style={{ backgroundColor: "#ffffff", zIndex: 1 }}
+                  // Fan out from the bottom-center of the section.
+                  initial={{
+                    top: size.h,
+                    left: size.w / 2 - CARD_W / 2,
+                    rotate: 0,
+                    scale: 0.6,
+                    opacity: 0,
+                  }}
+                  animate={{
+                    top: finalTop,
+                    left: finalLeft,
+                    rotate,
+                    scale: 1,
+                    opacity: 1,
+                    transition: {
+                      type: "spring",
+                      stiffness: 120,
+                      damping: 16,
+                      delay: i * 0.07,
+                    },
+                  }}
+                  exit={{
+                    top: size.h,
+                    left: size.w / 2 - CARD_W / 2,
+                    rotate: 0,
+                    scale: 0.6,
+                    opacity: 0,
+                    transition: { duration: 0.25 },
+                  }}
+                  whileHover={{
+                    rotate: 0,
+                    scale: 1.05,
+                    zIndex: 50,
+                    backgroundColor: accent,
+                    transition: { duration: 0.15 },
+                  }}
+                  whileTap={{ scale: 0.97, zIndex: 50 }}
+                >
+                  <span className="font-heading text-2xl leading-tight group-hover:underline max-sm:text-lg">
+                    {post.title || "untitled"}
+                  </span>
+                  {post.description && (
+                    <span className="font-sans text-sm italic opacity-80 max-sm:text-xs">
+                      {post.description}
+                    </span>
+                  )}
+                </MotionLink>
+              );
+            })}
+        </AnimatePresence>
       ) : (
         <div className="grid h-full place-items-center opacity-60">
           no documents available
