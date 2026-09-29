@@ -57,6 +57,8 @@ export function WallOfText<T>({
             {link ? (
               <Link
                 href={link}
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`${className} underline underline-offset-4 transition-[text-decoration-color] duration-500 ${
                   activeIndex === index
                     ? "decoration-current"
