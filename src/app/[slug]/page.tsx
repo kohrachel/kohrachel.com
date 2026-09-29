@@ -33,7 +33,7 @@ async function PostContent({
     <>
       {/* Header — full-bleed halftone cloud banner. */}
       <header
-        className="relative h-[33vw] min-h-[22rem] w-full sm:min-h-[34rem]"
+        className="relative h-[33vw] min-h-88 w-full sm:min-h-136"
         data-not-typeset
       >
         <img
@@ -43,7 +43,7 @@ async function PostContent({
         />
         {/* Title sits over the dark sky in the upper area. */}
         <div className="absolute inset-0 flex flex-col items-center justify-start gap-1 px-6 pt-20 text-center text-[#f5f2e8]">
-          <h1 className="mt-0! mb-0! font-heading text-[clamp(1.6rem,6vw,4.5rem)]! leading-tight text-primary">
+          <h1 className="font-heading text-[clamp(1.6rem,6vw,4.5rem)]! leading-tight text-primary my-0">
             {title}
           </h1>
           {description && (
