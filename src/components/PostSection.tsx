@@ -44,9 +44,12 @@ export default function PostSection({
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [layouts, setLayouts] = useState<CardLayout[]>([]);
 
-  // Generate genuinely random positions once on the client (after mount, to
-  // avoid an SSR/CSR hydration mismatch). Re-rolls each page load.
+  // Generate genuinely random positions on the client after mount. Random must
+  // be deferred out of render so Next doesn't evaluate it during prerender
+  // (see nextjs.org/docs/messages/blocking-prerender-random-client); this also
+  // re-rolls the layout on every visit.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- random layout must be deferred to the client per Next.js prerender rules
     setLayouts(
       posts.map((_, i) => ({
         top: Math.random(),
@@ -157,7 +160,7 @@ export default function PostSection({
       )}
 
       {/* Credit — card stack UI inspired by Tobias Fried. */}
-      <span className="absolute bottom-2 right-3 z-[60] text-xs italic text-white/70">
+      <span className="absolute bottom-2 right-3 z-60 text-xs italic text-white/70">
         this section credits:{" "}
         <Link
           href="https://tobiasfried.com/"

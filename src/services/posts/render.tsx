@@ -161,7 +161,7 @@ export function renderNode(node: JSONContent, key: number): ReactNode {
 
     case "image":
       return (
-        // eslint-disable-next-line @next/next/no-img-element
+         
         <img
           key={key}
           src={(node.attrs?.src as string | undefined) ?? ""}
