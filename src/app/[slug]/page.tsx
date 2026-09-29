@@ -61,7 +61,7 @@ async function PostContent({
           Text width is fixed by --page-padding-inline; the box widens
           independently via --box-gutter without affecting the text. */}
       <div
-        className="mt-(--page-padding-top) rounded-lg bg-stone-900 pt-0 pb-6 sm:pt-8 sm:pb-13 md:pt-10 md:pb-16"
+        className="mt-(--page-padding-top) rounded-lg bg-stone-900/70 pt-0 pb-6 backdrop-blur-xs sm:pt-8 sm:pb-13 md:pt-10 md:pb-16"
         style={
           {
             "--box-gutter": "6rem",
