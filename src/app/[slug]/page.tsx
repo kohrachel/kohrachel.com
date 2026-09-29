@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { listPosts } from "@/server/posts/list";
 import { renderNode } from "@/services/posts/render";
 import { humanDate } from "@/lib/utils";
+import { storage, BUCKETS } from "@/services/storage";
 
 export default function SinglePost({ params }: PageProps<"/[slug]">) {
   return (
@@ -23,6 +24,10 @@ async function PostContent({
   if (!post || !post.content.content) notFound();
 
   const { title, description, createdAt } = post;
+  const cloudsBanner = storage.getPublicUrl(
+    BUCKETS.resources,
+    "clouds-halftone.png",
+  );
 
   return (
     <>
@@ -32,7 +37,7 @@ async function PostContent({
         data-not-typeset
       >
         <img
-          src="/clouds-halftone.png"
+          src={cloudsBanner}
           alt=""
           className="absolute inset-0 size-full object-cover"
         />
