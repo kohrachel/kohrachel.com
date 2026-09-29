@@ -55,7 +55,14 @@ export function WallOfText<T>({
             onMouseEnter={() => onHoverIndex?.(index)}
           >
             {link ? (
-              <Link href={link} className={`${className} underline underline-offset-4`}>
+              <Link
+                href={link}
+                className={`${className} underline underline-offset-4 transition-[text-decoration-color] duration-500 ${
+                  activeIndex === index
+                    ? "decoration-current"
+                    : "decoration-transparent"
+                }`}
+              >
                 {text}
               </Link>
             ) : (
