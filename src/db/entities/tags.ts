@@ -1,6 +1,5 @@
 import {
   bigint,
-  pgPolicy,
   pgTable,
   primaryKey,
   text,
@@ -23,9 +22,5 @@ export const tags = pgTable.withRLS(
   (table) => [
     primaryKey({ columns: [table.id], name: "Tags_pkey" }),
     unique("Tags_name_key").on(table.name),
-    pgPolicy("Enable read access for all users", {
-      for: "select",
-      using: sql`true`,
-    }),
   ],
 );
