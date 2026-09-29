@@ -48,11 +48,12 @@ export default function PostSection({
   // avoid an SSR/CSR hydration mismatch). Re-rolls each page load.
   useEffect(() => {
     setLayouts(
-      posts.map(() => ({
+      posts.map((_, i) => ({
         top: Math.random(),
         left: Math.random(),
         rotate: (Math.random() - 0.5) * 24,
-        accent: ACCENTS[Math.floor(Math.random() * ACCENTS.length)],
+        // Accent is assigned by index (wrapping around), not randomly.
+        accent: ACCENTS[i % ACCENTS.length],
       })),
     );
   }, [posts]);
@@ -76,7 +77,7 @@ export default function PostSection({
   return (
     <section
       ref={ref}
-      className={`relative min-h-100 self-stretch overflow-hidden rounded-lg border-4 border-black/70 bg-[oklch(0.6937_0.0534_132.56)] ${className}`}
+      className={`relative min-h-100 self-stretch overflow-hidden rounded-lg border-4 border-black/70 bg-[url('/flowers-blur.jpg')] bg-cover bg-center ${className}`}
       data-not-typeset
     >
       {posts.length ? (
@@ -92,8 +93,8 @@ export default function PostSection({
                 <MotionLink
                   key={post.id}
                   href={`/${post.id}`}
-                  className="group absolute flex w-60 max-sm:w-44 flex-col gap-3 rounded-md border-2 border-black p-5 text-start text-black no-underline shadow-sm focus-visible:outline-none"
-                  style={{ backgroundColor: "#ffffff", zIndex: 1 }}
+                  className="group absolute flex w-60 max-sm:w-44 flex-col gap-3 rounded-md border-2 border-black bg-background p-5 text-start text-primary no-underline shadow-sm focus-visible:outline-none"
+                  style={{ zIndex: 1 }}
                   // Fan out from the bottom-center of the section.
                   initial={{
                     top: size.h,
@@ -101,6 +102,8 @@ export default function PostSection({
                     rotate: 0,
                     scale: 0.6,
                     opacity: 0,
+                    backgroundColor: "var(--background)",
+                    color: "var(--primary)",
                   }}
                   animate={{
                     top: finalTop,
@@ -108,6 +111,8 @@ export default function PostSection({
                     rotate,
                     scale: 1,
                     opacity: 1,
+                    backgroundColor: "var(--background)",
+                    color: "var(--primary)",
                     transition: {
                       type: "spring",
                       stiffness: 120,
@@ -128,6 +133,7 @@ export default function PostSection({
                     scale: 1.05,
                     zIndex: 50,
                     backgroundColor: accent,
+                    color: "#000000",
                     transition: { duration: 0.15 },
                   }}
                   whileTap={{ scale: 0.97, zIndex: 50 }}
@@ -151,13 +157,13 @@ export default function PostSection({
       )}
 
       {/* Credit — card stack UI inspired by Tobias Fried. */}
-      <span className="absolute bottom-2 right-3 z-[60] text-xs italic text-black/50">
-        card ui inspired by{" "}
+      <span className="absolute bottom-2 right-3 z-[60] text-xs italic text-white/70">
+        this section credits:{" "}
         <Link
           href="https://tobiasfried.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-black/50 no-underline hover:text-black hover:underline"
+          className="text-white/70 no-underline hover:text-white hover:underline"
         >
           tobias fried
         </Link>
