@@ -9,7 +9,7 @@ export default function SlugLayout({ children }: LayoutProps<"/[slug]">) {
         href="/"
         className={cn(
           buttonVariants({ variant: "link" }),
-          "absolute left-4 top-2 z-10 px-0 text-[#f5f2e8]",
+          "absolute left-6 top-6 z-20 px-0 text-[#f5f2e8]",
         )}
       >
         ← Back

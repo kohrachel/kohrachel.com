@@ -33,7 +33,7 @@ async function PostContent({
       >
         <img src="/clouds-halftone.png" alt="" className="block w-full" />
         {/* Title sits over the dark sky in the upper area. */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-6 pb-[22%] text-center text-[#f5f2e8]">
+        <div className="absolute inset-0 flex flex-col items-center justify-start gap-1 px-6 pt-[10%] text-center text-[#f5f2e8]">
           <h1 className="mt-0! mb-0! font-heading text-[clamp(1.6rem,6vw,4.5rem)]! leading-tight">
             {title}
           </h1>
