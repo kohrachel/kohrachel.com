@@ -13,18 +13,28 @@ interface WallOfTextProps<T> {
   getText: (item: T) => string;
   /** Optionally extract a link for an item. If it returns a falsy value, the text is rendered as plain text. */
   getLink?: (item: T) => string | undefined;
+  /** Optionally control the active index externally (to sync multiple walls). */
+  activeIndex?: number;
 }
 
-export function WallOfText<T>({ items, getText, getLink }: WallOfTextProps<T>) {
-  const [activeIndex, setActiveIndex] = useState<number>(0);
+export function WallOfText<T>({
+  items,
+  getText,
+  getLink,
+  activeIndex: controlledActiveIndex,
+}: WallOfTextProps<T>) {
+  const [internalActiveIndex, setInternalActiveIndex] = useState<number>(0);
+  const isControlled = controlledActiveIndex !== undefined;
+  const activeIndex = isControlled ? controlledActiveIndex : internalActiveIndex;
 
-  // Cycle the active item through all entries over time.
+  // Cycle the active item through all entries over time (only when uncontrolled).
   useEffect(() => {
+    if (isControlled) return;
     const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % items.length);
+      setInternalActiveIndex((prev) => (prev + 1) % items.length);
     }, CYCLE_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [items]);
+  }, [items, isControlled]);
 
   return (
     <ul className="list-none p-0! mt-0! text-justify" data-not-typeset>
