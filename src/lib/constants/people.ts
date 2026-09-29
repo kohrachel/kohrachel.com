@@ -29,11 +29,11 @@ export const PEOPLE: Person[] = [
   {
     name: "Will and Ariel Durant",
     link: "https://www.goodreads.com/en/book/show/78159.Story_of_Civilization",
-    reason:
-      "made me like history. do you know how hard it is for a STEM nerd to read history?",
+    reason: "made me fall in love with history as a STEM person",
   },
   {
     name: "Hong Wang",
+    link: "https://www.youtube.com/watch?v=5J3tYU_-IZI",
     reason: "possibly the only person who could make me want cartier",
   },
   {
@@ -44,7 +44,7 @@ export const PEOPLE: Person[] = [
   {
     name: "Grant Sanderson",
     link: "https://www.youtube.com/c/3blue1brown",
-    reason: "i've always loved math, bc i always had great math teachers",
+    reason: "one of the strongest proofs of the joy of learning hard things",
   },
   {
     name: "Lee Kuan Yew",
