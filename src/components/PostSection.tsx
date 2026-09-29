@@ -166,7 +166,7 @@ export default function PostSection({
           href="https://tobiasfried.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-white/70 no-underline hover:text-white hover:underline"
+          className="text-white/70 no-underline hover:text-primary hover:underline"
         >
           tobias fried
         </Link>

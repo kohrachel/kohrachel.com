@@ -28,7 +28,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bookMarquee {
-    animation: none;
+    /* Slow the scroll way down rather than stopping it entirely, so the
+     * marquee still moves on devices with "Reduce Motion" enabled. */
+    animation-duration: calc(var(--marquee-duration, 20s) * 4);
   }
 }
 
