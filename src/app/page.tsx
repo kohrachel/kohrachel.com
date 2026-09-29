@@ -40,7 +40,7 @@ export default async function Home() {
         <QuoteOfTheDay />
       </Suspense>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <section className="bg-stone-900 lg:col-span-4 p-7 flex flex-col justify-between">
+        <section className="bg-stone-900 order-2 lg:order-1 lg:col-span-4 p-7 flex flex-col justify-between">
           <div>
             <span className="font-basteleur text-primary">{`about rachel? why?`}</span>
             <ul className="py-5 flex flex-col gap-2 list-none m-0 [&>li]:m-0 [&>li]:p-0 p-0 text-start">
@@ -118,7 +118,7 @@ export default async function Home() {
             </li>
           ))}
         </ul> */}
-        <PostSection posts={posts} className="lg:col-span-8" />
+        <PostSection posts={posts} className="order-1 lg:order-2 lg:col-span-8" />
       </div>
       <Books />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
