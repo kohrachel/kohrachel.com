@@ -15,6 +15,8 @@ interface WallOfTextProps<T> {
   getLink?: (item: T) => string | undefined;
   /** Optionally control the active index externally (to sync multiple walls). */
   activeIndex?: number;
+  /** Called with an item's index when it is hovered. */
+  onHoverIndex?: (index: number) => void;
 }
 
 export function WallOfText<T>({
@@ -22,6 +24,7 @@ export function WallOfText<T>({
   getText,
   getLink,
   activeIndex: controlledActiveIndex,
+  onHoverIndex,
 }: WallOfTextProps<T>) {
   const [internalActiveIndex, setInternalActiveIndex] = useState<number>(0);
   const isControlled = controlledActiveIndex !== undefined;
@@ -46,7 +49,11 @@ export function WallOfText<T>({
         }`;
 
         return (
-          <li key={text} className="inline p-0!">
+          <li
+            key={text}
+            className="inline p-0!"
+            onMouseEnter={() => onHoverIndex?.(index)}
+          >
             {link ? (
               <Link href={link} className={`${className} underline underline-offset-4`}>
                 {text}

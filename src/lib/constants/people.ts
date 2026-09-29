@@ -24,8 +24,7 @@ export const PEOPLE: Person[] = [
   },
   {
     name: "Nigel Richards",
-    reason:
-      "man who does not speak spanish or french wins spanish and french scrabble world champs",
+    reason: "non-spanish non-french kiwi wins spanish and french scrabble",
   },
   {
     name: "Will and Ariel Durant",
