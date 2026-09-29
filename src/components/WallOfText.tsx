@@ -48,7 +48,7 @@ export function WallOfText<T>({
         return (
           <li key={text} className="inline p-0!">
             {link ? (
-              <Link href={link} className={className}>
+              <Link href={link} className={`${className} underline underline-offset-4`}>
                 {text}
               </Link>
             ) : (
