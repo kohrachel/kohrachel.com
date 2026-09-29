@@ -3,7 +3,6 @@ import {
   boolean,
   integer,
   jsonb,
-  pgPolicy,
   pgTable,
   primaryKey,
   text,
@@ -33,24 +32,11 @@ export const posts = pgTable.withRLS(
       .default(sql`now()`)
       .notNull(),
   },
-  (table) => [
-    primaryKey({ columns: [table.id], name: "Posts_pkey" }),
-    pgPolicy("Enable insert for authenticated users only", {
-      for: "insert",
-      to: ["authenticated"],
-      withCheck: sql`true`,
-    }),
-    pgPolicy("Enable read access for all users", {
-      for: "select",
-      using: sql`true`,
-    }),
-    pgPolicy("Enable update for authenticated users only", {
-      for: "update",
-      to: ["authenticated"],
-      using: sql`true`,
-      withCheck: sql`true`,
-    }),
-  ],
+  // RLS is enabled (via withRLS) with NO policies -> default-deny for the
+  // Supabase anon/authenticated roles that back the auto-generated Data API.
+  // The app is unaffected: it connects as the table owner over DATABASE_URL,
+  // which bypasses RLS. This is portable standard Postgres (no Supabase roles).
+  (table) => [primaryKey({ columns: [table.id], name: "Posts_pkey" })],
 );
 
 // Infer types

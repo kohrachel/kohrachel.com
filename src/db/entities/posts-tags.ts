@@ -1,7 +1,6 @@
 import {
   bigint,
   foreignKey,
-  pgPolicy,
   pgTable,
   primaryKey,
   timestamp,
@@ -39,9 +38,5 @@ export const postsTags = pgTable.withRLS(
     })
       .onDelete("cascade")
       .onUpdate("cascade"),
-    pgPolicy("Enable read access for all users", {
-      for: "select",
-      using: sql`true`,
-    }),
   ],
 );
