@@ -28,7 +28,9 @@ export function WallOfText<T>({
 }: WallOfTextProps<T>) {
   const [internalActiveIndex, setInternalActiveIndex] = useState<number>(0);
   const isControlled = controlledActiveIndex !== undefined;
-  const activeIndex = isControlled ? controlledActiveIndex : internalActiveIndex;
+  const activeIndex = isControlled
+    ? controlledActiveIndex
+    : internalActiveIndex;
 
   // Cycle the active item through all entries over time (only when uncontrolled).
   useEffect(() => {
