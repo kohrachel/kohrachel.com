@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, type CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import { listPosts } from "@/server/posts/list";
 import { renderNode } from "@/services/posts/render";
@@ -31,9 +31,9 @@ async function PostContent({
 
   return (
     <>
-      {/* Header — full-bleed halftone cloud banner; height tracks the image. */}
+      {/* Header — full-bleed halftone cloud banner. */}
       <header
-        className="relative left-1/2 h-[33vw] min-h-[22rem] w-screen -translate-x-1/2 sm:min-h-[34rem]"
+        className="relative h-[33vw] min-h-[22rem] w-full sm:min-h-[34rem]"
         data-not-typeset
       >
         <img
@@ -42,7 +42,7 @@ async function PostContent({
           className="absolute inset-0 size-full object-cover"
         />
         {/* Title sits over the dark sky in the upper area. */}
-        <div className="absolute inset-0 flex flex-col items-center justify-start gap-1 overflow-hidden px-6 pt-20 text-center text-[#f5f2e8]">
+        <div className="absolute inset-0 flex flex-col items-center justify-start gap-1 px-6 pt-20 text-center text-[#f5f2e8]">
           <h1 className="mt-0! mb-0! font-heading text-[clamp(1.6rem,6vw,4.5rem)]! leading-tight text-primary">
             {title}
           </h1>
@@ -57,9 +57,22 @@ async function PostContent({
         </div>
       </header>
 
-      {/* Body — the journal page */}
-      <div className="relative">
-        <div className="absolute -inset-x-14 -inset-y-8 -z-10 rounded-lg bg-stone-900" />
+      {/* Body — the journal page.
+          Text width is fixed by --page-padding-inline; the box widens
+          independently via --box-gutter without affecting the text. */}
+      <div
+        className="mt-(--page-padding-top) rounded-lg bg-stone-900 py-10"
+        style={
+          {
+            "--box-gutter": "6rem",
+            "--effective-gutter":
+              "min(var(--box-gutter), var(--page-padding-inline))",
+            marginInline:
+              "calc(var(--page-padding-inline) - var(--effective-gutter))",
+            paddingInline: "var(--effective-gutter)",
+          } as CSSProperties
+        }
+      >
         {post.content.content.map((node, i) => renderNode(node, i))}
       </div>
     </>

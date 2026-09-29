@@ -4,7 +4,7 @@ import { cn } from "cn";
 
 export default function SlugLayout({ children }: LayoutProps<"/[slug]">) {
   return (
-    <div className="relative flex flex-1 flex-col px-(--page-padding-inline) pb-(--page-padding-bottom)">
+    <div className="relative flex flex-1 flex-col pb-(--page-padding-top)">
       <Link
         href="/"
         className={cn(
@@ -14,7 +14,7 @@ export default function SlugLayout({ children }: LayoutProps<"/[slug]">) {
       >
         ← Back
       </Link>
-      <div className="flex flex-col gap-24">{children}</div>
+      <div className="flex flex-col">{children}</div>
     </div>
   );
 }
