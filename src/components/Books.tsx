@@ -39,6 +39,17 @@ export function Books() {
           </li>
         ))}
       </ul>
+      <p className="mt-4 px-(--home-padding-inline) text-xs text-white">
+        book animation credit:{" "}
+        <Link
+          href="https://anthonyteo.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-2 hover:text-primary"
+        >
+          anthony teo
+        </Link>
+      </p>
     </article>
   );
 }
