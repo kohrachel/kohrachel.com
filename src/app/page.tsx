@@ -3,8 +3,7 @@ import PostSection from "@/components/PostSection";
 import Header from "@/components/Header";
 import { Books } from "@/components/Books";
 import { YouTube } from "@/components/YouTube";
-import PostWall from "@/components/PostWall";
-import { PEOPLE } from "@/lib/constants/people";
+import { PeopleSection } from "@/components/PeopleSection";
 import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
 import { listPosts } from "@/server/posts/list";
 import { storage, BUCKETS } from "@/services/storage";
@@ -124,10 +123,7 @@ export default async function Home() {
       <Books />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
         <YouTube kodakFrame={kodakFrame} className="lg:col-span-7" />
-        <section className="bg-stone-900 lg:col-span-5 p-7 flex flex-col gap-5">
-          <span className="font-basteleur text-primary">{`people i admire`}</span>
-          <PostWall people={PEOPLE} />
-        </section>
+        <PeopleSection className="lg:col-span-5" />
       </div>
     </main>
   );

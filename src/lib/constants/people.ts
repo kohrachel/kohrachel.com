@@ -1,10 +1,54 @@
-export const PEOPLE: string[] = [
-  "Alysa Liu",
-  "Taylor Swift",
-  "Enid Blyton",
-  "Nigel Richards",
-  "Ariel Durant",
-  "Hong Wang",
-  "Josh Comeau",
-  "Will Durant",
+export interface Person {
+  name: string;
+  link?: string;
+  reason: string;
+}
+
+export const PEOPLE: Person[] = [
+  {
+    name: "Alysa Liu",
+    link: "https://www.youtube.com/watch?v=TqtPOdR1m68",
+    reason:
+      "racoon-haired girl makes me realize the power of the human body and mind",
+  },
+  {
+    name: "Taylor Swift",
+    link: "https://www.youtube.com/watch?v=ge3wKtM6F3g",
+    reason: "made me cry and laugh and believe in life again",
+  },
+  {
+    name: "Enid Blyton",
+    link: "https://www.goodreads.com/series/52004-malory-towers",
+    reason:
+      "by golly, absolutely terrific! (genuinely this is my harry potter)",
+  },
+  {
+    name: "Nigel Richards",
+    reason: "non-spanish non-french kiwi wins spanish and french scrabble",
+  },
+  {
+    name: "Will and Ariel Durant",
+    link: "https://www.goodreads.com/en/book/show/78159.Story_of_Civilization",
+    reason: "made me fall in love with history as a STEM person",
+  },
+  {
+    name: "Hong Wang",
+    link: "https://www.youtube.com/watch?v=5J3tYU_-IZI",
+    reason: "possibly the only person who could make me want cartier",
+  },
+  {
+    name: "Josh Comeau",
+    link: "https://www.joshwcomeau.com/",
+    reason: "very whimsical frontend god",
+  },
+  {
+    name: "Grant Sanderson",
+    link: "https://www.youtube.com/c/3blue1brown",
+    reason: "one of the strongest proofs of the joy of learning hard things",
+  },
+  {
+    name: "Lee Kuan Yew",
+    link: "https://www.youtube.com/watch?v=kGDqLeRuyCA",
+    reason: "had the iron in him",
+  },
 ];
