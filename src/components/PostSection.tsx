@@ -1,11 +1,8 @@
 "use client";
 
 import { Post } from "@/db/schema";
-import { renderNode } from "@/services/posts/render";
-import { humanDate } from "@/lib/utils";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 export default function PostSection({
   posts,
@@ -20,15 +17,9 @@ export default function PostSection({
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const active = posts[selected];
-
   function openPost(post: Post) {
     router.push(`/${post.id}`);
   }
-  const body = useMemo(
-    () => (active?.content ? renderNode(active.content, 0) : null),
-    [active],
-  );
 
   function findPost(term: string): Post | undefined {
     const t = term.trim().toLowerCase();
@@ -55,11 +46,11 @@ export default function PostSection({
       return;
     }
 
-    // `<n>` / `select <n>` / `cat <n>` previews a post in the right pane
-    const selMatch = lower.match(/^(?:cat|select)?\s*(\d+)$/);
+    // `<n>` / `select <n>` / `open <n>` navigates to a post by index
+    const selMatch = lower.match(/^(?:cat|select|open)?\s*(\d+)$/);
     if (selMatch) {
       const idx = Number(selMatch[1]) - 1;
-      if (idx >= 0 && idx < posts.length) setSelected(idx);
+      if (idx >= 0 && idx < posts.length) openPost(posts[idx]);
       else setError(`no document at index ${selMatch[1]}`);
       return;
     }
@@ -69,12 +60,12 @@ export default function PostSection({
 
   return (
     <section
-      className={`grid grid-cols-9 grid-rows-[auto_1fr_auto] h-[70dvh] min-h-100 max-h-140 list-none text-start bg-[oklch(0.6937_0.0534_132.56)] text-black text-sm border-4 border-black/70 rounded-lg overflow-hidden font-mono ${className}`}
+      className={`flex flex-col h-[70dvh] min-h-100 max-h-140 list-none text-start bg-[oklch(0.6937_0.0534_132.56)] text-black text-sm border-4 border-black/70 rounded-lg overflow-hidden font-mono ${className}`}
       data-not-typeset
       onClick={() => inputRef.current?.focus()}
     >
       {/* Window title bar */}
-      <div className="col-span-9 flex items-center gap-2 px-3 py-1.5 border-b-2 border-black/70 bg-black text-[oklch(0.6937_0.0534_132.56)]">
+      <div className="flex items-center gap-2 px-3 py-1.5 border-b-2 border-black/70 bg-black text-[oklch(0.6937_0.0534_132.56)]">
         <span className="flex gap-1.5" aria-hidden>
           <span className="size-3 rounded-full border border-black/40 bg-current opacity-90" />
           <span className="size-3 rounded-full border border-black/40 bg-current opacity-60" />
@@ -85,79 +76,44 @@ export default function PostSection({
         </span>
       </div>
 
-      {/* Left panel — list of available documents */}
-      <div className="col-span-2 min-h-0 flex flex-col border-r-2 border-black/70 bg-[oklch(0.6937_0.0534_132.56)] text-black overflow-hidden">
-        <div className="px-2 py-1 text-xs tracking-wide border-b border-current/40 shrink-0 opacity-70">
+      {/* List of available documents */}
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        <div className="px-3 py-1 text-xs tracking-wide border-b border-current/40 shrink-0 opacity-70">
           % ls ~/posts
         </div>
-        <ul className="flex-1 overflow-auto">
-          {posts.map((post, i) => (
-            <li key={post.id} onMouseEnter={() => setSelected(i)}>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelected(i);
-                }}
-                className={`flex w-full text-start items-start gap-1 cursor-pointer px-2 py-1 ${
-                  i === selected
-                    ? "bg-black text-[oklch(0.6937_0.0534_132.56)]"
-                    : "hover:bg-black/10"
-                }`}
-              >
-                <span className="w-2 shrink-0">
-                  {i === selected ? "›" : ""}
-                </span>
-                <span className="opacity-60 shrink-0">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="min-w-0 wrap-break-word whitespace-normal">
-                  {post.title || "untitled"}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Right pane — selected document contents */}
-      <div className="col-span-7 min-h-0 flex flex-col bg-[oklch(0.6937_0.0534_132.56)] text-black overflow-hidden">
-        <div className="flex items-center justify-between px-3 py-1 text-xs tracking-wide border-b border-current/40 shrink-0">
-          <span className="opacity-70">
-            % cat {active ? `"${active.title || active.id}"` : "—"}
-          </span>
-          <span className="opacity-60">
-            {active ? humanDate(active.createdAt) : ""}
-          </span>
-        </div>
-        {active ? (
-          <div className="flex-1 min-h-0 flex flex-col">
-            <div className="flex-1 overflow-auto p-4 space-y-3">
-              <Link
-                href={`/${active.id}`}
-                onClick={(e) => e.stopPropagation()}
-                className="block w-fit text-lg font-bold uppercase tracking-wide leading-tight font-lcd hover:underline"
-              >
-                {active.title || "untitled"}
-              </Link>
-              {active.description && (
-                <p className="opacity-70 italic">{active.description}</p>
-              )}
-              <div className="border-t border-current/30 pt-3 leading-relaxed [&_p]:mb-3 [&_h1]:text-lg [&_h1]:font-bold [&_h2]:text-base [&_h2]:font-bold [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-current/40 [&_blockquote]:pl-3 [&_blockquote]:opacity-80">
-                {body ?? "[ empty document ]"}
-              </div>
-            </div>
-            <Link
-              href={`/${active.id}`}
-              onClick={(e) => e.stopPropagation()}
-              className="shrink-0 border-t-2 border-black/70 bg-background/90 text-[oklch(0.6937_0.0534_132.56)] px-4 py-2 text-xs uppercase tracking-widest hover:bg-black"
-            >
-              view full post → &nbsp;
-              <span className="opacity-60 normal-case tracking-normal">
-                or type “open {active.title || active.id}”
-              </span>
-            </Link>
-          </div>
+        {posts.length ? (
+          <ul className="flex-1 overflow-auto">
+            {posts.map((post, i) => (
+              <li key={post.id} onMouseEnter={() => setSelected(i)}>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openPost(post);
+                  }}
+                  className={`flex w-full text-start items-start gap-2 cursor-pointer px-3 py-2 ${
+                    i === selected
+                      ? "bg-black text-[oklch(0.6937_0.0534_132.56)]"
+                      : "hover:bg-black/10"
+                  }`}
+                >
+                  <span className="opacity-60 shrink-0 text-lg">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="min-w-0 flex flex-col gap-1">
+                    <span className="font-heading text-3xl leading-tight wrap-break-word whitespace-normal">
+                      {post.title || "untitled"}
+                    </span>
+                    {post.description && (
+                      <span className="font-sans italic text-lg opacity-80 wrap-break-word whitespace-normal">
+                        {post.description}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
         ) : (
           <div className="flex-1 grid place-items-center opacity-60">
             no documents available
@@ -171,7 +127,7 @@ export default function PostSection({
           e.preventDefault();
           runCommand(command);
         }}
-        className="col-span-9 flex items-center gap-2 h-9 px-3 border-t-2 border-black/70 bg-[oklch(0.6937_0.0534_132.56)] text-black"
+        className="flex items-center gap-2 h-9 px-3 border-t-2 border-black/70 bg-[oklch(0.6937_0.0534_132.56)] text-black shrink-0"
       >
         <span className="select-none shrink-0 font-bold">
           {error ?? "~/rachelkoh %"}
