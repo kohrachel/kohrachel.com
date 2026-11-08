@@ -61,6 +61,8 @@ export function YouTube({
       <img
         src={kodakFrame}
         alt=""
+        loading="lazy"
+        decoding="async"
         className="absolute inset-0 size-full pointer-events-none select-none"
       />
     </article>
@@ -79,6 +81,11 @@ function VideoSlide({ video }: { video: VideoType }) {
         className="size-full object-cover"
         src={video.thumbnailSrc}
         alt={video.title}
+        // Not lazy: slides enter by transform inside overflow-hidden, where
+        // lazy-loading can show a blank slide. Low priority instead, so they
+        // don't compete with the header or get preloaded in <head>.
+        fetchPriority="low"
+        decoding="async"
       />
     </Link>
   );

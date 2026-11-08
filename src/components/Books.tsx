@@ -90,7 +90,15 @@ export function Book({
         <div
           className={`relative shrink-0 w-full max-w-30 transform-3d origin-center transition-transform duration-500 ease-in-out group-hover:rotate-x-80 group-hover:rotate-z-45 group-hover:scale-75 after:block after:content-[""] after:bg-gray-100 after:w-[calc(100%+0.5px)] after:absolute after:left-0 after:rounded-l-md after:border-y-[3px] after:border-l-4 after:border-gray-800 before:block before:content-[""] before:bg-white before:h-[calc(100%+0.5px)] before:absolute before:right-0 before:top-0 before:border-x-[3px] before:border-x-gray-800 before:border-t-[3px] before:border-t-gray-200 bookThreeD ${bookThicknessClass}`}
         >
-          <img src={coverSrc} alt={title} className="block w-full" />
+          <img
+            src={coverSrc}
+            alt={title}
+            // Not lazy: covers enter by the marquee's transform inside
+            // overflow-hidden, where lazy-loading can show a blank cover.
+            fetchPriority="low"
+            decoding="async"
+            className="block w-full"
+          />
         </div>
         <div className="absolute font-bold text-sm -bottom-5 md:-bottom-8 -inset-x-4 md:-inset-x-6 opacity-0 translate-y-3 md:translate-y-4 transition-[opacity,translate] duration-500 ease-in-out group-hover:opacity-100 group-hover:translate-y-0">
           <span className="inline-flex items-center underline decoration-dotted underline-offset-[6px] decoration-2">
