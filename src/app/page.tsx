@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import PostSection from "@/components/PostSection";
-import Header from "@/components/Header";
+import Header, { type SpriteSources } from "@/components/Header";
 import { Books } from "@/components/Books";
 import { YouTube } from "@/components/YouTube";
 import { PeopleSection } from "@/components/PeopleSection";
@@ -19,16 +19,20 @@ import {
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 
+// AVIF sheets are versioned (".v2") because they're cached for a year: upload
+// a new version under a new name rather than overwriting.
+function headerSprite(name: string): SpriteSources {
+  return {
+    avif: storage.getPublicUrl(BUCKETS.resources, `${name}.v2.avif`),
+    avifSmall: storage.getPublicUrl(BUCKETS.resources, `${name}.v2.sm.avif`),
+    fallback: storage.getPublicUrl(BUCKETS.resources, `${name}.png`),
+  };
+}
+
 export default async function Home() {
   const posts = await listPosts({});
-  const headerBackground = storage.getPublicUrl(
-    BUCKETS.resources,
-    "header-background.png",
-  );
-  const headerForeground = storage.getPublicUrl(
-    BUCKETS.resources,
-    "header-foreground.png",
-  );
+  const headerBackground = headerSprite("header-background");
+  const headerForeground = headerSprite("header-foreground");
   const kodakFrame = storage.getPublicUrl(
     BUCKETS.resources,
     "kodak-frame-1.png",
@@ -118,7 +122,10 @@ export default async function Home() {
             </li>
           ))}
         </ul> */}
-        <PostSection posts={posts} className="order-1 lg:order-2 lg:col-span-8" />
+        <PostSection
+          posts={posts}
+          className="order-1 lg:order-2 lg:col-span-8"
+        />
       </div>
       <Books />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">

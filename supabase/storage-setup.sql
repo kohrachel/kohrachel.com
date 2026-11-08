@@ -17,12 +17,13 @@ values (
   'resources',
   'resources',
   true,
-  5242880,
+  15728640, -- 15 MB; matches the live bucket (the header sprites were over 5 MB)
   array[
     'image/png',
     'image/jpeg',
     'image/webp',
-    'image/gif'
+    'image/gif',
+    'image/avif'
   ]::text[]
 )
 on conflict (id) do update set

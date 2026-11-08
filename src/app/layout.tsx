@@ -14,6 +14,8 @@ const yangBagus = localFont({
 const tiny = localFont({
   variable: "--font-tiny",
   src: "./fonts/tiny-variable.ttf",
+  // Not used on first paint; still loads on demand if a page uses it.
+  preload: false,
   fallback: ["system-ui", "sans-serif"],
 });
 
@@ -30,6 +32,8 @@ const lcd = localFont({
     { path: "./fonts/lcd-italic.ttf", style: "italic" },
   ],
   fallback: ["ui-monospace", "monospace"],
+  // Not used on first paint; still loads on demand if a page uses it.
+  preload: false,
 });
 
 const poppins = Poppins({
@@ -41,12 +45,16 @@ const poppins = Poppins({
 
 const inter = Inter({
   variable: "--font-inter",
+  // Not used on first paint; still loads on demand if a page uses it.
+  preload: false,
   subsets: ["latin"],
   fallback: ["system-ui", "sans-serif"],
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  // Not used on first paint; still loads on demand if a page uses it.
+  preload: false,
   subsets: ["latin"],
   fallback: ["ui-monospace", "monospace"],
 });
