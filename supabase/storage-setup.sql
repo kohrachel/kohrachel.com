@@ -17,7 +17,7 @@ values (
   'resources',
   'resources',
   true,
-  15728640, -- 15 MB; matches the live bucket (the header sprites were over 5 MB)
+  15728640,
   array[
     'image/png',
     'image/jpeg',
