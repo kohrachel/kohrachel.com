@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Analytics } from "@vercel/analytics/next";
 
 const yangBagus = localFont({
   variable: "--font-yang-bagus",
@@ -87,6 +88,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <TooltipProvider>
           <div className="typeset w-full flex flex-1 flex-col">{children}</div>
         </TooltipProvider>
+        <Analytics />
       </body>
     </html>
   );
