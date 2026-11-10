@@ -11,3 +11,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # Project conventions
 
 - Always use the Next.js `<Link>` component (`next/link`) for links instead of a raw `<a>` element.
+- When opening a pull request, use `.github/pull_request_template.md` as the body (see the `open-pr` skill in `.claude/skills/open-pr/SKILL.md`): leave the Why/What TODOs for the human and put all agent-written text inside the collapsed `<details>` block.
