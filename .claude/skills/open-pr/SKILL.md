@@ -18,7 +18,14 @@ say goes inside the collapsed `<details>` block.
    - If there are uncommitted changes that belong in the PR, commit them
      (only if the user asked you to commit).
 2. Push the branch: `git push -u origin HEAD`.
-3. Write a short, imperative PR title (under ~70 chars).
+3. Write the PR title in Conventional Commits format: `type(domain): title`
+   (under ~70 chars), e.g. `feat(editor): list, create and edit posts` or
+   `fix(editor): stop template stylesheet from styling the whole page`.
+   - `type` is one of `feat`, `fix`, `refactor`, `style`, `perf`, `docs`,
+     `test`, `build`, `ci`, or `chore`.
+   - `domain` is the area of the codebase the change touches (e.g. `editor`,
+     `post`, `posts`).
+   - `title` is short, imperative, and lowercase.
 4. Build the body from the PR template (see below), then open the PR with
    `gh pr create --title "<title>" --body "$(cat <<'EOF' ... EOF)"`.
 5. Return the PR URL to the user and remind them to fill in **Why** and
