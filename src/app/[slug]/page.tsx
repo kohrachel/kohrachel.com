@@ -5,6 +5,15 @@ import { renderNode } from "@/services/posts/render";
 import { humanDate } from "@/lib/utils";
 import { storage, BUCKETS } from "@/services/storage";
 
+// Prerender every published post at build time, so a post link prefetches the
+// full post and opens without the "Loading…" fallback. Posts published after
+// the build are rendered on first visit and cached; `revalidatePostTags` still
+// refreshes edited posts.
+export async function generateStaticParams() {
+  const posts = await listPosts({});
+  return posts.map((post) => ({ slug: String(post.id) }));
+}
+
 export default function SinglePost({ params }: PageProps<"/[slug]">) {
   return (
     <Suspense fallback={<p>Loading…</p>}>
