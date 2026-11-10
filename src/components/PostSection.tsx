@@ -3,7 +3,7 @@
 import { Post } from "@/db/schema";
 import Link from "next/link";
 import { AnimatePresence, animate, motion, useMotionValue } from "motion/react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 // A Next.js <Link> that can be animated by Motion.
 const MotionLink = motion.create(Link);
@@ -175,6 +175,26 @@ function cardBounds(section: Size, card: Size, rotateDeg: number): Bounds {
   };
 }
 
+function sameBounds(a: Bounds, b: Bounds) {
+  return (
+    a.minX === b.minX &&
+    a.maxX === b.maxX &&
+    a.minY === b.minY &&
+    a.maxY === b.maxY
+  );
+}
+
+function clamp(v: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, v));
+}
+
+// Where `v` sits within [min, max] as 0..1. A zero-size range (e.g. the
+// section is hidden, or the card fills it) carries no information, so keep
+// the previous fraction.
+function fractionIn(v: number, min: number, max: number, fallback: number) {
+  return max > min ? clamp((v - min) / (max - min), 0, 1) : fallback;
+}
+
 // One draggable post card.
 function PostCard({
   post,
@@ -216,9 +236,10 @@ function PostCard({
     return () => ro.disconnect();
   }, []);
 
-  const bounds = cardSize ? cardBounds(size, cardSize, rotate) : null;
-  const finalX = bounds ? bounds.minX + left * (bounds.maxX - bounds.minX) : 0;
-  const finalY = bounds ? bounds.minY + top * (bounds.maxY - bounds.minY) : 0;
+  const bounds = useMemo(
+    () => (cardSize ? cardBounds(size, cardSize, rotate) : null),
+    [size, cardSize, rotate],
+  );
 
   // Position lives only in these x/y transforms (the card sits at top:0,
   // left:0). Drag moves the same values, so there is one source of truth for
@@ -228,17 +249,64 @@ function PostCard({
   const x = useMotionValue(size.w / 2 - cardW / 2);
   const y = useMotionValue(size.h);
 
-  // Fan out to the card's spot once it has been measured. Runs once per
-  // mount (the ref also guards against Strict Mode's double effect run).
-  const entered = useRef(false);
-  const hasBounds = bounds !== null;
+  // What the card is doing, so a bounds change knows how to respond.
+  const phase = useRef<"pending" | "entering" | "idle" | "dragging">("pending");
+  // The bounds the card was last placed against...
+  const placed = useRef<Bounds | null>(null);
+  // ...and where it sits within them, as 0..1 per axis. Starts at the random
+  // layout spot; re-derived from the card's actual x/y on every resize, so a
+  // dragged card keeps its new spot.
+  const frac = useRef({ fx: left, fy: top });
+  // Lets a superseded entrance animation know it no longer owns `phase`.
+  const entryGen = useRef(0);
+
+  // Place the card whenever its bounds change: first measurement (fan-out
+  // entrance), section resize (window resize, reflow, breakpoint), or its own
+  // size changing. Nothing happens if the bounds are unchanged, which also
+  // covers Strict Mode's double run and Activity re-showing the page.
   useEffect(() => {
-    if (!hasBounds || entered.current) return;
-    entered.current = true;
-    const transition = { ...ENTRY_SPRING, delay: index * 0.07 };
-    animate(x, finalX, transition);
-    animate(y, finalY, transition);
-  }, [hasBounds, finalX, finalY, index, x, y]);
+    if (!bounds) return;
+    const prev = placed.current;
+    if (prev && sameBounds(prev, bounds)) return;
+    placed.current = bounds;
+
+    // Motion keeps the constraints from drag start until the drag/fling
+    // finishes; onDragTransitionEnd reconciles against `placed` then.
+    if (phase.current === "dragging") return;
+
+    if (phase.current === "idle" && prev) {
+      frac.current = {
+        fx: fractionIn(x.get(), prev.minX, prev.maxX, frac.current.fx),
+        fy: fractionIn(y.get(), prev.minY, prev.maxY, frac.current.fy),
+      };
+    }
+    const tx = bounds.minX + frac.current.fx * (bounds.maxX - bounds.minX);
+    const ty = bounds.minY + frac.current.fy * (bounds.maxY - bounds.minY);
+
+    if (phase.current === "idle") {
+      x.stop();
+      y.stop();
+      x.set(tx);
+      y.set(ty);
+      return;
+    }
+
+    // Pending or mid-entrance: (re)aim the fan-out at the (new) spot. Only the
+    // first one gets the stagger delay.
+    const transition = {
+      ...ENTRY_SPRING,
+      delay: phase.current === "pending" ? index * 0.07 : 0,
+    };
+    phase.current = "entering";
+    const gen = ++entryGen.current;
+    Promise.all([animate(x, tx, transition), animate(y, ty, transition)]).then(
+      () => {
+        if (entryGen.current === gen && phase.current === "entering") {
+          phase.current = "idle";
+        }
+      },
+    );
+  }, [bounds, index, x, y]);
 
   return (
     <MotionLink
@@ -266,7 +334,19 @@ function PostCard({
       }}
       onDragStart={() => {
         didDrag.current = true;
+        phase.current = "dragging";
         onDragStart();
+      }}
+      // After the fling settles: if the section resized mid-drag, the card
+      // settled against stale constraints, so pull it inside the latest ones.
+      onDragTransitionEnd={() => {
+        phase.current = "idle";
+        const b = placed.current;
+        if (!b) return;
+        const cx = clamp(x.get(), b.minX, b.maxX);
+        const cy = clamp(y.get(), b.minY, b.maxY);
+        if (cx !== x.get()) animate(x, cx, ENTRY_SPRING);
+        if (cy !== y.get()) animate(y, cy, ENTRY_SPRING);
       }}
       onClick={(e) => {
         if (didDrag.current) e.preventDefault();
