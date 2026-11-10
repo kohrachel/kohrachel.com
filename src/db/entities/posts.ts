@@ -37,12 +37,7 @@ export const posts = pgTable.withRLS(
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .default(sql`now()`)
       .notNull(),
-    // Unpublished edits. null = no pending changes (the editor shows the live
-    // columns). Publishing copies this into title/description/content and
-    // clears it; discarding just clears it.
     draft: jsonb().$type<PostDraft>(),
-    // Set on first publish and kept through unpublish/republish. This is the
-    // date shown on the post. null = never published.
     publishedAt: timestamp("published_at", { withTimezone: true }),
   },
   // RLS is enabled (via withRLS) with NO policies -> default-deny for the
