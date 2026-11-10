@@ -9,9 +9,11 @@ export default function EditPostPage({ params }: PageProps<"/editor/[id]">) {
   // unstable values (e.g. Math.random()) during render, so this streams as
   // dynamic content instead of being prerendered into the static shell.
   return (
-    <Suspense fallback={null}>
-      <EditPost params={params} />
-    </Suspense>
+    <div className="px-(--page-padding-inline)">
+      <Suspense fallback={null}>
+        <EditPost params={params} />
+      </Suspense>
+    </div>
   );
 }
 

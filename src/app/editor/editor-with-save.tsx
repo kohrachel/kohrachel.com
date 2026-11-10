@@ -73,6 +73,7 @@ export function EditorWithSave({ post }: { post: EditablePost }) {
         </div>
         <div className="flex flex-col items-end gap-1">
           <ButtonWithIcon
+            variant="default"
             size="lg"
             onClick={handleSave}
             disabled={status === "saving"}

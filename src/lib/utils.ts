@@ -11,3 +11,12 @@ export function humanDate(date: Date): string {
     day: "numeric",
   });
 }
+
+/** e.g. "Jan 1, 2020" */
+export function shortDate(date: Date): string {
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
