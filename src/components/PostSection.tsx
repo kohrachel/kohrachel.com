@@ -3,7 +3,7 @@
 import { Post } from "@/db/schema";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { type RefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 // A Next.js <Link> that can be animated by Motion.
 const MotionLink = motion.create(Link);
@@ -27,9 +27,7 @@ const CARD_W_SM = 176;
 // Same query as Tailwind v4's `max-sm:` variant (default sm = 40rem), so the
 // width switches in lockstep with the `max-sm:` text sizes on the card.
 const SM_QUERY = "(width < 40rem)";
-// Card height still varies with its text; this is a generous estimate used
-// only to keep cards inside the section bounds.
-const CARD_H = 220;
+// Minimum gap between a card's (possibly tilted) edges and the section edge.
 const MARGIN = 20;
 
 // Inertia after a fling: low power + short time constant = a quick, short
@@ -100,9 +98,6 @@ export default function PostSection({
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  const availW = Math.max(0, size.w - cardW - MARGIN * 2);
-  const availH = Math.max(0, size.h - CARD_H - MARGIN * 2);
-
   return (
     <section
       ref={ref}
@@ -121,11 +116,8 @@ export default function PostSection({
                   post={post}
                   index={i}
                   layout={layout}
-                  sectionRef={ref}
                   size={size}
                   cardW={cardW}
-                  availW={availW}
-                  availH={availH}
                   zIndex={zOrder[post.id] ?? 1}
                   onDragStart={() => {
                     const z = ++zCounter.current;
@@ -157,28 +149,45 @@ export default function PostSection({
   );
 }
 
-// One draggable post card. Split out so each card can own its own hooks
-// (motion values, measurements) in later steps.
+type Size = { w: number; h: number };
+type Bounds = { minX: number; maxX: number; minY: number; maxY: number };
+
+// The x/y range a card may rest in. The card's layout box sits at the
+// section's top-left (top:0, left:0), so these are x/y transform values
+// directly. A tilted card's corners stick out past its layout box, so each
+// side is pushed in by that overhang on top of MARGIN; that keeps the corners
+// of a card resting at its own tilt fully inside the section. (Hover/drag
+// un-tilt the card and scale it 5%, which MARGIN comfortably absorbs.)
+function cardBounds(section: Size, card: Size, rotateDeg: number): Bounds {
+  const t = (Math.abs(rotateDeg) * Math.PI) / 180;
+  const cos = Math.cos(t);
+  const sin = Math.sin(t);
+  const minX = MARGIN + (card.w * cos + card.h * sin - card.w) / 2;
+  const minY = MARGIN + (card.w * sin + card.h * cos - card.h) / 2;
+  return {
+    minX,
+    minY,
+    // A card too big for the section is pinned at the margin.
+    maxX: Math.max(minX, section.w - card.w - minX),
+    maxY: Math.max(minY, section.h - card.h - minY),
+  };
+}
+
+// One draggable post card.
 function PostCard({
   post,
   index,
   layout,
-  sectionRef,
   size,
   cardW,
-  availW,
-  availH,
   zIndex,
   onDragStart,
 }: {
   post: Post;
   index: number;
   layout: CardLayout;
-  sectionRef: RefObject<HTMLElement | null>;
-  size: { w: number; h: number };
+  size: Size;
   cardW: number;
-  availW: number;
-  availH: number;
   zIndex: number;
   onDragStart: () => void;
 }) {
@@ -186,18 +195,48 @@ function PostCard({
   // the link. Reset on every new press.
   const didDrag = useRef(false);
   const { top, left, rotate, accent } = layout;
-  const finalY = MARGIN + top * availH;
-  const finalX = MARGIN + left * availW;
+
+  // Measure the card's real size (its height depends on its text). offset*
+  // ignores transforms, so tilt/scale don't skew it.
+  const cardRef = useRef<HTMLAnchorElement>(null);
+  const [cardSize, setCardSize] = useState<Size | null>(null);
+  useLayoutEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const update = () => {
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      setCardSize((prev) => (prev?.w === w && prev?.h === h ? prev : { w, h }));
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const bounds = cardSize ? cardBounds(size, cardSize, rotate) : null;
+  const finalX = bounds ? bounds.minX + left * (bounds.maxX - bounds.minX) : 0;
+  const finalY = bounds ? bounds.minY + top * (bounds.maxY - bounds.minY) : 0;
 
   return (
     <MotionLink
+      ref={cardRef}
       href={`/${post.id}`}
       className="group absolute top-0 left-0 flex flex-col gap-3 rounded-md border-2 border-black bg-background p-5 text-start text-primary no-underline shadow-sm focus-visible:outline-none"
       style={{ width: cardW }}
       // Stop the browser's native link drag from hijacking ours.
       draggable={false}
       drag
-      dragConstraints={sectionRef}
+      dragConstraints={
+        bounds
+          ? {
+              left: bounds.minX,
+              right: bounds.maxX,
+              top: bounds.minY,
+              bottom: bounds.maxY,
+            }
+          : false
+      }
       dragElastic={0.2}
       dragTransition={DRAG_TRANSITION}
       onPointerDown={() => {
@@ -223,8 +262,8 @@ function PostCard({
         color: "var(--primary)",
       }}
       animate={{
-        x: finalX,
-        y: finalY,
+        // Hold at the entry point until the card has been measured.
+        ...(bounds && { x: finalX, y: finalY }),
         rotate,
         scale: 1,
         opacity: 1,
