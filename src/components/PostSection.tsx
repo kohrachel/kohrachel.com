@@ -2,7 +2,7 @@
 
 import { Post } from "@/db/schema";
 import Link from "next/link";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, animate, motion, useMotionValue } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 // A Next.js <Link> that can be animated by Motion.
@@ -33,6 +33,8 @@ const MARGIN = 20;
 // Inertia after a fling: low power + short time constant = a quick, short
 // glide rather than a long slide (same feel as tobiasfried.com).
 const DRAG_TRANSITION = { timeConstant: 50, power: 0.1 };
+// Spring for the fan-out entrance.
+const ENTRY_SPRING = { type: "spring", stiffness: 120, damping: 16 } as const;
 // zIndex while hovered/dragged; above any stacking order a card can earn.
 const Z_ACTIVE = 1000;
 
@@ -218,12 +220,32 @@ function PostCard({
   const finalX = bounds ? bounds.minX + left * (bounds.maxX - bounds.minX) : 0;
   const finalY = bounds ? bounds.minY + top * (bounds.maxY - bounds.minY) : 0;
 
+  // Position lives only in these x/y transforms (the card sits at top:0,
+  // left:0). Drag moves the same values, so there is one source of truth for
+  // where a card is. They're driven imperatively, never via `animate`, so a
+  // re-render can't yank a dragged card back. Start at the entry point:
+  // bottom-centre of the section.
+  const x = useMotionValue(size.w / 2 - cardW / 2);
+  const y = useMotionValue(size.h);
+
+  // Fan out to the card's spot once it has been measured. Runs once per
+  // mount (the ref also guards against Strict Mode's double effect run).
+  const entered = useRef(false);
+  const hasBounds = bounds !== null;
+  useEffect(() => {
+    if (!hasBounds || entered.current) return;
+    entered.current = true;
+    const transition = { ...ENTRY_SPRING, delay: index * 0.07 };
+    animate(x, finalX, transition);
+    animate(y, finalY, transition);
+  }, [hasBounds, finalX, finalY, index, x, y]);
+
   return (
     <MotionLink
       ref={cardRef}
       href={`/${post.id}`}
       className="group absolute top-0 left-0 flex flex-col gap-3 rounded-md border-2 border-black bg-background p-5 text-start text-primary no-underline shadow-sm focus-visible:outline-none"
-      style={{ width: cardW }}
+      style={{ width: cardW, x, y }}
       // Stop the browser's native link drag from hijacking ours.
       draggable={false}
       drag
@@ -249,12 +271,7 @@ function PostCard({
       onClick={(e) => {
         if (didDrag.current) e.preventDefault();
       }}
-      // Fan out from the bottom-center of the section. Position lives only in
-      // the x/y transform (the card sits at top:0, left:0), the same values
-      // drag moves, so there is a single source of truth for where a card is.
       initial={{
-        x: size.w / 2 - cardW / 2,
-        y: size.h,
         rotate: 0,
         scale: 0.6,
         opacity: 0,
@@ -262,8 +279,6 @@ function PostCard({
         color: "var(--primary)",
       }}
       animate={{
-        // Hold at the entry point until the card has been measured.
-        ...(bounds && { x: finalX, y: finalY }),
         rotate,
         scale: 1,
         opacity: 1,
@@ -271,9 +286,7 @@ function PostCard({
         color: "var(--primary)",
         zIndex,
         transition: {
-          type: "spring",
-          stiffness: 120,
-          damping: 16,
+          ...ENTRY_SPRING,
           delay: index * 0.07,
           // Restack instantly, without the entrance delay.
           zIndex: { duration: 0 },
