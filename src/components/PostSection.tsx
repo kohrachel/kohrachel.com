@@ -1,6 +1,6 @@
 "use client";
 
-import { Post } from "@/db/schema";
+import type { PublicPost } from "@/db/schema";
 import Link from "next/link";
 import { AnimatePresence, animate, motion, useMotionValue } from "motion/react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -49,7 +49,7 @@ export default function PostSection({
   posts,
   className,
 }: {
-  posts: Post[];
+  posts: PublicPost[];
   className?: string;
 }) {
   const ref = useRef<HTMLElement>(null);
@@ -224,7 +224,7 @@ function PostCard({
   zIndex,
   onDragStart,
 }: {
-  post: Post;
+  post: PublicPost;
   index: number;
   layout: CardLayout;
   size: Size;
