@@ -186,13 +186,13 @@ function PostCard({
   // the link. Reset on every new press.
   const didDrag = useRef(false);
   const { top, left, rotate, accent } = layout;
-  const finalTop = MARGIN + top * availH;
-  const finalLeft = MARGIN + left * availW;
+  const finalY = MARGIN + top * availH;
+  const finalX = MARGIN + left * availW;
 
   return (
     <MotionLink
       href={`/${post.id}`}
-      className="group absolute flex flex-col gap-3 rounded-md border-2 border-black bg-background p-5 text-start text-primary no-underline shadow-sm focus-visible:outline-none"
+      className="group absolute top-0 left-0 flex flex-col gap-3 rounded-md border-2 border-black bg-background p-5 text-start text-primary no-underline shadow-sm focus-visible:outline-none"
       style={{ width: cardW }}
       // Stop the browser's native link drag from hijacking ours.
       draggable={false}
@@ -210,10 +210,12 @@ function PostCard({
       onClick={(e) => {
         if (didDrag.current) e.preventDefault();
       }}
-      // Fan out from the bottom-center of the section.
+      // Fan out from the bottom-center of the section. Position lives only in
+      // the x/y transform (the card sits at top:0, left:0), the same values
+      // drag moves, so there is a single source of truth for where a card is.
       initial={{
-        top: size.h,
-        left: size.w / 2 - cardW / 2,
+        x: size.w / 2 - cardW / 2,
+        y: size.h,
         rotate: 0,
         scale: 0.6,
         opacity: 0,
@@ -221,8 +223,8 @@ function PostCard({
         color: "var(--primary)",
       }}
       animate={{
-        top: finalTop,
-        left: finalLeft,
+        x: finalX,
+        y: finalY,
         rotate,
         scale: 1,
         opacity: 1,
@@ -239,8 +241,8 @@ function PostCard({
         },
       }}
       exit={{
-        top: size.h,
-        left: size.w / 2 - cardW / 2,
+        x: size.w / 2 - cardW / 2,
+        y: size.h,
         rotate: 0,
         scale: 0.6,
         opacity: 0,
