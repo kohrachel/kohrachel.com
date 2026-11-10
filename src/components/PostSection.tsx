@@ -3,7 +3,7 @@
 import { Post } from "@/db/schema";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 
 // A Next.js <Link> that can be animated by Motion.
 const MotionLink = motion.create(Link);
@@ -58,9 +58,6 @@ export default function PostSection({
   // Stacking order: the most recently dragged card stays on top after release.
   const [zOrder, setZOrder] = useState<Record<string, number>>({});
   const zCounter = useRef(1);
-  // Set once a drag actually starts, so releasing a drag doesn't also follow
-  // the link. Reset on every new press.
-  const didDrag = useRef(false);
   const [layouts, setLayouts] = useState<CardLayout[]>([]);
 
   // Generate genuinely random positions on the client after mount. Random must
@@ -118,95 +115,23 @@ export default function PostSection({
             posts.map((post, i) => {
               const layout = layouts[i];
               if (!layout) return null;
-              const { top, left, rotate, accent } = layout;
-              const finalTop = MARGIN + top * availH;
-              const finalLeft = MARGIN + left * availW;
               return (
-                <MotionLink
+                <PostCard
                   key={post.id}
-                  href={`/${post.id}`}
-                  className="group absolute flex flex-col gap-3 rounded-md border-2 border-black bg-background p-5 text-start text-primary no-underline shadow-sm focus-visible:outline-none"
-                  style={{ width: cardW }}
-                  // Stop the browser's native link drag from hijacking ours.
-                  draggable={false}
-                  drag
-                  dragConstraints={ref}
-                  dragElastic={0.2}
-                  dragTransition={DRAG_TRANSITION}
-                  onPointerDown={() => {
-                    didDrag.current = false;
-                  }}
+                  post={post}
+                  index={i}
+                  layout={layout}
+                  sectionRef={ref}
+                  size={size}
+                  cardW={cardW}
+                  availW={availW}
+                  availH={availH}
+                  zIndex={zOrder[post.id] ?? 1}
                   onDragStart={() => {
-                    didDrag.current = true;
                     const z = ++zCounter.current;
                     setZOrder((prev) => ({ ...prev, [post.id]: z }));
                   }}
-                  onClick={(e) => {
-                    if (didDrag.current) e.preventDefault();
-                  }}
-                  // Fan out from the bottom-center of the section.
-                  initial={{
-                    top: size.h,
-                    left: size.w / 2 - cardW / 2,
-                    rotate: 0,
-                    scale: 0.6,
-                    opacity: 0,
-                    backgroundColor: "var(--background)",
-                    color: "var(--primary)",
-                  }}
-                  animate={{
-                    top: finalTop,
-                    left: finalLeft,
-                    rotate,
-                    scale: 1,
-                    opacity: 1,
-                    backgroundColor: "var(--background)",
-                    color: "var(--primary)",
-                    zIndex: zOrder[post.id] ?? 1,
-                    transition: {
-                      type: "spring",
-                      stiffness: 120,
-                      damping: 16,
-                      delay: i * 0.07,
-                      // Restack instantly, without the entrance delay.
-                      zIndex: { duration: 0 },
-                    },
-                  }}
-                  exit={{
-                    top: size.h,
-                    left: size.w / 2 - cardW / 2,
-                    rotate: 0,
-                    scale: 0.6,
-                    opacity: 0,
-                    transition: { duration: 0.25 },
-                  }}
-                  whileHover={{
-                    rotate: 0,
-                    scale: 1.05,
-                    zIndex: Z_ACTIVE,
-                    backgroundColor: accent,
-                    color: "#000000",
-                    transition: { duration: 0.15 },
-                  }}
-                  whileTap={{ scale: 0.97, zIndex: Z_ACTIVE }}
-                  whileDrag={{
-                    rotate: 0,
-                    scale: 1.05,
-                    zIndex: Z_ACTIVE,
-                    cursor: "grabbing",
-                    backgroundColor: accent,
-                    color: "#000000",
-                  }}
-                >
-                  <span className="font-heading text-2xl leading-tight group-hover:underline max-sm:text-lg">
-                    {post.title || "untitled"}
-                  </span>
-                  {post.description && (
-                    <span className="font-sans text-sm italic opacity-80 max-sm:text-xs">
-                      {post.description}
-                    </span>
-                  )}
-                </MotionLink>
+                />
               );
             })}
         </AnimatePresence>
@@ -229,5 +154,124 @@ export default function PostSection({
         </Link>
       </span>
     </section>
+  );
+}
+
+// One draggable post card. Split out so each card can own its own hooks
+// (motion values, measurements) in later steps.
+function PostCard({
+  post,
+  index,
+  layout,
+  sectionRef,
+  size,
+  cardW,
+  availW,
+  availH,
+  zIndex,
+  onDragStart,
+}: {
+  post: Post;
+  index: number;
+  layout: CardLayout;
+  sectionRef: RefObject<HTMLElement | null>;
+  size: { w: number; h: number };
+  cardW: number;
+  availW: number;
+  availH: number;
+  zIndex: number;
+  onDragStart: () => void;
+}) {
+  // Set once a drag actually starts, so releasing a drag doesn't also follow
+  // the link. Reset on every new press.
+  const didDrag = useRef(false);
+  const { top, left, rotate, accent } = layout;
+  const finalTop = MARGIN + top * availH;
+  const finalLeft = MARGIN + left * availW;
+
+  return (
+    <MotionLink
+      href={`/${post.id}`}
+      className="group absolute flex flex-col gap-3 rounded-md border-2 border-black bg-background p-5 text-start text-primary no-underline shadow-sm focus-visible:outline-none"
+      style={{ width: cardW }}
+      // Stop the browser's native link drag from hijacking ours.
+      draggable={false}
+      drag
+      dragConstraints={sectionRef}
+      dragElastic={0.2}
+      dragTransition={DRAG_TRANSITION}
+      onPointerDown={() => {
+        didDrag.current = false;
+      }}
+      onDragStart={() => {
+        didDrag.current = true;
+        onDragStart();
+      }}
+      onClick={(e) => {
+        if (didDrag.current) e.preventDefault();
+      }}
+      // Fan out from the bottom-center of the section.
+      initial={{
+        top: size.h,
+        left: size.w / 2 - cardW / 2,
+        rotate: 0,
+        scale: 0.6,
+        opacity: 0,
+        backgroundColor: "var(--background)",
+        color: "var(--primary)",
+      }}
+      animate={{
+        top: finalTop,
+        left: finalLeft,
+        rotate,
+        scale: 1,
+        opacity: 1,
+        backgroundColor: "var(--background)",
+        color: "var(--primary)",
+        zIndex,
+        transition: {
+          type: "spring",
+          stiffness: 120,
+          damping: 16,
+          delay: index * 0.07,
+          // Restack instantly, without the entrance delay.
+          zIndex: { duration: 0 },
+        },
+      }}
+      exit={{
+        top: size.h,
+        left: size.w / 2 - cardW / 2,
+        rotate: 0,
+        scale: 0.6,
+        opacity: 0,
+        transition: { duration: 0.25 },
+      }}
+      whileHover={{
+        rotate: 0,
+        scale: 1.05,
+        zIndex: Z_ACTIVE,
+        backgroundColor: accent,
+        color: "#000000",
+        transition: { duration: 0.15 },
+      }}
+      whileTap={{ scale: 0.97, zIndex: Z_ACTIVE }}
+      whileDrag={{
+        rotate: 0,
+        scale: 1.05,
+        zIndex: Z_ACTIVE,
+        cursor: "grabbing",
+        backgroundColor: accent,
+        color: "#000000",
+      }}
+    >
+      <span className="font-heading text-2xl leading-tight group-hover:underline max-sm:text-lg">
+        {post.title || "untitled"}
+      </span>
+      {post.description && (
+        <span className="font-sans text-sm italic opacity-80 max-sm:text-xs">
+          {post.description}
+        </span>
+      )}
+    </MotionLink>
   );
 }
