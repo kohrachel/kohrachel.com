@@ -6,6 +6,7 @@ import {
   EditorContext,
   useEditor,
   type Editor,
+  type JSONContent,
 } from "@tiptap/react";
 
 // --- Tiptap Core Extensions ---
@@ -207,8 +208,10 @@ const MobileToolbarContent = ({
 
 export function SimpleEditor({
   onEditorReady,
+  initialContent,
 }: {
   onEditorReady?: (editor: Editor) => void;
+  initialContent?: JSONContent;
 } = {}) {
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
@@ -263,7 +266,7 @@ export function SimpleEditor({
         placeholder: "enter some text here! :)"
       })
     ],
-    content: { type: "doc", content: [] },
+    content: initialContent ?? { type: "doc", content: [] },
   });
 
   const rect = useCursorVisibility({
