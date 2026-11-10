@@ -32,6 +32,12 @@ const SM_QUERY = "(width < 40rem)";
 const CARD_H = 220;
 const MARGIN = 20;
 
+// Inertia after a fling: low power + short time constant = a quick, short
+// glide rather than a long slide (same feel as tobiasfried.com).
+const DRAG_TRANSITION = { timeConstant: 50, power: 0.1 };
+// zIndex while hovered/dragged; above any stacking order a card can earn.
+const Z_ACTIVE = 1000;
+
 type CardLayout = {
   top: number;
   left: number;
@@ -49,6 +55,12 @@ export default function PostSection({
   const ref = useRef<HTMLElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [cardW, setCardW] = useState(CARD_W);
+  // Stacking order: the most recently dragged card stays on top after release.
+  const [zOrder, setZOrder] = useState<Record<string, number>>({});
+  const zCounter = useRef(1);
+  // Set once a drag actually starts, so releasing a drag doesn't also follow
+  // the link. Reset on every new press.
+  const didDrag = useRef(false);
   const [layouts, setLayouts] = useState<CardLayout[]>([]);
 
   // Generate genuinely random positions on the client after mount. Random must
@@ -114,7 +126,24 @@ export default function PostSection({
                   key={post.id}
                   href={`/${post.id}`}
                   className="group absolute flex flex-col gap-3 rounded-md border-2 border-black bg-background p-5 text-start text-primary no-underline shadow-sm focus-visible:outline-none"
-                  style={{ zIndex: 1, width: cardW }}
+                  style={{ width: cardW }}
+                  // Stop the browser's native link drag from hijacking ours.
+                  draggable={false}
+                  drag
+                  dragConstraints={ref}
+                  dragElastic={0.2}
+                  dragTransition={DRAG_TRANSITION}
+                  onPointerDown={() => {
+                    didDrag.current = false;
+                  }}
+                  onDragStart={() => {
+                    didDrag.current = true;
+                    const z = ++zCounter.current;
+                    setZOrder((prev) => ({ ...prev, [post.id]: z }));
+                  }}
+                  onClick={(e) => {
+                    if (didDrag.current) e.preventDefault();
+                  }}
                   // Fan out from the bottom-center of the section.
                   initial={{
                     top: size.h,
@@ -133,11 +162,14 @@ export default function PostSection({
                     opacity: 1,
                     backgroundColor: "var(--background)",
                     color: "var(--primary)",
+                    zIndex: zOrder[post.id] ?? 1,
                     transition: {
                       type: "spring",
                       stiffness: 120,
                       damping: 16,
                       delay: i * 0.07,
+                      // Restack instantly, without the entrance delay.
+                      zIndex: { duration: 0 },
                     },
                   }}
                   exit={{
@@ -151,12 +183,20 @@ export default function PostSection({
                   whileHover={{
                     rotate: 0,
                     scale: 1.05,
-                    zIndex: 50,
+                    zIndex: Z_ACTIVE,
                     backgroundColor: accent,
                     color: "#000000",
                     transition: { duration: 0.15 },
                   }}
-                  whileTap={{ scale: 0.97, zIndex: 50 }}
+                  whileTap={{ scale: 0.97, zIndex: Z_ACTIVE }}
+                  whileDrag={{
+                    rotate: 0,
+                    scale: 1.05,
+                    zIndex: Z_ACTIVE,
+                    cursor: "grabbing",
+                    backgroundColor: accent,
+                    color: "#000000",
+                  }}
                 >
                   <span className="font-heading text-2xl leading-tight group-hover:underline max-sm:text-lg">
                     {post.title || "untitled"}
@@ -177,7 +217,7 @@ export default function PostSection({
       )}
 
       {/* Credit — card stack UI inspired by Tobias Fried. */}
-      <span className="absolute bottom-2 right-3 z-60 text-xs italic text-white/70">
+      <span className="absolute bottom-2 right-3 z-1001 text-xs italic text-white/70">
         this section credits:{" "}
         <Link
           href="https://tobiasfried.com/"
