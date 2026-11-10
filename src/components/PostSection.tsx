@@ -58,23 +58,34 @@ export default function PostSection({
   // Stacking order: the most recently dragged card stays on top after release.
   const [zOrder, setZOrder] = useState<Record<string, number>>({});
   const zCounter = useRef(1);
-  const [layouts, setLayouts] = useState<CardLayout[]>([]);
+  // Keyed by post id so a card keeps its layout if the list changes order.
+  const [layouts, setLayouts] = useState<Record<string, CardLayout>>({});
 
   // Generate genuinely random positions on the client after mount. Random must
   // be deferred out of render so Next doesn't evaluate it during prerender
-  // (see nextjs.org/docs/messages/blocking-prerender-random-client); this also
-  // re-rolls the layout on every visit.
+  // (see nextjs.org/docs/messages/blocking-prerender-random-client).
+  //
+  // Only posts without a layout get one. With cacheComponents, Next keeps this
+  // page alive in an <Activity> while you're on a post and re-runs effects
+  // when you come back; rolling only missing ids means returning leaves the
+  // cards (and anything you dragged) where they were. A fresh load still
+  // gets a fresh layout.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- random layout must be deferred to the client per Next.js prerender rules
-    setLayouts(
-      posts.map((_, i) => ({
-        top: Math.random(),
-        left: Math.random(),
-        rotate: (Math.random() - 0.5) * 24,
-        // Accent is assigned by index (wrapping around), not randomly.
-        accent: ACCENTS[i % ACCENTS.length],
-      })),
-    );
+    setLayouts((prev) => {
+      if (posts.every((p) => prev[p.id])) return prev;
+      const next = { ...prev };
+      posts.forEach((p, i) => {
+        next[p.id] ??= {
+          top: Math.random(),
+          left: Math.random(),
+          rotate: (Math.random() - 0.5) * 24,
+          // Accent is assigned by index (wrapping around), not randomly.
+          accent: ACCENTS[i % ACCENTS.length],
+        };
+      });
+      return next;
+    });
   }, [posts]);
 
   // Measure the section so we can place cards in pixels. A stretched grid
@@ -83,7 +94,15 @@ export default function PostSection({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const update = () => setSize({ w: el.clientWidth, h: el.clientHeight });
+    const update = () => {
+      const w = el.clientWidth;
+      const h = el.clientHeight;
+      // 0x0 means hidden (Next hides this page with display:none while
+      // you're on a post). Keep the last real size: dropping to 0 would
+      // unmount the cards and play their exit animation.
+      if (!w || !h) return;
+      setSize((prev) => (prev.w === w && prev.h === h ? prev : { w, h }));
+    };
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
@@ -110,7 +129,7 @@ export default function PostSection({
         <AnimatePresence>
           {size.h > 0 &&
             posts.map((post, i) => {
-              const layout = layouts[i];
+              const layout = layouts[post.id];
               if (!layout) return null;
               return (
                 <PostCard
@@ -228,6 +247,7 @@ function PostCard({
     const update = () => {
       const w = el.offsetWidth;
       const h = el.offsetHeight;
+      if (!w || !h) return; // hidden; keep the last real size
       setCardSize((prev) => (prev?.w === w && prev?.h === h ? prev : { w, h }));
     };
     update();
@@ -260,10 +280,30 @@ function PostCard({
   // Lets a superseded entrance animation know it no longer owns `phase`.
   const entryGen = useRef(0);
 
+  // When Next hides this page (<Activity>, while you're on a post), effects
+  // are torn down; when it's shown again Motion replays the card's mount:
+  // `initial` is re-applied and x/y snap back to the entry point. So on hide,
+  // remember where the card is and mark it unplaced; on show, the placement
+  // effect below then fans it back out to that remembered spot.
+  useEffect(
+    () => () => {
+      const b = placed.current;
+      if (b && phase.current !== "entering") {
+        frac.current = {
+          fx: fractionIn(x.get(), b.minX, b.maxX, frac.current.fx),
+          fy: fractionIn(y.get(), b.minY, b.maxY, frac.current.fy),
+        };
+      }
+      placed.current = null;
+      phase.current = "pending";
+    },
+    [x, y],
+  );
+
   // Place the card whenever its bounds change: first measurement (fan-out
   // entrance), section resize (window resize, reflow, breakpoint), or its own
-  // size changing. Nothing happens if the bounds are unchanged, which also
-  // covers Strict Mode's double run and Activity re-showing the page.
+  // size changing, or the page being shown again (see above). Nothing happens
+  // if the bounds are unchanged.
   useEffect(() => {
     if (!bounds) return;
     const prev = placed.current;
