@@ -20,9 +20,15 @@ const ACCENTS = [
   "#FFB3C1",
 ];
 
-// Card footprint (px) used only to keep cards inside the section bounds.
-// Cards themselves grow to fit their text; these are generous estimates.
+// Card widths (px). These are the single source of truth: they're applied to
+// the card via `style.width` AND used for layout math, so the two can't drift.
 const CARD_W = 240;
+const CARD_W_SM = 176;
+// Same query as Tailwind v4's `max-sm:` variant (default sm = 40rem), so the
+// width switches in lockstep with the `max-sm:` text sizes on the card.
+const SM_QUERY = "(width < 40rem)";
+// Card height still varies with its text; this is a generous estimate used
+// only to keep cards inside the section bounds.
 const CARD_H = 220;
 const MARGIN = 20;
 
@@ -42,6 +48,7 @@ export default function PostSection({
 }) {
   const ref = useRef<HTMLElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
+  const [cardW, setCardW] = useState(CARD_W);
   const [layouts, setLayouts] = useState<CardLayout[]>([]);
 
   // Generate genuinely random positions on the client after mount. Random must
@@ -74,7 +81,17 @@ export default function PostSection({
     return () => ro.disconnect();
   }, []);
 
-  const availW = Math.max(0, size.w - CARD_W - MARGIN * 2);
+  // Track which card width applies. Cards only render once the section has
+  // been measured (after mount), so they never render with a stale width.
+  useEffect(() => {
+    const mq = window.matchMedia(SM_QUERY);
+    const update = () => setCardW(mq.matches ? CARD_W_SM : CARD_W);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  const availW = Math.max(0, size.w - cardW - MARGIN * 2);
   const availH = Math.max(0, size.h - CARD_H - MARGIN * 2);
 
   return (
@@ -96,12 +113,12 @@ export default function PostSection({
                 <MotionLink
                   key={post.id}
                   href={`/${post.id}`}
-                  className="group absolute flex w-60 max-sm:w-44 flex-col gap-3 rounded-md border-2 border-black bg-background p-5 text-start text-primary no-underline shadow-sm focus-visible:outline-none"
-                  style={{ zIndex: 1 }}
+                  className="group absolute flex flex-col gap-3 rounded-md border-2 border-black bg-background p-5 text-start text-primary no-underline shadow-sm focus-visible:outline-none"
+                  style={{ zIndex: 1, width: cardW }}
                   // Fan out from the bottom-center of the section.
                   initial={{
                     top: size.h,
-                    left: size.w / 2 - CARD_W / 2,
+                    left: size.w / 2 - cardW / 2,
                     rotate: 0,
                     scale: 0.6,
                     opacity: 0,
@@ -125,7 +142,7 @@ export default function PostSection({
                   }}
                   exit={{
                     top: size.h,
-                    left: size.w / 2 - CARD_W / 2,
+                    left: size.w / 2 - cardW / 2,
                     rotate: 0,
                     scale: 0.6,
                     opacity: 0,
