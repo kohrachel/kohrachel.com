@@ -33,12 +33,11 @@ import {
 // --- Tiptap Node ---
 import { ImageUploadNode } from "@/components/tiptap/node/image-upload-node/image-upload-node-extension";
 import { HorizontalRule } from "@/components/tiptap/node/horizontal-rule-node/horizontal-rule-node-extension";
-import "@/components/tiptap/node/blockquote-node/blockquote-node.scss";
-import "@/components/tiptap/node/code-block-node/code-block-node.scss";
-import "@/components/tiptap/node/horizontal-rule-node/horizontal-rule-node.scss";
+// Text, headings, lists, quotes, code and rules are styled by the site's
+// `.typeset` styles so the editor matches the published post. These sheets only
+// cover editor-specific UI (selection, placeholders, task lists, images).
 import "@/components/tiptap/node/list-node/list-node.scss";
 import "@/components/tiptap/node/image-node/image-node.scss";
-import "@/components/tiptap/node/heading-node/heading-node.scss";
 import "@/components/tiptap/node/paragraph-node/paragraph-node.scss";
 
 // --- Tiptap UI ---
@@ -266,7 +265,12 @@ export function SimpleEditor({
         placeholder: "enter some text here! :)"
       })
     ],
-    content: initialContent ?? { type: "doc", content: [] },
+    // A doc with no blocks (e.g. a new post) loads as-is, with nothing to
+    // type into and nothing to show the placeholder on. Start it with one
+    // empty paragraph instead.
+    content: initialContent?.content?.length
+      ? initialContent
+      : { type: "doc", content: [{ type: "paragraph" }] },
   });
 
   const rect = useCursorVisibility({

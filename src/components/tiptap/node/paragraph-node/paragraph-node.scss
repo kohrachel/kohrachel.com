@@ -1,6 +1,5 @@
 .tiptap.ProseMirror {
   --tt-collaboration-carets-label: var(--tt-gray-light-900);
-  --link-text-color: var(--tt-brand-color-500);
   --placeholder-color: var(--tt-gray-light-a-400);
 
   // ai
@@ -8,7 +7,6 @@
 
   .dark & {
     --tt-collaboration-carets-label: var(--tt-gray-dark-100);
-    --link-text-color: var(--tt-brand-color-400);
     --placeholder-color: var(--tt-gray-dark-a-400);
 
     --tiptap-ai-insertion-color: var(--tt-brand-color-400);
@@ -28,17 +26,6 @@
   white-space: pre-wrap;
   outline: none;
   caret-color: var(--tt-cursor-color);
-
-  // Paragraph spacing
-  p:not(:first-child):not(td p):not(th p) {
-    margin-top: 20px;
-  }
-
-  p:not(td p):not(th p) {
-    font-size: 1rem;
-    line-height: 1.6;
-    font-weight: normal;
-  }
 
   // Selection styles
   &:not(.readonly):not(.ProseMirror-hideselection) {
@@ -135,16 +122,6 @@
   width: 1.25em;
   height: 1.25em;
   cursor: text;
-}
-
-/* =====================
-     LINKS
-     ===================== */
-.tiptap.ProseMirror {
-  a {
-    color: var(--link-text-color);
-    text-decoration: underline;
-  }
 }
 
 /* =====================
