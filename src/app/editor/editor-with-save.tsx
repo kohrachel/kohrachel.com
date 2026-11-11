@@ -7,6 +7,7 @@ import {
   useState,
   type MouseEvent,
 } from "react";
+import { useRouter } from "next/navigation";
 import type { Editor } from "@tiptap/react";
 import { SimpleEditor } from "@/components/tiptap/templates/simple/simple-editor";
 import { PostHeader } from "@/components/post/post-header";
@@ -17,6 +18,7 @@ import type { Post } from "@/db/schema";
 import { ButtonWithIcon } from "@/components/ui/button-with-icon";
 import type { IconSvgElement } from "@hugeicons/react";
 import {
+  Delete02Icon,
   GitMergeIcon,
   SaveIcon,
   UndoIcon,
@@ -24,13 +26,14 @@ import {
 } from "@hugeicons/core-free-icons";
 import { humanDate } from "@/lib/utils";
 
-type Action = "save" | "publish" | "unpublish" | "discard";
+type Action = "save" | "publish" | "unpublish" | "discard" | "delete";
 
 const ACTION_TEXT: Record<Action, { pending: string; done: string }> = {
   save: { pending: "Saving...", done: "Saved" },
   publish: { pending: "Publishing...", done: "Published" },
   unpublish: { pending: "Unpublishing...", done: "Unpublished" },
   discard: { pending: "Discarding...", done: "Changes discarded" },
+  delete: { pending: "Deleting...", done: "Deleted" },
 };
 
 export type EditablePost = Pick<
@@ -50,6 +53,7 @@ export function EditorWithSave({
   post: EditablePost;
   bannerUrl: string;
 }) {
+  const router = useRouter();
   const editorRef = useRef<Editor | null>(null);
   const [title, setTitle] = useState(post.title);
   const [description, setDescription] = useState(post.description);
@@ -60,7 +64,9 @@ export function EditorWithSave({
   });
   const [pending, setPending] = useState<Action | null>(null);
   const [message, setMessage] = useState<{ text: string; error?: boolean }>();
-  const [confirmingDiscard, setConfirmingDiscard] = useState(false);
+  const [confirming, setConfirming] = useState<"discard" | "delete" | null>(
+    null,
+  );
 
   const handleEditorReady = useCallback((editor: Editor) => {
     editorRef.current = editor;
@@ -118,17 +124,29 @@ export function EditorWithSave({
   }, [post.id, run]);
 
   const handleDiscard = useCallback(async () => {
-    if (!confirmingDiscard) {
-      setConfirmingDiscard(true);
+    if (confirming !== "discard") {
+      setConfirming("discard");
       return;
     }
-    setConfirmingDiscard(false);
+    setConfirming(null);
     const row = await run("discard", () => discardDraft(post.id));
     if (!row) return;
     setTitle(row.title);
     setDescription(row.description);
     editorRef.current?.commands.setContent(row.content);
-  }, [confirmingDiscard, post.id, run]);
+  }, [confirming, post.id, run]);
+
+  const handleDelete = useCallback(async () => {
+    if (confirming !== "delete") {
+      setConfirming("delete");
+      return;
+    }
+    setConfirming(null);
+    const row = await run("delete", () =>
+      updatePost({ id: post.id, patch: { deletedAt: new Date() } }),
+    );
+    if (row) router.push("/editor");
+  }, [confirming, post.id, run, router]);
 
   const { isPublished, publishedAt, hasDraft } = publishState;
   const statusText = isPublished
@@ -157,14 +175,24 @@ export function EditorWithSave({
       {/* Mirrors the back link's spot on the opposite corner of the banner. */}
       <div className="absolute right-6 top-6 z-20 flex flex-col items-end gap-1">
         <div className="flex justify-end gap-2">
+          <ActionButton
+            label={confirming === "delete" ? "Click again to delete" : "Delete"}
+            icon={Delete02Icon}
+            onClick={handleDelete}
+            onBlur={() => setConfirming(null)}
+            disabled={pending !== null}
+            variant="destructive"
+          />
           {hasDraft && publishedAt !== null && (
             <ActionButton
               label={
-                confirmingDiscard ? "Click again to discard" : "Discard changes"
+                confirming === "discard"
+                  ? "Click again to discard"
+                  : "Discard changes"
               }
               icon={UndoIcon}
               onClick={handleDiscard}
-              onBlur={() => setConfirmingDiscard(false)}
+              onBlur={() => setConfirming(null)}
               disabled={pending !== null}
             />
           )}
@@ -187,7 +215,7 @@ export function EditorWithSave({
             icon={GitMergeIcon}
             onClick={handlePublish}
             disabled={pending !== null}
-            primary
+            variant="default"
           />
         </div>
         <span
@@ -195,8 +223,8 @@ export function EditorWithSave({
         >
           {pending
             ? ACTION_TEXT[pending].pending
-            : confirmingDiscard
-              ? "Click again to discard"
+            : confirming
+              ? `Click again to ${confirming}`
               : (message?.text ?? statusText)}
         </span>
       </div>
@@ -291,19 +319,19 @@ function HeaderField({
 function ActionButton({
   label,
   icon,
-  primary,
+  variant = "secondary",
   ...props
 }: {
   label: string;
   icon: IconSvgElement;
-  primary?: boolean;
+  variant?: "default" | "secondary" | "destructive";
   onClick: () => void;
   onBlur?: () => void;
   disabled: boolean;
 }) {
   return (
     <ButtonWithIcon
-      variant={primary ? "default" : "secondary"}
+      variant={variant}
       size="lg"
       aria-label={label}
       title={label}
