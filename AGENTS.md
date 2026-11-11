@@ -12,3 +12,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - Always use the Next.js `<Link>` component (`next/link`) for links instead of a raw `<a>` element.
 - When opening a pull request, use `.github/pull_request_template.md` as the body (see the `open-pr` skill in `.claude/skills/open-pr/SKILL.md`): leave the Why/What TODOs for the human and put all agent-written text inside the collapsed `<details>` block.
+- When a PR's base branch is another PR's branch (not `main`), it is part of a PR stack: link it into a GitHub stack with the `gh stack` extension (`gh extension install github/gh-stack`) instead of leaving it as two standalone PRs. Open each PR with the template body as usual, then run `gh stack link <bottom-pr> ... <top-pr>` (bottom to top), or `gh stack link <stack-number> <new-pr>` to add to an existing stack. Check with `gh stack view`. The `open-pr` skill has the steps.

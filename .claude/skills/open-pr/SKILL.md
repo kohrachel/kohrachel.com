@@ -28,8 +28,25 @@ say goes inside the collapsed `<details>` block.
    - `title` is short, imperative, and lowercase.
 4. Build the body from the PR template (see below), then open the PR with
    `gh pr create --title "<title>" --body "$(cat <<'EOF' ... EOF)"`.
-5. Return the PR URL to the user and remind them to fill in **Why** and
-   **What**.
+   - If the branch builds on another unmerged PR branch, pass that branch as
+     `--base <parent-branch>` instead of `main`.
+5. **Stacked PRs:** if the base is another PR's branch (not `main`), link the
+   PRs into a GitHub stack. Don't leave them as separate PRs.
+   - Needs the extension: `gh extension install github/gh-stack` (skip if
+     `gh extension list` already shows `github/gh-stack`).
+   - New stack: `gh stack link <bottom-pr> <next-pr> ... <top-pr>`, listing PR
+     numbers from bottom (closest to `main`) to top.
+   - Existing stack: `gh stack link <stack-number> <new-pr>` adds the new PR
+     to the top. Find the stack number with `gh stack view` or in the PR's
+     stack UI on GitHub.
+   - Pass PR numbers, not branch names. With PR numbers, `link` reuses the
+     PRs you opened with the template body. With branch names, it would make
+     new PRs with generated bodies.
+   - Don't use `gh stack submit` to open PRs. It writes its own titles and
+     bodies and skips the PR template.
+   - Run `gh stack view` to check the order.
+6. Return the PR URL(s) to the user and remind them to fill in **Why** and
+   **What**. For a stack, also give the stack order.
 
 ## Body template
 
