@@ -33,12 +33,7 @@ import {
 // --- Tiptap Node ---
 import { ImageUploadNode } from "@/components/tiptap/node/image-upload-node/image-upload-node-extension";
 import { HorizontalRule } from "@/components/tiptap/node/horizontal-rule-node/horizontal-rule-node-extension";
-// Text, headings, lists, quotes, code and rules are styled by the site's
-// `.typeset` styles so the editor matches the published post. These sheets only
-// cover editor-specific UI (selection, placeholders, task lists, images).
-import "@/components/tiptap/node/list-node/list-node.scss";
-import "@/components/tiptap/node/image-node/image-node.scss";
-import "@/components/tiptap/node/paragraph-node/paragraph-node.scss";
+import "@/components/tiptap/templates/simple/editor-affordances.css";
 
 // --- Tiptap UI ---
 import { HeadingDropdownMenu } from "@/components/tiptap/ui/heading-dropdown-menu";

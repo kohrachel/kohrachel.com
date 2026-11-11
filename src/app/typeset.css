@@ -227,6 +227,34 @@
       accent-color: var(--color-primary, currentColor);
     }
 
+    /* Task lists, in the editor's markup (the post renderer matches it). */
+    &:where(ul[data-type="taskList"]) {
+      list-style-type: none;
+      padding-inline-start: 0.25em;
+    }
+    &:where(ul[data-type="taskList"] > li) {
+      display: flex;
+      gap: 0.6em;
+      padding-inline-start: 0;
+    }
+    &:where(ul[data-type="taskList"] > li > label) {
+      flex: none;
+    }
+    &:where(ul[data-type="taskList"] > li > div) {
+      flex: 1 1 0%;
+      min-width: 0;
+    }
+    &:where(ul[data-type="taskList"] > li > div > *) {
+      margin-block-start: 0.5em;
+    }
+    &:where(ul[data-type="taskList"] > li > div > :first-child) {
+      margin-block-start: 0;
+    }
+    &:where(ul[data-type="taskList"] input[type="checkbox"]) {
+      margin: 0;
+      accent-color: var(--color-primary, currentColor);
+    }
+
     /* Disclosures. */
     &:where(details) {
       margin-block-start: var(--typeset-flow);

@@ -1,0 +1,68 @@
+/*
+ * Styles for things that only exist while editing: caret, selection,
+ * placeholder, drop cursor and selected images. Post text is styled by
+ * `.typeset`, as on the published post, so nothing here sets font, size,
+ * line height, margin or colour on content elements.
+ */
+
+.tiptap.ProseMirror {
+  white-space: pre-wrap;
+  outline: none;
+  caret-color: var(--tt-cursor-color);
+}
+
+.tiptap.ProseMirror:not(.ProseMirror-hideselection) ::selection {
+  background-color: var(--tt-selection-color);
+}
+
+.tiptap.ProseMirror .selection {
+  display: inline;
+  background-color: var(--tt-selection-color);
+}
+
+.tiptap.ProseMirror .selection::selection {
+  background: transparent;
+}
+
+.tiptap.ProseMirror .ProseMirror-selectednode:not(img):not(pre):not(.react-renderer) {
+  border-radius: var(--tt-radius-md);
+  background-color: var(--tt-selection-color);
+}
+
+.tiptap.ProseMirror.ProseMirror-hideselection {
+  caret-color: transparent;
+}
+
+.tiptap.ProseMirror img {
+  outline: 0.125rem solid transparent;
+}
+
+.tiptap.ProseMirror img.ProseMirror-selectednode {
+  outline-color: var(--tt-brand-color-500);
+}
+
+/* The placeholder is absolutely positioned inside its empty block. */
+.tiptap.ProseMirror > * {
+  position: relative;
+}
+
+.tiptap.ProseMirror
+  .is-empty[data-placeholder]:has(> .ProseMirror-trailingBreak:only-child)::before {
+  content: attr(data-placeholder);
+  pointer-events: none;
+  position: absolute;
+  inset-inline: 0;
+  height: 0;
+  text-align: inherit;
+  color: color-mix(in oklab, currentColor 45%, transparent);
+}
+
+.prosemirror-dropcursor-block,
+.prosemirror-dropcursor-inline {
+  background: var(--tt-brand-color-400) !important;
+  border-radius: 0.25rem;
+  margin-inline: -1px;
+  width: 100%;
+  height: 0.188rem;
+  cursor: grabbing;
+}

@@ -81,6 +81,16 @@ function renderChildren(node: JSONContent): ReactNode[] {
   return (node.content ?? []).map((child, i) => renderNode(child, i));
 }
 
+/** Like the editor, keeps an empty line or a trailing line break one line tall. */
+function renderTextblockChildren(node: JSONContent): ReactNode[] {
+  const children = renderChildren(node);
+  const last = node.content?.at(-1);
+  if (!last || last.type === "hardBreak") {
+    children.push(<br key="trailing-break" />);
+  }
+  return children;
+}
+
 export function renderText(node: JSONContent): string {
   if (node.text) return node.text;
   return (node.content ?? []).map(renderText).join("");
@@ -94,7 +104,7 @@ export function renderNode(node: JSONContent, key: number): ReactNode {
     case "paragraph":
       return (
         <p key={key} style={textAlignStyle(node)}>
-          {renderChildren(node)}
+          {renderTextblockChildren(node)}
         </p>
       );
 
@@ -104,7 +114,7 @@ export function renderNode(node: JSONContent, key: number): ReactNode {
         "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
       return (
         <Tag key={key} style={textAlignStyle(node)}>
-          {renderChildren(node)}
+          {renderTextblockChildren(node)}
         </Tag>
       );
     }
@@ -126,18 +136,22 @@ export function renderNode(node: JSONContent, key: number): ReactNode {
 
     case "taskList":
       return (
-        <ul key={key} className="task-list" style={{ listStyle: "none" }}>
+        <ul key={key} data-type="taskList">
           {renderChildren(node)}
         </ul>
       );
 
-    case "taskItem":
+    case "taskItem": {
+      const checked = !!node.attrs?.checked;
       return (
-        <li key={key} className="task-item">
-          <input type="checkbox" checked={!!node.attrs?.checked} readOnly />
-          <span>{renderChildren(node)}</span>
+        <li key={key} data-type="taskItem" data-checked={checked}>
+          <label>
+            <input type="checkbox" checked={checked} readOnly />
+          </label>
+          <div>{renderChildren(node)}</div>
         </li>
       );
+    }
 
     case "blockquote":
       return <blockquote key={key}>{renderChildren(node)}</blockquote>;
