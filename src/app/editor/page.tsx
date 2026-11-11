@@ -20,8 +20,8 @@ const ROW_GRID =
 
 export default function EditorIndexPage() {
   return (
-    <div className="px-4 sm:px-8 lg:px-16">
-      {/* Fills the viewport (minus the layout's top/bottom padding) so the
+    <div className="px-4 pt-(--page-padding-top) pb-(--page-padding-bottom) sm:px-8 lg:px-16">
+      {/* Fills the viewport (minus the top/bottom padding) so the
           heading and column headers stay put and only the list scrolls. */}
       <div className="mx-auto flex h-[calc(100dvh-var(--page-padding-top)-var(--page-padding-bottom))] w-full max-w-5xl flex-col gap-6 rounded-lg bg-stone-900 p-7 sm:p-10">
         <div className="flex shrink-0 items-center justify-between gap-4">

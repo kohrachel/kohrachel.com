@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { getPost } from "@/server/posts/admin";
+import { getPostBannerUrl } from "@/services/posts/banner";
+import { PostShell } from "@/components/post/post-shell";
 import { EditorWithSave } from "../editor-with-save";
 
 export default function EditPostPage({ params }: PageProps<"/editor/[id]">) {
@@ -9,11 +11,11 @@ export default function EditPostPage({ params }: PageProps<"/editor/[id]">) {
   // unstable values (e.g. Math.random()) during render, so this streams as
   // dynamic content instead of being prerendered into the static shell.
   return (
-    <div className="px-(--page-padding-inline)">
+    <PostShell backHref="/editor" backLabel="All posts">
       <Suspense fallback={null}>
         <EditPost params={params} />
       </Suspense>
-    </div>
+    </PostShell>
   );
 }
 
@@ -34,11 +36,13 @@ async function EditPost({
     <EditorWithSave
       // Remount when switching posts so editor state doesn't carry over.
       key={post.id}
+      bannerUrl={getPostBannerUrl()}
       post={{
         id: post.id,
         title: post.title,
         description: post.description,
         content: post.content,
+        createdAt: post.createdAt,
       }}
     />
   );

@@ -16,19 +16,10 @@
   max-height: calc(100dvh - var(--tt-toolbar-height) - 1rem);
 }
 
+// No width or padding of its own: the post body box (PostBody) sets the text
+// width, exactly as on the published post page.
 .simple-editor-content {
-  max-width: var(--measure, 80ch);
   width: 100%;
-  margin: 0 auto;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.simple-editor-content .tiptap.ProseMirror.simple-editor {
-  flex: 1;
-  padding: 2.5rem 3rem 30vh;
 }
 
 @media screen and (max-width: 480px) {
@@ -37,9 +28,5 @@
     left: 0.5rem;
     width: auto;
     max-height: calc(100dvh - 1rem);
-  }
-
-  .simple-editor-content .tiptap.ProseMirror.simple-editor {
-    padding: 2.5rem 3rem 30vh;
   }
 }

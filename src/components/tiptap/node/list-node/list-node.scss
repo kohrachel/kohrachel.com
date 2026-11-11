@@ -17,112 +17,11 @@
 }
 
 /* =====================
-     LISTS
+     TASK LISTS
+     Regular lists are styled by `.typeset`; only the editor's task-list
+     markup (label + checkbox + div) needs styles here.
      ===================== */
 .tiptap.ProseMirror {
-  // Common list styles
-  ol,
-  ul {
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
-    padding-left: 1.5em;
-
-    &:first-child {
-      margin-top: 0;
-    }
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    ol,
-    ul {
-      margin-top: 0;
-      margin-bottom: 0;
-    }
-  }
-
-  li {
-    p:not(:first-child):not(td p):not(th p) {
-      margin-top: 0;
-      line-height: 1.6;
-    }
-  }
-
-  // Ordered lists
-  ol {
-    list-style: decimal;
-
-    ol {
-      list-style: lower-alpha;
-
-      ol {
-        list-style: lower-roman;
-
-        ol {
-          list-style: decimal;
-
-          ol {
-            list-style: lower-alpha;
-
-            ol {
-              list-style: lower-roman;
-
-              ol {
-                list-style: decimal;
-
-                ol {
-                  list-style: lower-alpha;
-
-                  ol {
-                    list-style: lower-roman;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Unordered lists
-  ul:not([data-type="taskList"]) {
-    list-style: disc;
-
-    ul {
-      list-style: circle;
-
-      ul {
-        list-style: square;
-
-        ul {
-          list-style: disc;
-
-          ul {
-            list-style: circle;
-
-            ul {
-              list-style: square;
-
-              ul {
-                list-style: disc;
-
-                ul {
-                  list-style: circle;
-
-                  ul {
-                    list-style: square;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
   // Task lists
   ul[data-type="taskList"] {
     padding-left: 0.25em;
