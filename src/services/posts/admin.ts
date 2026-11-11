@@ -2,8 +2,7 @@ import { db } from "@/db";
 import { liveFields } from "./draft";
 
 // Editor-only reads. Unlike `listPostService`, these are uncached and include
-// unpublished posts. Both show the draft where there is one, since that's
-// what the editor is working on.
+// unpublished posts.
 
 export function listAllPostsService() {
   return db.query.posts.findMany({
@@ -13,7 +12,6 @@ export function listAllPostsService() {
       publishedAt: true,
       updatedAt: true,
     },
-    // Computed in SQL so the list doesn't load every draft's content.
     extras: {
       title: (t, { sql }) =>
         sql<string>`coalesce(${t.draft} ->> 'title', ${t.title})`,

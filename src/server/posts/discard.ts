@@ -4,7 +4,6 @@ import { requireWriteAccess } from "@/server/auth/gate";
 import { discardDraftService } from "@/services/posts/draft";
 import { postIdSchema } from "@/domain-types/posts/schema";
 
-// No revalidation: the draft is never shown publicly, so nothing cached changes.
 export async function discardDraft(id: number) {
   requireWriteAccess();
   const postId = postIdSchema.parse(id);

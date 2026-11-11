@@ -12,7 +12,6 @@ export function listPostService({ postIds }: ListInput) {
   cacheLife("minutes");
 
   return db.query.posts.findMany({
-    // Drafts are unpublished edits and must never reach public pages.
     columns: { draft: false },
     where: {
       isPublished: true,

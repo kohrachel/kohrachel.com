@@ -50,5 +50,4 @@ export const posts = pgTable.withRLS(
 // Infer types
 export type Post = typeof posts.$inferSelect;
 export type IPost = typeof posts.$inferInsert;
-// What public pages get: no unpublished draft.
 export type PublicPost = Omit<Post, "draft">;

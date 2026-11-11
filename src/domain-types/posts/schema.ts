@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { IPost } from "@/db/schema";
 
-// What the editor can change. `.strict()` rejects anything else, so a new
-// editable field has to be added here on purpose.
+// Fields the editor is allowed to change. `.strict()` rejects anything else,
+// so a new editable field has to be added here on purpose.
 export const postPatchSchema = z
   .object({
     title: z.string(),
