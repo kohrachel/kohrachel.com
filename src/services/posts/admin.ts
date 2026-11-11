@@ -27,6 +27,7 @@ export async function getPostService(id: number) {
 
   return {
     id: post.id,
+    createdAt: post.createdAt,
     isPublished: post.isPublished,
     publishedAt: post.publishedAt,
     hasDraft: post.draft !== null,
