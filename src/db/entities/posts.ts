@@ -39,6 +39,7 @@ export const posts = pgTable.withRLS(
       .notNull(),
     draft: jsonb().$type<PostDraft>(),
     publishedAt: timestamp("published_at", { withTimezone: true }),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   // RLS is enabled (via withRLS) with NO policies -> default-deny for the
   // Supabase anon/authenticated roles that back the auto-generated Data API.
