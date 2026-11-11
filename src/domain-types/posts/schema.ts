@@ -3,8 +3,6 @@ import { IPost } from "@/db/schema";
 
 // What the editor can change. `.strict()` rejects anything else, so a new
 // editable field has to be added here on purpose.
-// - title/description/content edit the draft; the live post is untouched.
-// - isPublished: true promotes the draft to live; false hides the post.
 export const postPatchSchema = z
   .object({
     title: z.string(),
