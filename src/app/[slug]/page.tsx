@@ -34,7 +34,7 @@ async function PostContent({
   const [post] = await listPosts({ postIds: [id] });
   if (!post || !post.content.content) notFound();
 
-  const { title, description, createdAt } = post;
+  const { title, description, publishedAt, createdAt } = post;
 
   return (
     <>
@@ -42,7 +42,7 @@ async function PostContent({
         bannerUrl={getPostBannerUrl()}
         title={title}
         description={description || null}
-        date={humanDate(createdAt)}
+        date={humanDate(publishedAt ?? createdAt)}
       />
       <PostBody>
         {post.content.content.map((node, i) => renderNode(node, i))}

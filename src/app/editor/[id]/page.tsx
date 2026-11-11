@@ -42,7 +42,9 @@ async function EditPost({
         title: post.title,
         description: post.description,
         content: post.content,
-        createdAt: post.createdAt,
+        isPublished: post.isPublished,
+        publishedAt: post.publishedAt,
+        hasDraft: post.hasDraft,
       }}
     />
   );

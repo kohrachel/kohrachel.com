@@ -70,7 +70,14 @@ async function PostList() {
             )}
           >
             <StatusIcon isPublished={post.isPublished} />
-            <span className="truncate">{post.title || "[untitled]"}</span>
+            <span className="flex min-w-0 items-center gap-2">
+              <span className="truncate">{post.title || "[untitled]"}</span>
+              {post.isPublished && post.hasDraft && (
+                <span className="shrink-0 rounded-full border border-stone-600 px-2 py-0.5 text-xs text-stone-300">
+                  Unpublished changes
+                </span>
+              )}
+            </span>
             <span className="text-sm text-stone-400">
               {shortDate(post.updatedAt)}
             </span>
