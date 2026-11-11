@@ -15,6 +15,7 @@ import { updatePost } from "@/server/posts/update";
 import { discardDraft } from "@/server/posts/discard";
 import type { Post } from "@/db/schema";
 import { ButtonWithIcon } from "@/components/ui/button-with-icon";
+import type { IconSvgElement } from "@hugeicons/react";
 import {
   GitMergeIcon,
   SaveIcon,
@@ -155,59 +156,48 @@ export function EditorWithSave({
     <>
       {/* Mirrors the back link's spot on the opposite corner of the banner. */}
       <div className="absolute right-6 top-6 z-20 flex flex-col items-end gap-1">
-        <div className="flex flex-wrap justify-end gap-2">
+        <div className="flex justify-end gap-2">
           {hasDraft && publishedAt !== null && (
-            <ButtonWithIcon
-              variant="secondary"
-              size="lg"
+            <ActionButton
+              label={
+                confirmingDiscard ? "Click again to discard" : "Discard changes"
+              }
+              icon={UndoIcon}
               onClick={handleDiscard}
               onBlur={() => setConfirmingDiscard(false)}
               disabled={pending !== null}
-              className="h-9 px-3 text-sm"
-              icon={UndoIcon}
-            >
-              {confirmingDiscard ? "Click again to discard" : "Discard changes"}
-            </ButtonWithIcon>
+            />
           )}
           {isPublished && (
-            <ButtonWithIcon
-              variant="secondary"
-              size="lg"
+            <ActionButton
+              label="Unpublish"
+              icon={ViewOffIcon}
               onClick={handleUnpublish}
               disabled={pending !== null}
-              className="h-9 px-3 text-sm"
-              icon={ViewOffIcon}
-            >
-              Unpublish
-            </ButtonWithIcon>
+            />
           )}
-          <ButtonWithIcon
-            variant="secondary"
-            size="lg"
+          <ActionButton
+            label="Save"
+            icon={SaveIcon}
             onClick={handleSave}
             disabled={pending !== null}
-            className="h-9 px-3 text-sm"
-            icon={SaveIcon}
-          >
-            Save
-          </ButtonWithIcon>
-          <ButtonWithIcon
-            variant="default"
-            size="lg"
+          />
+          <ActionButton
+            label={isPublished ? "Publish changes" : "Publish"}
+            icon={GitMergeIcon}
             onClick={handlePublish}
             disabled={pending !== null}
-            className="h-9 px-3 text-sm"
-            icon={GitMergeIcon}
-          >
-            {isPublished ? "Publish changes" : "Publish"}
-          </ButtonWithIcon>
+            primary
+          />
         </div>
         <span
           className={`text-xs ${message?.error ? "text-destructive" : "text-[#f5f2e8]"}`}
         >
           {pending
             ? ACTION_TEXT[pending].pending
-            : (message?.text ?? statusText)}
+            : confirmingDiscard
+              ? "Click again to discard"
+              : (message?.text ?? statusText)}
         </span>
       </div>
 
@@ -295,5 +285,33 @@ function HeaderField({
       aria-label={label}
       className="block w-full resize-none overflow-hidden bg-transparent text-center [font:inherit] tracking-[inherit] text-inherit outline-none placeholder:text-current/50"
     />
+  );
+}
+
+function ActionButton({
+  label,
+  icon,
+  primary,
+  ...props
+}: {
+  label: string;
+  icon: IconSvgElement;
+  primary?: boolean;
+  onClick: () => void;
+  onBlur?: () => void;
+  disabled: boolean;
+}) {
+  return (
+    <ButtonWithIcon
+      variant={primary ? "default" : "secondary"}
+      size="lg"
+      aria-label={label}
+      title={label}
+      className="h-9 px-2.5 text-sm sm:px-3"
+      icon={icon}
+      {...props}
+    >
+      <span className="hidden sm:inline">{label}</span>
+    </ButtonWithIcon>
   );
 }
