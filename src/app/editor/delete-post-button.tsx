@@ -37,15 +37,15 @@ export function DeletePostButton({ id, title }: { id: number; title: string }) {
     <Button
       type="button"
       variant={confirming ? "destructive" : "ghost"}
-      size={confirming ? "sm" : "icon-sm"}
+      size={confirming ? "lg" : "icon-lg"}
       aria-label={label}
       title={label}
       onClick={handleClick}
       onBlur={() => setConfirming(false)}
       disabled={pending}
-      className={cn("relative z-10", !confirming && "text-stone-400")}
+      className={cn(!confirming && "text-stone-400 hover:text-destructive")}
     >
-      <HugeiconsIcon icon={Delete02Icon} />
+      <HugeiconsIcon icon={Delete02Icon} className="size-5" />
       {confirming && <span>{pending ? "Deleting..." : "Delete?"}</span>}
     </Button>
   );

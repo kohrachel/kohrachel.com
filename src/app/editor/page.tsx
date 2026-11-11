@@ -42,7 +42,7 @@ export default function EditorIndexPage() {
             <span aria-hidden />
             <span>Title</span>
             <span>Updated</span>
-            <span aria-hidden className="w-6" />
+            <span aria-hidden className="w-8" />
           </div>
           <Suspense fallback={<p className="px-4">Loading…</p>}>
             <PostList />
@@ -66,22 +66,24 @@ async function PostList() {
           key={post.id}
           className={cn(
             ROW_GRID,
-            "relative m-0 rounded-lg border bg-stone-800 py-3 transition-colors duration-300 has-[a:hover]:bg-accent/70",
+            "m-0 rounded-lg border bg-stone-800 py-3",
             post.isPublished ? "border-primary/40" : "border-stone-700",
           )}
         >
           <StatusIcon isPublished={post.isPublished} />
-          <Link
-            href={`/editor/${post.id}`}
-            className="flex min-w-0 items-center gap-2 text-foreground no-underline after:absolute after:inset-0 after:rounded-lg"
-          >
-            <span className="truncate">{post.title || "[untitled]"}</span>
+          <span className="flex min-w-0 items-center gap-2">
+            <Link
+              href={`/editor/${post.id}`}
+              className="truncate text-foreground no-underline hover:underline"
+            >
+              {post.title || "[untitled]"}
+            </Link>
             {post.isPublished && post.hasDraft && (
               <span className="hidden shrink-0 rounded-full border border-stone-600 px-2 py-0.5 text-xs text-stone-300 sm:inline">
                 Unpublished changes
               </span>
             )}
-          </Link>
+          </span>
           <span className="text-sm text-stone-400">
             {shortDate(post.updatedAt)}
           </span>
@@ -99,7 +101,7 @@ function StatusIcon({ isPublished }: { isPublished: boolean }) {
       <TooltipTrigger
         render={<span />}
         aria-label={label}
-        className={`relative z-10 flex ${isPublished ? "text-primary" : "text-stone-400"}`}
+        className={`flex ${isPublished ? "text-primary" : "text-stone-400"}`}
       >
         <HugeiconsIcon
           icon={isPublished ? GitMergeIcon : GitPullRequestIcon}
