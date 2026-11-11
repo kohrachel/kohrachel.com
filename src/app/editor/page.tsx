@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { GitMergeIcon, GitPullRequestIcon } from "@hugeicons/core-free-icons";
 import { listAllPosts } from "@/server/posts/admin";
 import { createPost } from "@/server/posts/create";
+import { DeletePostButton } from "./delete-post-button";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -14,9 +15,9 @@ import {
 import { cn, shortDate } from "@/lib/utils";
 
 // Shared by the header row and each post row so the columns line up:
-// status icon | title | updated date.
+// status icon | title | updated date | delete.
 const ROW_GRID =
-  "grid grid-cols-[1.25rem_minmax(0,1fr)_auto] items-center gap-4 px-4";
+  "grid grid-cols-[1.25rem_minmax(0,1fr)_auto_auto] items-center gap-4 px-4";
 
 export default function EditorIndexPage() {
   return (
@@ -41,6 +42,7 @@ export default function EditorIndexPage() {
             <span aria-hidden />
             <span>Title</span>
             <span>Updated</span>
+            <span aria-hidden className="w-6" />
           </div>
           <Suspense fallback={<p className="px-4">Loading…</p>}>
             <PostList />
@@ -60,28 +62,30 @@ async function PostList() {
   return (
     <ul className="m-0 flex min-h-0 flex-1 list-none flex-col gap-2 overflow-y-auto p-0">
       {posts.map((post) => (
-        <li key={post.id} className="m-0">
+        <li
+          key={post.id}
+          className={cn(
+            ROW_GRID,
+            "relative m-0 rounded-lg border bg-stone-800 py-3 transition-colors duration-300 has-[a:hover]:bg-accent/70",
+            post.isPublished ? "border-primary/40" : "border-stone-700",
+          )}
+        >
+          <StatusIcon isPublished={post.isPublished} />
           <Link
             href={`/editor/${post.id}`}
-            className={cn(
-              ROW_GRID,
-              "rounded-lg border bg-stone-800 py-3 text-foreground no-underline transition-colors duration-300 hover:bg-accent/70",
-              post.isPublished ? "border-primary/40" : "border-stone-700",
-            )}
+            className="flex min-w-0 items-center gap-2 text-foreground no-underline after:absolute after:inset-0 after:rounded-lg"
           >
-            <StatusIcon isPublished={post.isPublished} />
-            <span className="flex min-w-0 items-center gap-2">
-              <span className="truncate">{post.title || "[untitled]"}</span>
-              {post.isPublished && post.hasDraft && (
-                <span className="shrink-0 rounded-full border border-stone-600 px-2 py-0.5 text-xs text-stone-300">
-                  Unpublished changes
-                </span>
-              )}
-            </span>
-            <span className="text-sm text-stone-400">
-              {shortDate(post.updatedAt)}
-            </span>
+            <span className="truncate">{post.title || "[untitled]"}</span>
+            {post.isPublished && post.hasDraft && (
+              <span className="hidden shrink-0 rounded-full border border-stone-600 px-2 py-0.5 text-xs text-stone-300 sm:inline">
+                Unpublished changes
+              </span>
+            )}
           </Link>
+          <span className="text-sm text-stone-400">
+            {shortDate(post.updatedAt)}
+          </span>
+          <DeletePostButton id={post.id} title={post.title || "[untitled]"} />
         </li>
       ))}
     </ul>
@@ -92,11 +96,10 @@ function StatusIcon({ isPublished }: { isPublished: boolean }) {
   const label = isPublished ? "Published" : "Draft (unpublished)";
   return (
     <Tooltip>
-      {/* A span, not the default button: this sits inside a link. */}
       <TooltipTrigger
         render={<span />}
         aria-label={label}
-        className={`flex ${isPublished ? "text-primary" : "text-stone-400"}`}
+        className={`relative z-10 flex ${isPublished ? "text-primary" : "text-stone-400"}`}
       >
         <HugeiconsIcon
           icon={isPublished ? GitMergeIcon : GitPullRequestIcon}
