@@ -50,3 +50,4 @@ export const posts = pgTable.withRLS(
 // Infer types
 export type Post = typeof posts.$inferSelect;
 export type IPost = typeof posts.$inferInsert;
+export type PublicPost = Omit<Post, "draft">;

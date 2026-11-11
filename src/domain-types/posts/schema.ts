@@ -8,6 +8,7 @@ export const postPatchSchema = z
     title: z.string(),
     description: z.string(),
     content: z.custom<IPost["content"]>(),
+    isPublished: z.boolean(),
   })
   .partial()
   .strict();
@@ -16,6 +17,8 @@ export const updatePostSchema = z.object({
   id: z.number().int().positive(),
   patch: postPatchSchema,
 });
+
+export const postIdSchema = z.number().int().positive();
 
 export type PostPatch = z.infer<typeof postPatchSchema>;
 export type UpdatePostInput = z.infer<typeof updatePostSchema>;
