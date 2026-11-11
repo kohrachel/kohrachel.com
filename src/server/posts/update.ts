@@ -14,7 +14,7 @@ export async function updatePost(input: UpdatePostInput) {
   const row = await updatePostService(parsed);
   if (!row) throw new Error(`Post ${parsed.id} not found`);
   // Only publishing, unpublishing and deleting change what the public site shows
-  if (parsed.patch.isPublished !== undefined || parsed.patch.deleted) {
+  if (parsed.patch.isPublished !== undefined || parsed.patch.deletedAt) {
     revalidatePostTags(row);
   }
   return row;

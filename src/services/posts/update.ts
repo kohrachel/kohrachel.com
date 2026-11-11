@@ -6,7 +6,7 @@ import { liveFields } from "./draft";
 
 /** Applies a patch to an existing post. Returns undefined if no such post. */
 export async function updatePostService({ id, patch }: UpdatePostInput) {
-  const { isPublished, deleted, ...draftFields } = patch;
+  const { isPublished, deletedAt, ...draftFields } = patch;
 
   return db.transaction(async (tx) => {
     const [current] = await tx
@@ -34,7 +34,7 @@ export async function updatePostService({ id, patch }: UpdatePostInput) {
       changes.isPublished = false;
     }
 
-    if (deleted) changes.deletedAt = new Date();
+    if (deletedAt) changes.deletedAt = deletedAt;
 
     const [row] = await tx
       .update(posts)
