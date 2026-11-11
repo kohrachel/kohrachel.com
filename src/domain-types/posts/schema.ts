@@ -9,6 +9,7 @@ export const postPatchSchema = z
     description: z.string(),
     content: z.custom<IPost["content"]>(),
     isPublished: z.boolean(),
+    deletedAt: z.date(),
   })
   .partial()
   .strict();

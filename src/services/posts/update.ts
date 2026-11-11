@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { posts, type Post } from "@/db/schema";
 import type { UpdatePostInput } from "@/domain-types/posts/schema";
@@ -6,13 +6,13 @@ import { liveFields } from "./draft";
 
 /** Applies a patch to an existing post. Returns undefined if no such post. */
 export async function updatePostService({ id, patch }: UpdatePostInput) {
-  const { isPublished, ...draftFields } = patch;
+  const { isPublished, deletedAt, ...draftFields } = patch;
 
   return db.transaction(async (tx) => {
     const [current] = await tx
       .select()
       .from(posts)
-      .where(eq(posts.id, id))
+      .where(and(eq(posts.id, id), isNull(posts.deletedAt)))
       .for("update");
     if (!current) return undefined;
 
@@ -33,6 +33,8 @@ export async function updatePostService({ id, patch }: UpdatePostInput) {
     } else if (isPublished === false) {
       changes.isPublished = false;
     }
+
+    if (deletedAt) changes.deletedAt = deletedAt;
 
     const [row] = await tx
       .update(posts)

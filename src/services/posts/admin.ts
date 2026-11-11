@@ -17,12 +17,15 @@ export function listAllPostsService() {
         sql<string>`coalesce(${t.draft} ->> 'title', ${t.title})`,
       hasDraft: (t, { sql }) => sql<boolean>`${t.draft} is not null`,
     },
+    where: { deletedAt: { isNull: true } },
     orderBy: { updatedAt: "desc" },
   });
 }
 
 export async function getPostService(id: number) {
-  const post = await db.query.posts.findFirst({ where: { id } });
+  const post = await db.query.posts.findFirst({
+    where: { id, deletedAt: { isNull: true } },
+  });
   if (!post) return undefined;
 
   return {

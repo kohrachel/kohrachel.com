@@ -15,6 +15,7 @@ export function listPostService({ postIds }: ListInput) {
     columns: { draft: false },
     where: {
       isPublished: true,
+      deletedAt: { isNull: true },
       ...(postIds ? { id: { in: postIds } } : {}),
     },
     orderBy: { publishedAt: "desc" },
