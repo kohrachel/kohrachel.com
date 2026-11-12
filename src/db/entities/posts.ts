@@ -58,6 +58,18 @@ export const posts = pgTable.withRLS(
       sql`${table.slug} ~ '^[a-z0-9]+(-[a-z0-9]+)*$' and ${table.slug} !~ '^[0-9]+$'`,
     ),
     check("posts_slug_reserved_check", sql`${table.slug} not in ('editor')`),
+    check(
+      "posts_published_has_slug_check",
+      sql`not ${table.isPublished} or ${table.slug} is not null`,
+    ),
+    check(
+      "posts_draft_slug_format_check",
+      sql`${table.draft} ->> 'slug' ~ '^[a-z0-9]+(-[a-z0-9]+)*$' and ${table.draft} ->> 'slug' !~ '^[0-9]+$'`,
+    ),
+    check(
+      "posts_draft_slug_reserved_check",
+      sql`${table.draft} ->> 'slug' not in ('editor')`,
+    ),
   ],
 );
 

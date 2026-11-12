@@ -1,0 +1,3 @@
+ALTER TABLE "posts" ADD CONSTRAINT "posts_published_has_slug_check" CHECK (not "is_published" or "slug" is not null);--> statement-breakpoint
+ALTER TABLE "posts" ADD CONSTRAINT "posts_draft_slug_format_check" CHECK ("draft" ->> 'slug' ~ '^[a-z0-9]+(-[a-z0-9]+)*$' and "draft" ->> 'slug' !~ '^[0-9]+$');--> statement-breakpoint
+ALTER TABLE "posts" ADD CONSTRAINT "posts_draft_slug_reserved_check" CHECK ("draft" ->> 'slug' not in ('editor'));
