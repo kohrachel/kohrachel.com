@@ -119,7 +119,9 @@ export function EditorWithSave({
       title,
       slug: slug.trim() || null,
       description,
-      content: editor.getJSON() as Post["content"],
+      // ProseMirror attrs are null-prototype objects, which server actions
+      // can't serialize; a JSON round-trip makes them plain objects.
+      content: JSON.parse(JSON.stringify(editor.getJSON())) as Post["content"],
     };
   }, [title, slug, description]);
 
