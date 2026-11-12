@@ -34,6 +34,7 @@ export async function getPostService(id: number) {
     isPublished: post.isPublished,
     publishedAt: post.publishedAt,
     hasDraft: post.draft !== null,
-    ...(post.draft ?? liveFields(post)),
+    ...liveFields(post),
+    ...post.draft,
   };
 }

@@ -40,6 +40,7 @@ async function EditPost({
       post={{
         id: post.id,
         title: post.title,
+        slug: post.slug,
         description: post.description,
         content: post.content,
         isPublished: post.isPublished,

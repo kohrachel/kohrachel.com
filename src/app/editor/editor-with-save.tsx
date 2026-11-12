@@ -15,6 +15,7 @@ import { PostBody } from "@/components/post/post-body";
 import { updatePost } from "@/server/posts/update";
 import { discardDraft } from "@/server/posts/discard";
 import type { Post } from "@/db/schema";
+import type { PostPatch } from "@/domain-types/posts/schema";
 import { ButtonWithIcon } from "@/components/ui/button-with-icon";
 import type { IconSvgElement } from "@hugeicons/react";
 import {
@@ -38,8 +39,22 @@ const ACTION_TEXT: Record<Action, { pending: string; done: string }> = {
 
 export type EditablePost = Pick<
   Post,
-  "id" | "title" | "description" | "content" | "isPublished" | "publishedAt"
+  | "id"
+  | "title"
+  | "slug"
+  | "description"
+  | "content"
+  | "isPublished"
+  | "publishedAt"
 > & { hasDraft: boolean };
+
+class ActionError extends Error {}
+
+async function savePost(id: number, patch: PostPatch) {
+  const result = await updatePost({ id, patch });
+  if ("error" in result) throw new ActionError(result.error);
+  return result.post;
+}
 
 type PublishState = Pick<
   EditablePost,
@@ -56,6 +71,7 @@ export function EditorWithSave({
   const router = useRouter();
   const editorRef = useRef<Editor | null>(null);
   const [title, setTitle] = useState(post.title);
+  const [slug, setSlug] = useState(post.slug ?? "");
   const [description, setDescription] = useState(post.description);
   const [publishState, setPublishState] = useState<PublishState>({
     isPublished: post.isPublished,
@@ -86,7 +102,11 @@ export function EditorWithSave({
       return row;
     } catch (error) {
       console.error(`${action} failed:`, error);
-      setMessage({ text: "Something went wrong", error: true });
+      setMessage({
+        text:
+          error instanceof ActionError ? error.message : "Something went wrong",
+        error: true,
+      });
     } finally {
       setPending(null);
     }
@@ -97,30 +117,27 @@ export function EditorWithSave({
     if (!editor) return undefined;
     return {
       title,
+      slug: slug.trim() || null,
       description,
       content: editor.getJSON() as Post["content"],
     };
-  }, [title, description]);
+  }, [title, slug, description]);
 
   const handleSave = useCallback(() => {
     const fields = currentFields();
     if (!fields) return;
-    run("save", () => updatePost({ id: post.id, patch: fields }));
+    run("save", () => savePost(post.id, fields));
   }, [currentFields, post.id, run]);
 
   // Publishes what's on screen, including edits that haven't been saved yet.
   const handlePublish = useCallback(() => {
     const fields = currentFields();
     if (!fields) return;
-    run("publish", () =>
-      updatePost({ id: post.id, patch: { ...fields, isPublished: true } }),
-    );
+    run("publish", () => savePost(post.id, { ...fields, isPublished: true }));
   }, [currentFields, post.id, run]);
 
   const handleUnpublish = useCallback(() => {
-    run("unpublish", () =>
-      updatePost({ id: post.id, patch: { isPublished: false } }),
-    );
+    run("unpublish", () => savePost(post.id, { isPublished: false }));
   }, [post.id, run]);
 
   const handleDiscard = useCallback(async () => {
@@ -132,6 +149,7 @@ export function EditorWithSave({
     const row = await run("discard", () => discardDraft(post.id));
     if (!row) return;
     setTitle(row.title);
+    setSlug(row.slug ?? "");
     setDescription(row.description);
     editorRef.current?.commands.setContent(row.content);
   }, [confirming, post.id, run]);
@@ -143,7 +161,7 @@ export function EditorWithSave({
     }
     setConfirming(null);
     const row = await run("delete", () =>
-      updatePost({ id: post.id, patch: { deletedAt: new Date() } }),
+      savePost(post.id, { deletedAt: new Date() }),
     );
     if (row) router.push("/editor");
   }, [confirming, post.id, run, router]);
@@ -218,8 +236,21 @@ export function EditorWithSave({
             variant="default"
           />
         </div>
+        <label className="flex items-center gap-1 font-mono text-xs text-[#f5f2e8]">
+          <span aria-hidden>/</span>
+          <input
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
+            placeholder="post-slug"
+            aria-label="Slug"
+            spellCheck={false}
+            autoCapitalize="none"
+            autoCorrect="off"
+            className="w-56 rounded-sm border border-[#f5f2e8]/40 bg-black/30 px-1.5 py-1 outline-none placeholder:text-current/50 focus:border-[#f5f2e8]"
+          />
+        </label>
         <span
-          className={`text-xs ${message?.error ? "text-destructive" : "text-[#f5f2e8]"}`}
+          className={`max-w-72 text-right text-xs ${message?.error ? "text-destructive" : "text-[#f5f2e8]"}`}
         >
           {pending
             ? ACTION_TEXT[pending].pending
