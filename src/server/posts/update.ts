@@ -36,18 +36,18 @@ export async function updatePost(
 ): Promise<UpdatePostResult> {
   requireWriteAccess();
   const parsed = updatePostSchema.parse(input);
-  let row;
+  let updated;
   try {
-    row = await updatePostService(parsed);
+    updated = await updatePostService(parsed);
   } catch (error) {
     const message = constraintMessage(error);
     if (!message) throw error;
     return { error: message };
   }
-  if (!row) throw new Error(`Post ${parsed.id} not found`);
+  if (!updated) throw new Error(`Post ${parsed.id} not found`);
   // Only publishing, unpublishing and deleting change what the public site shows
   if (parsed.patch.isPublished !== undefined || parsed.patch.deletedAt) {
-    revalidatePostTags(row);
+    revalidatePostTags(updated.post, updated.previousSlug);
   }
-  return { post: row };
+  return { post: updated.post };
 }

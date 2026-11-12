@@ -4,7 +4,10 @@ import { posts, type Post } from "@/db/schema";
 import type { UpdatePostInput } from "@/domain-types/posts/schema";
 import { liveFields } from "./draft";
 
-/** Applies a patch to an existing post. Returns undefined if no such post. */
+/**
+ * Applies a patch to an existing post. Returns the updated row and the slug it
+ * had before, or undefined if no such post.
+ */
 export async function updatePostService({ id, patch }: UpdatePostInput) {
   const { isPublished, deletedAt, ...draftFields } = patch;
 
@@ -41,6 +44,6 @@ export async function updatePostService({ id, patch }: UpdatePostInput) {
       .set(changes)
       .where(eq(posts.id, id))
       .returning();
-    return row;
+    return { post: row, previousSlug: current.slug };
   });
 }

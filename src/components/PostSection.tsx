@@ -351,7 +351,7 @@ function PostCard({
   return (
     <MotionLink
       ref={cardRef}
-      href={`/${post.id}`}
+      href={`/${post.slug}`}
       className="group absolute top-0 left-0 flex flex-col gap-3 rounded-md border-2 border-black bg-background p-5 text-start text-primary no-underline shadow-sm focus-visible:outline-none"
       style={{ width: cardW, x, y }}
       // Stop the browser's native link drag from hijacking ours.

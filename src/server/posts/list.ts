@@ -5,6 +5,7 @@ import { listPostService } from "@/services/posts/list";
 
 export const listInputSchema = z.object({
   postIds: z.array(z.number().int().positive()).min(1).optional(),
+  slug: z.string().optional(),
 });
 
 export type ListInput = z.infer<typeof listInputSchema>;
