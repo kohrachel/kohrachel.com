@@ -15,6 +15,7 @@ import type { JSONContent } from "@tiptap/core";
 
 export type PostDraft = {
   title: string;
+  slug: string | null;
   description: string;
   content: JSONContent;
 };

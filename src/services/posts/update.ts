@@ -20,7 +20,7 @@ export async function updatePostService({ id, patch }: UpdatePostInput) {
 
     let draft = current.draft;
     if (Object.keys(draftFields).length > 0) {
-      draft = { ...(draft ?? liveFields(current)), ...draftFields };
+      draft = { ...liveFields(current), ...draft, ...draftFields };
       changes.draft = draft;
     }
 

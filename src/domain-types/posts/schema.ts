@@ -1,11 +1,12 @@
 import { z } from "zod";
-import { IPost } from "@/db/schema";
+import type { IPost, Post } from "@/db/schema";
 
 // Fields the editor is allowed to change. `.strict()` rejects anything else,
 // so a new editable field has to be added here on purpose.
 export const postPatchSchema = z
   .object({
     title: z.string(),
+    slug: z.string().nullable(),
     description: z.string(),
     content: z.custom<IPost["content"]>(),
     isPublished: z.boolean(),
@@ -22,4 +23,5 @@ export const updatePostSchema = z.object({
 export const postIdSchema = z.number().int().positive();
 
 export type PostPatch = z.infer<typeof postPatchSchema>;
+export type UpdatePostResult = { post: Post } | { error: string };
 export type UpdatePostInput = z.infer<typeof updatePostSchema>;

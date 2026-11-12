@@ -5,6 +5,7 @@ import { posts, type Post, type PostDraft } from "@/db/schema";
 export function liveFields(post: Post): PostDraft {
   return {
     title: post.title,
+    slug: post.slug,
     description: post.description,
     content: post.content,
   };
