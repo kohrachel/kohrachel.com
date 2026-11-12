@@ -13,7 +13,7 @@ import { PostBody } from "@/components/post/post-body";
 // refreshes edited posts.
 export async function generateStaticParams() {
   const posts = await listPosts({});
-  return posts.map((post) => ({ slug: String(post.id) }));
+  return posts.flatMap((post) => (post.slug ? [{ slug: post.slug }] : []));
 }
 
 export default function SinglePost({ params }: PageProps<"/[slug]">) {
@@ -30,8 +30,7 @@ async function PostContent({
   params: PageProps<"/[slug]">["params"];
 }) {
   const { slug } = await params;
-  const id = Number(slug);
-  const [post] = await listPosts({ postIds: [id] });
+  const [post] = await listPosts({ slug });
   if (!post || !post.content.content) notFound();
 
   const { title, description, publishedAt, createdAt } = post;
