@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { notFound, permanentRedirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { listPosts } from "@/server/posts/list";
 import { renderPostContent } from "@/services/posts/render";
 import { getPostBannerUrl } from "@/services/posts/banner";
@@ -30,17 +30,6 @@ async function PostContent({
   params: PageProps<"/[slug]">["params"];
 }) {
   const { slug } = await params;
-
-  // Posts used to live at /<id>. Slugs are never purely numeric, so a numeric
-  // param is an old link: send it to the post's slug URL.
-  if (/^\d+$/.test(slug)) {
-    const id = Number(slug);
-    if (!Number.isSafeInteger(id) || id <= 0) notFound();
-    const [byId] = await listPosts({ postIds: [id] });
-    if (!byId?.slug) notFound();
-    permanentRedirect(`/${byId.slug}`);
-  }
-
   const [post] = await listPosts({ slug });
   if (!post || !post.content.content) notFound();
 
