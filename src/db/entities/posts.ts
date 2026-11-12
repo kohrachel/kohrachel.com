@@ -1,12 +1,14 @@
 import {
   bigint,
   boolean,
+  check,
   integer,
   jsonb,
   pgTable,
   primaryKey,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import type { JSONContent } from "@tiptap/core";
@@ -27,6 +29,7 @@ export const posts = pgTable.withRLS(
       .default(sql`now()`)
       .notNull(),
     title: text().default("").notNull(),
+    slug: text(),
     description: text().default("").notNull(),
     viewCount: integer("view_count").default(0),
     isPublished: boolean("is_published").default(false).notNull(),
@@ -45,7 +48,17 @@ export const posts = pgTable.withRLS(
   // Supabase anon/authenticated roles that back the auto-generated Data API.
   // The app is unaffected: it connects as the table owner over DATABASE_URL,
   // which bypasses RLS. This is portable standard Postgres (no Supabase roles).
-  (table) => [primaryKey({ columns: [table.id], name: "Posts_pkey" })],
+  (table) => [
+    primaryKey({ columns: [table.id], name: "Posts_pkey" }),
+    uniqueIndex("posts_slug_unique")
+      .on(table.slug)
+      .where(sql`${table.deletedAt} is null`),
+    check(
+      "posts_slug_format_check",
+      sql`${table.slug} ~ '^[a-z0-9]+(-[a-z0-9]+)*$' and ${table.slug} !~ '^[0-9]+$'`,
+    ),
+    check("posts_slug_reserved_check", sql`${table.slug} not in ('editor')`),
+  ],
 );
 
 // Infer types
