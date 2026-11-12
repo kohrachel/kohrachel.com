@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { listPosts } from "@/server/posts/list";
-import { renderNode } from "@/services/posts/render";
+import { renderPostContent } from "@/services/posts/render";
 import { getPostBannerUrl } from "@/services/posts/banner";
 import { humanDate } from "@/lib/utils";
 import { PostHeader } from "@/components/post/post-header";
@@ -44,9 +44,7 @@ async function PostContent({
         description={description || null}
         date={humanDate(publishedAt ?? createdAt)}
       />
-      <PostBody>
-        {post.content.content.map((node, i) => renderNode(node, i))}
-      </PostBody>
+      <PostBody>{renderPostContent(post.content)}</PostBody>
     </>
   );
 }
