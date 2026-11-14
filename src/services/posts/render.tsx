@@ -2,6 +2,7 @@ import type { JSONContent } from "@tiptap/core";
 import { renderToReactElement } from "@tiptap/static-renderer/pm/react";
 import Link from "next/link";
 import { contentExtensions } from "@/components/post/content-extensions";
+import { storage } from "@/services/storage";
 
 function warnUnhandled(kind: "node" | "mark", type: string) {
   if (process.env.NODE_ENV !== "production") {
@@ -45,6 +46,18 @@ export function renderPostContent(content: JSONContent) {
       },
       nodeMapping: {
         horizontalRule: () => <hr />,
+        image: ({ node }) => {
+          const { src, bucket, key, alt, title, width, height } = node.attrs;
+          return (
+            <img
+              src={bucket && key ? storage.getPublicUrl(bucket, key) : src}
+              alt={alt ?? ""}
+              title={title ?? undefined}
+              width={width ?? undefined}
+              height={height ?? undefined}
+            />
+          );
+        },
       },
       unhandledNode: ({ node, children }) => {
         warnUnhandled("node", node.type.name);
