@@ -12,6 +12,7 @@ import {
 // --- Tiptap Core Extensions ---
 import { Typography } from "@tiptap/extension-typography";
 import { FindAndReplace } from "@tiptap/extension-find-and-replace";
+import { FileHandler } from "@tiptap/extension-file-handler";
 import { Placeholder, Selection } from "@tiptap/extensions";
 
 // --- UI Primitives ---
@@ -26,6 +27,15 @@ import {
 // --- Tiptap Node ---
 import { ImageUploadNode } from "@/components/tiptap/node/image-upload-node/image-upload-node-extension";
 import { contentExtensions } from "@/components/post/content-extensions";
+import { EditorPostImage } from "@/components/tiptap/node/image-node/editor-post-image";
+import {
+  insertUploadedImages,
+  uploadPostImageFile,
+} from "@/components/tiptap/node/image-node/upload-post-image";
+import {
+  POST_IMAGE_MAX_BYTES,
+  POST_IMAGE_TYPES,
+} from "@/domain-types/posts/image";
 import "@/components/tiptap/templates/simple/editor-affordances.css";
 
 // --- Tiptap UI ---
@@ -65,7 +75,6 @@ import { useCursorVisibility } from "@/hooks/use-cursor-visibility";
 // --- Components ---
 
 // --- Lib ---
-import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
 
 // --- Styles ---
 import "@/components/tiptap/templates/simple/simple-editor.scss";
@@ -193,13 +202,26 @@ const MobileToolbarContent = ({
   </>
 );
 
+const IMAGE_MIME_TYPES = Object.keys(POST_IMAGE_TYPES);
+
 export function SimpleEditor({
   onEditorReady,
+  onImageError,
   initialContent,
 }: {
   onEditorReady?: (editor: Editor) => void;
+  onImageError?: (error: Error) => void;
   initialContent?: JSONContent;
 } = {}) {
+  const onImageErrorRef = useRef(onImageError);
+  useEffect(() => {
+    onImageErrorRef.current = onImageError;
+  });
+  const reportImageError = (error: Error) => {
+    console.warn("Image upload failed:", error);
+    onImageErrorRef.current?.(error);
+  };
+
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">(
@@ -221,7 +243,9 @@ export function SimpleEditor({
       },
     },
     extensions: [
-      ...contentExtensions,
+      ...contentExtensions.map((extension) =>
+        extension.name === EditorPostImage.name ? EditorPostImage : extension,
+      ),
       Typography,
       Selection,
       FindAndReplace.configure({
@@ -229,11 +253,26 @@ export function SimpleEditor({
         injectCSS: false,
       }),
       ImageUploadNode.configure({
-        accept: "image/*",
-        maxSize: MAX_FILE_SIZE,
+        accept: IMAGE_MIME_TYPES.join(","),
+        maxSize: POST_IMAGE_MAX_BYTES,
         limit: 3,
-        upload: handleImageUpload,
-        onError: (error) => console.error("Upload failed:", error),
+        upload: uploadPostImageFile,
+        onError: (error) => console.warn("Image upload failed:", error),
+      }),
+      FileHandler.configure({
+        allowedMimeTypes: IMAGE_MIME_TYPES,
+        onPaste: (editor, files, htmlContent) => {
+          if (htmlContent) return false;
+          insertUploadedImages(
+            editor,
+            files,
+            editor.state.selection.anchor,
+            reportImageError,
+          );
+        },
+        onDrop: (editor, files, pos) => {
+          insertUploadedImages(editor, files, pos, reportImageError);
+        },
       }),
       Placeholder.configure({
         placeholder: "enter some text here! :)"

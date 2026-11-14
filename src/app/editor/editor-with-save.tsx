@@ -286,6 +286,9 @@ export function EditorWithSave({
       <PostBody onMouseDown={focusEditorFromBox}>
         <SimpleEditor
           onEditorReady={handleEditorReady}
+          onImageError={(error) =>
+            setMessage({ text: error.message, error: true })
+          }
           initialContent={post.content}
         />
       </PostBody>

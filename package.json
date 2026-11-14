@@ -17,6 +17,7 @@
     "@radix-ui/react-popover": "^1.1.23",
     "@supabase/supabase-js": "^2.116.0",
     "@tiptap/core": "^3.31.3",
+    "@tiptap/extension-file-handler": "^3.31.3",
     "@tiptap/extension-find-and-replace": "^3.31.3",
     "@tiptap/extension-highlight": "^3.31.3",
     "@tiptap/extension-horizontal-rule": "^3.31.3",

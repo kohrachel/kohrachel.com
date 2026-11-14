@@ -37,7 +37,8 @@
   outline: 0.125rem solid transparent;
 }
 
-.tiptap.ProseMirror img.ProseMirror-selectednode {
+.tiptap.ProseMirror img.ProseMirror-selectednode,
+.tiptap.ProseMirror .ProseMirror-selectednode img {
   outline-color: var(--tt-brand-color-500);
 }
 

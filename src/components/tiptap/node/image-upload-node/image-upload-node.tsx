@@ -7,6 +7,7 @@ import { Button } from "@/components/tiptap/ui-primitive/button";
 import { CloseIcon } from "@/components/tiptap/icons/close-icon";
 import "@/components/tiptap/node/image-upload-node/image-upload-node.scss";
 import { focusNextNode, isValidPosition } from "@/lib/tiptap-utils";
+import { altFromFilename } from "@/components/tiptap/node/image-node/upload-post-image";
 
 export interface FileItem {
   /**
@@ -28,10 +29,10 @@ export interface FileItem {
   status: "uploading" | "success" | "error";
 
   /**
-   * URL to the uploaded file, available after successful upload
+   * Why the upload failed, when status is "error"
    * @optional
    */
-  url?: string;
+  error?: string;
   /**
    * Controller that can be used to abort the upload process
    * @optional
@@ -58,19 +59,18 @@ export interface UploadOptions {
    * @param {File} file - The file to be uploaded
    * @param {Function} onProgress - Callback function to report upload progress
    * @param {AbortSignal} signal - Signal that can be used to abort the upload
-   * @returns {Promise<string>} Promise resolving to the URL of the uploaded file
+   * @returns Promise resolving to the attributes of the image node to insert
    */
   upload: (
     file: File,
     onProgress: (event: { progress: number }) => void,
     signal: AbortSignal,
-  ) => Promise<string>;
+  ) => Promise<Record<string, unknown>>;
   /**
    * Callback triggered when a file is uploaded successfully
-   * @param {string} url - URL of the successfully uploaded file
    * @optional
    */
-  onSuccess?: (url: string) => void;
+  onSuccess?: (attrs: Record<string, unknown>) => void;
   /**
    * Callback triggered when an error occurs during upload
    * @param {Error} error - The error that occurred
@@ -85,15 +85,9 @@ export interface UploadOptions {
 function useFileUpload(options: UploadOptions) {
   const [fileItems, setFileItems] = useState<FileItem[]>([]);
 
-  const uploadFile = async (file: File): Promise<string | null> => {
-    if (file.size > options.maxSize) {
-      const error = new Error(
-        `File size exceeds maximum allowed (${options.maxSize / 1024 / 1024}MB)`,
-      );
-      options.onError?.(error);
-      return null;
-    }
-
+  const uploadFile = async (
+    file: File,
+  ): Promise<Record<string, unknown> | null> => {
     const abortController = new AbortController();
     const fileId = crypto.randomUUID();
 
@@ -112,7 +106,7 @@ function useFileUpload(options: UploadOptions) {
         throw new Error("Upload function is not defined");
       }
 
-      const url = await options.upload(
+      const attrs = await options.upload(
         file,
         (event: { progress: number }) => {
           setFileItems((prev) =>
@@ -124,27 +118,27 @@ function useFileUpload(options: UploadOptions) {
         abortController.signal,
       );
 
-      if (!url) throw new Error("Upload failed: No URL returned");
-
       if (!abortController.signal.aborted) {
         setFileItems((prev) =>
           prev.map((item) =>
             item.id === fileId
-              ? { ...item, status: "success", url, progress: 100 }
+              ? { ...item, status: "success", progress: 100 }
               : item,
           ),
         );
-        options.onSuccess?.(url);
-        return url;
+        options.onSuccess?.(attrs);
+        return attrs;
       }
 
       return null;
     } catch (error) {
       if (!abortController.signal.aborted) {
+        const message =
+          error instanceof Error ? error.message : "Upload failed";
         setFileItems((prev) =>
           prev.map((item) =>
             item.id === fileId
-              ? { ...item, status: "error", progress: 0 }
+              ? { ...item, status: "error", progress: 0, error: message }
               : item,
           ),
         );
@@ -156,7 +150,9 @@ function useFileUpload(options: UploadOptions) {
     }
   };
 
-  const uploadFiles = async (files: File[]): Promise<string[]> => {
+  const uploadFiles = async (
+    files: File[],
+  ): Promise<(Record<string, unknown> | null)[]> => {
     if (!files || files.length === 0) {
       options.onError?.(new Error("No files to upload"));
       return [];
@@ -171,12 +167,8 @@ function useFileUpload(options: UploadOptions) {
       return [];
     }
 
-    // Upload all files concurrently
-    const uploadPromises = files.map((file) => uploadFile(file));
-    const results = await Promise.all(uploadPromises);
-
-    // Filter out null results (failed uploads)
-    return results.filter((url): url is string => url !== null);
+    // Upload all files concurrently; null marks a failed upload
+    return Promise.all(files.map((file) => uploadFile(file)));
   };
 
   const removeFileItem = (fileId: string) => {
@@ -184,9 +176,6 @@ function useFileUpload(options: UploadOptions) {
       const fileToRemove = prev.find((item) => item.id === fileId);
       if (fileToRemove?.abortController) {
         fileToRemove.abortController.abort();
-      }
-      if (fileToRemove?.url) {
-        URL.revokeObjectURL(fileToRemove.url);
       }
       return prev.filter((item) => item.id !== fileId);
     });
@@ -196,9 +185,6 @@ function useFileUpload(options: UploadOptions) {
     fileItems.forEach((item) => {
       if (item.abortController) {
         item.abortController.abort();
-      }
-      if (item.url) {
-        URL.revokeObjectURL(item.url);
       }
     });
     setFileItems([]);
@@ -381,9 +367,15 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
             <span className="tiptap-image-upload-text">
               {fileItem.file.name}
             </span>
-            <span className="tiptap-image-upload-subtext">
-              {formatFileSize(fileItem.file.size)}
-            </span>
+            {fileItem.status === "error" ? (
+              <span className="tiptap-image-upload-subtext text-destructive">
+                {fileItem.error}
+              </span>
+            ) : (
+              <span className="tiptap-image-upload-subtext">
+                {formatFileSize(fileItem.file.size)}
+              </span>
+            )}
           </div>
         </div>
         <div className="tiptap-image-upload-actions">
@@ -451,36 +443,34 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
     useFileUpload(uploadOptions);
 
   const handleUpload = async (files: File[]) => {
-    const urls = await uploadFiles(files);
-
-    if (urls.length > 0) {
-      const pos = props.getPos();
-
-      if (isValidPosition(pos)) {
-        const imageNodes = urls.map((url, index) => {
-          const filename =
-            files[index]?.name.replace(/\.[^/.]+$/, "") || "unknown";
-          return {
-            type: extension.options.type,
-            attrs: {
-              ...extension.options,
-              src: url,
-              alt: filename,
-              title: filename,
+    const results = await uploadFiles(files);
+    const imageNodes = results.flatMap((attrs, index) =>
+      attrs
+        ? [
+            {
+              type: extension.options.type,
+              attrs: { ...attrs, alt: altFromFilename(files[index]) },
             },
-          };
-        });
+          ]
+        : [],
+    );
+    const anyFailed = imageNodes.length < results.length;
+    const pos = props.getPos();
+    if (imageNodes.length === 0 || !isValidPosition(pos)) return;
 
-        props.editor
-          .chain()
-          .focus()
-          .deleteRange({ from: pos, to: pos + props.node.nodeSize })
-          .insertContentAt(pos, imageNodes)
-          .run();
-
-        focusNextNode(props.editor);
-      }
+    if (anyFailed) {
+      props.editor.chain().insertContentAt(pos, imageNodes).run();
+      return;
     }
+
+    props.editor
+      .chain()
+      .focus()
+      .deleteRange({ from: pos, to: pos + props.node.nodeSize })
+      .insertContentAt(pos, imageNodes)
+      .run();
+
+    focusNextNode(props.editor);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
