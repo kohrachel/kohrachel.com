@@ -1,7 +1,7 @@
 import type { Editor } from "@tiptap/react";
-import { postImageFileSchema } from "@/domain-types/posts/image";
+import { postImageUploadSchema } from "@/domain-types/posts/image";
 import { focusNextNode } from "@/lib/tiptap-utils";
-import { uploadPostImage } from "@/server/posts/upload-image";
+import { createPostImageUpload } from "@/server/posts/upload-image";
 
 export type UploadedImageAttrs = {
   bucket: string;
@@ -13,7 +13,10 @@ export type UploadedImageAttrs = {
 export async function uploadPostImageFile(
   file: File,
 ): Promise<UploadedImageAttrs> {
-  const parsed = postImageFileSchema.safeParse(file);
+  const parsed = postImageUploadSchema.safeParse({
+    type: file.type,
+    size: file.size,
+  });
   if (!parsed.success) {
     throw new Error(parsed.error.issues[0]?.message ?? "Invalid image");
   }
@@ -22,9 +25,16 @@ export async function uploadPostImageFile(
   const { width, height } = bitmap;
   bitmap.close();
 
-  const formData = new FormData();
-  formData.append("file", file);
-  const { bucket, key } = await uploadPostImage(formData);
+  const { bucket, key, url } = await createPostImageUpload(parsed.data);
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: { "content-type": file.type },
+    body: file,
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.message ?? `Upload failed (${res.status})`);
+  }
   return { bucket, key, width, height };
 }
 
