@@ -1,11 +1,13 @@
 "use server";
 
 import { requireWriteAccess } from "@/server/auth/gate";
-import { uploadPostImageService } from "@/services/posts/images";
-import { postImageFileSchema } from "@/domain-types/posts/image";
+import { createPostImageUploadService } from "@/services/posts/images";
+import {
+  postImageUploadSchema,
+  type PostImageUpload,
+} from "@/domain-types/posts/image";
 
-export async function uploadPostImage(formData: FormData) {
+export async function createPostImageUpload(input: PostImageUpload) {
   requireWriteAccess();
-  const file = postImageFileSchema.parse(formData.get("file"));
-  return uploadPostImageService(file);
+  return createPostImageUploadService(postImageUploadSchema.parse(input));
 }

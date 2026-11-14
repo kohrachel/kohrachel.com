@@ -2,17 +2,12 @@ import { randomUUID } from "node:crypto";
 import { BUCKETS, storage } from "@/services/storage";
 import {
   POST_IMAGE_TYPES,
-  type PostImageType,
+  type PostImageUpload,
 } from "@/domain-types/posts/image";
 
-export async function uploadPostImageService(file: File) {
+export async function createPostImageUploadService({ type }: PostImageUpload) {
   const bucket = BUCKETS.postImages;
-  const ext = POST_IMAGE_TYPES[file.type as PostImageType];
-  const key = await storage.upload(
-    bucket,
-    `${randomUUID()}.${ext}`,
-    file,
-    file.type,
-  );
-  return { bucket, key };
+  const key = `${randomUUID()}.${POST_IMAGE_TYPES[type]}`;
+  const { url } = await storage.createUploadUrl(bucket, key);
+  return { bucket, key, url };
 }

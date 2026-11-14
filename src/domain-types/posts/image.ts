@@ -12,10 +12,16 @@ export const POST_IMAGE_TYPES = {
 
 export type PostImageType = keyof typeof POST_IMAGE_TYPES;
 
-export const postImageFileSchema = z
-  .instanceof(File)
-  .refine((file) => file.size <= POST_IMAGE_MAX_BYTES, "Image is over 5MB")
-  .refine(
-    (file) => file.type in POST_IMAGE_TYPES,
+export const postImageUploadSchema = z.object({
+  type: z.enum(
+    Object.keys(POST_IMAGE_TYPES) as [PostImageType, ...PostImageType[]],
     "Image must be PNG, JPEG, WebP, GIF or AVIF",
-  );
+  ),
+  size: z
+    .number()
+    .int()
+    .positive()
+    .max(POST_IMAGE_MAX_BYTES, "Image is over 5MB"),
+});
+
+export type PostImageUpload = z.infer<typeof postImageUploadSchema>;
