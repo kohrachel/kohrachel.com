@@ -1,12 +1,19 @@
 import { describe, expect, test } from "bun:test";
-import {
-  COMMON_PLATFORM_HOSTS,
-  CommonPlatform,
-} from "@/domain-types/bluebook/links";
+import { CommonPlatform } from "@/domain-types/bluebook/links";
 import { normalizeUrl } from "./normalize";
 
-const { YouTube, Bilibili, X, Xiaohongshu, Instagram, Spotify } =
-  CommonPlatform;
+const {
+  YouTube,
+  Bilibili,
+  X,
+  Xiaohongshu,
+  Instagram,
+  Spotify,
+  Reddit,
+  Goodreads,
+  Wikipedia,
+  LinkedIn,
+} = CommonPlatform;
 
 const accepted: [string, CommonPlatform | null, string][] = [
   // YouTube videos
@@ -263,6 +270,179 @@ const accepted: [string, CommonPlatform | null, string][] = [
     "https://open.spotify.com/user/some.user_1",
   ],
 
+  // Reddit (the /s/ share links redirect to the first two)
+  [
+    "https://www.reddit.com/r/sysadmin/comments/1xwwks0/root_cause_of_faa_shutdown_newly_installed_hpe/",
+    Reddit,
+    "https://www.reddit.com/comments/1xwwks0/",
+  ],
+  [
+    "https://www.reddit.com/r/sysadmin/comments/1xwwks0/root_cause_of_faa_shutdown_newly_installed_hpe/?share_id=nE5DtKJdmi0c_QSvOV5kA&utm_content=share_button&utm_medium=web3x&utm_name=web3xcss&utm_source=share&utm_term=1",
+    Reddit,
+    "https://www.reddit.com/comments/1xwwks0/",
+  ],
+  [
+    "https://old.reddit.com/r/sysadmin/comments/1xwwks0/",
+    Reddit,
+    "https://www.reddit.com/comments/1xwwks0/",
+  ],
+  [
+    "https://redd.it/1xwwks0",
+    Reddit,
+    "https://www.reddit.com/comments/1xwwks0/",
+  ],
+  [
+    "https://www.reddit.com/r/it/comments/1xvqpal/comment/19sly67zdi6v4/",
+    Reddit,
+    "https://www.reddit.com/comments/1xvqpal/comment/19sly67zdi6v4/",
+  ],
+  [
+    "https://www.reddit.com/r/it/comments/1xvqpal/comment/19sly67zdi6v4/?share_id=3YgJeG8OOGXwDVRzQzkNZ&utm_source=share",
+    Reddit,
+    "https://www.reddit.com/comments/1xvqpal/comment/19sly67zdi6v4/",
+  ],
+  [
+    "https://www.reddit.com/r/it/comments/1xvqpal/some_title/19sly67zdi6v4/",
+    Reddit,
+    "https://www.reddit.com/comments/1xvqpal/comment/19sly67zdi6v4/",
+  ],
+  [
+    "https://www.reddit.com/r/SysAdmin/",
+    Reddit,
+    "https://www.reddit.com/r/sysadmin/",
+  ],
+  [
+    "https://www.reddit.com/u/SomeOne",
+    Reddit,
+    "https://www.reddit.com/user/someone/",
+  ],
+
+  // Goodreads (each edition of a book has its own id)
+  [
+    "https://www.goodreads.com/book/show/54493401-project-hail-mary",
+    Goodreads,
+    "https://www.goodreads.com/book/show/54493401",
+  ],
+  [
+    "https://www.goodreads.com/book/show/222697645-project-hail-mary",
+    Goodreads,
+    "https://www.goodreads.com/book/show/222697645",
+  ],
+  [
+    "https://www.goodreads.com/book/show/1513773",
+    Goodreads,
+    "https://www.goodreads.com/book/show/1513773",
+  ],
+  [
+    "https://www.goodreads.com/book/show/54493401.Project_Hail_Mary?from_search=true",
+    Goodreads,
+    "https://www.goodreads.com/book/show/54493401",
+  ],
+  [
+    "https://www.goodreads.com/author/show/10657.Enid_Blyton",
+    Goodreads,
+    "https://www.goodreads.com/author/show/10657",
+  ],
+  [
+    "https://www.goodreads.com/author/show/7025402.____________",
+    Goodreads,
+    "https://www.goodreads.com/author/show/7025402",
+  ],
+  [
+    "https://www.goodreads.com/series/43865-the-naughtiest-girl",
+    Goodreads,
+    "https://www.goodreads.com/series/43865",
+  ],
+
+  // Wikipedia (w.wiki/3hPF and w.wiki/_zLen redirect to the first one)
+  [
+    "https://en.wikipedia.org/wiki/Mariah_Carey",
+    Wikipedia,
+    "https://en.wikipedia.org/wiki/Mariah_Carey",
+  ],
+  [
+    "https://en.wikipedia.org/wiki/Mariah_Carey?wprov=shhu0",
+    Wikipedia,
+    "https://en.wikipedia.org/wiki/Mariah_Carey",
+  ],
+  [
+    "https://en.m.wikipedia.org/wiki/Mariah_Carey#Early_life",
+    Wikipedia,
+    "https://en.wikipedia.org/wiki/Mariah_Carey",
+  ],
+  [
+    "https://en.wikipedia.org/wiki/mariah Carey",
+    Wikipedia,
+    "https://en.wikipedia.org/wiki/Mariah_Carey",
+  ],
+  [
+    "https://en.wikipedia.org/w/index.php?title=Mariah_Carey",
+    Wikipedia,
+    "https://en.wikipedia.org/wiki/Mariah_Carey",
+  ],
+  [
+    "https://en.wikipedia.org/wiki/Goldfish_(disambiguation)",
+    Wikipedia,
+    "https://en.wikipedia.org/wiki/Goldfish_(disambiguation)",
+  ],
+  [
+    "https://zh.wikipedia.org/wiki/%E7%91%AA%E9%BA%97%E4%BA%9E%C2%B7%E5%87%B1%E8%8E%89",
+    Wikipedia,
+    "https://zh.wikipedia.org/wiki/%E7%91%AA%E9%BA%97%E4%BA%9E%C2%B7%E5%87%B1%E8%8E%89",
+  ],
+  [
+    "https://zh.wikipedia.org/wiki/瑪麗亞·凱莉",
+    Wikipedia,
+    "https://zh.wikipedia.org/wiki/%E7%91%AA%E9%BA%97%E4%BA%9E%C2%B7%E5%87%B1%E8%8E%89",
+  ],
+  [
+    "https://zh.m.wikipedia.org/zh-hans/%E7%91%AA%E9%BA%97%E4%BA%9E%C2%B7%E5%87%B1%E8%8E%89",
+    Wikipedia,
+    "https://zh.wikipedia.org/wiki/%E7%91%AA%E9%BA%97%E4%BA%9E%C2%B7%E5%87%B1%E8%8E%89",
+  ],
+
+  // LinkedIn (lnkd.in/p/… share links redirect to the post, repost and comment links)
+  [
+    "https://www.linkedin.com/in/kohrh/",
+    LinkedIn,
+    "https://www.linkedin.com/in/kohrh/",
+  ],
+  [
+    "https://www.linkedin.com/in/KohRH?trk=public_profile",
+    LinkedIn,
+    "https://www.linkedin.com/in/kohrh/",
+  ],
+  [
+    "https://www.linkedin.com/feed/update/urn:li:activity:7497938302063235073/",
+    LinkedIn,
+    "https://www.linkedin.com/feed/update/urn:li:activity:7497938302063235073/",
+  ],
+  [
+    "https://www.linkedin.com/posts/saydolim_what-stores-tell-you-that-pos-cannot-share-7479935058749902848-Xjys/?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAAD5_V6ABHQHxs1WhDoBFQfwrWn61mtuft28",
+    LinkedIn,
+    "https://www.linkedin.com/feed/update/urn:li:share:7479935058749902848/",
+  ],
+  [
+    "https://www.linkedin.com/feed/update/urn:li:activity:7479935996336312320/?utm_source=share&utm_medium=member_desktop&rcm=ACoAAD5_V6ABHQHxs1WhDoBFQfwrWn61mtuft28",
+    LinkedIn,
+    "https://www.linkedin.com/feed/update/urn:li:activity:7479935996336312320/",
+  ],
+  [
+    "https://www.linkedin.com/feed/update/urn:li:activity:7497938302063235073/?dashCommentUrn=urn%3Ali%3Afsd_comment%3A%287497940407838720001%2Curn%3Ali%3Aactivity%3A7497938302063235073%29",
+    LinkedIn,
+    "https://www.linkedin.com/feed/update/urn:li:activity:7497938302063235073/?dashCommentUrn=urn%3Ali%3Afsd_comment%3A(7497940407838720001%2Curn%3Ali%3Aactivity%3A7497938302063235073)",
+  ],
+  [
+    "https://www.linkedin.com/feed/update/urn:li:activity:7497938302063235073/?commentUrn=urn%3Ali%3Acomment%3A%28activity%3A7497938302063235073%2C7497940407838720001%29",
+    LinkedIn,
+    "https://www.linkedin.com/feed/update/urn:li:activity:7497938302063235073/?dashCommentUrn=urn%3Ali%3Afsd_comment%3A(7497940407838720001%2Curn%3Ali%3Aactivity%3A7497938302063235073)",
+  ],
+  [
+    "https://www.linkedin.com/company/anthropicresearch/about/",
+    LinkedIn,
+    "https://www.linkedin.com/company/anthropicresearch/",
+  ],
+
   // Any other site
   [
     "https://www.example.com/blog/post/?utm_source=newsletter&utm_medium=email&fbclid=IwAR0",
@@ -279,11 +459,6 @@ const accepted: [string, CommonPlatform | null, string][] = [
     "https://news.ycombinator.com/item?id=12345",
     null,
     "https://news.ycombinator.com/item?id=12345",
-  ],
-  [
-    "https://en.wikipedia.org/wiki/Goldfish_(disambiguation)",
-    null,
-    "https://en.wikipedia.org/wiki/Goldfish_(disambiguation)",
   ],
   ["https://m.example.com/article", null, "https://m.example.com/article"],
 ];
@@ -306,6 +481,14 @@ const rejected: [string, CommonPlatform][] = [
   ["https://www.instagram.com/stories/someone/1234/", Instagram],
   ["https://open.spotify.com/", Spotify],
   ["https://open.spotify.com/search/goldfish", Spotify],
+  ["https://www.reddit.com/", Reddit],
+  ["https://www.reddit.com/r/sysadmin/s/iZTpMU7Rs5", Reddit],
+  ["https://www.goodreads.com/", Goodreads],
+  ["https://www.goodreads.com/search?q=hail+mary", Goodreads],
+  ["https://en.wikipedia.org/", Wikipedia],
+  ["https://w.wiki/3hPF", Wikipedia],
+  ["https://www.linkedin.com/feed/", LinkedIn],
+  ["https://lnkd.in/p/gZh9EeEp", LinkedIn],
 ];
 
 /** Mirrors the generated `items.platform` column and its check in Postgres. */
@@ -339,7 +522,10 @@ describe("normalizeUrl", () => {
       if (!result.ok) throw new Error("expected ok");
       const platform = databasePlatform(result.normalizedUrl);
       if (commonPlatform) {
-        expect(COMMON_PLATFORM_HOSTS[commonPlatform]).toContain(platform);
+        expect(
+          platform === commonPlatform ||
+            platform.endsWith(`.${commonPlatform}`),
+        ).toBe(true);
       }
     },
   );

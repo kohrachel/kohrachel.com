@@ -4,8 +4,9 @@
  * still works, with general cleanup. Add a platform here when code needs to
  * treat it differently, not because it's popular.
  *
- * Each value is the `items.platform` the database generates for that
- * platform's main pages, so these are a subset of the stored values.
+ * Each value is a domain. The `items.platform` the database generates for a
+ * common platform's pages is that domain or one of its subdomains, such as
+ * `space.bilibili.com` or `zh.wikipedia.org`.
  */
 export enum CommonPlatform {
   YouTube = "youtube.com",
@@ -13,7 +14,11 @@ export enum CommonPlatform {
   X = "x.com",
   Xiaohongshu = "xiaohongshu.com",
   Instagram = "instagram.com",
-  Spotify = "open.spotify.com",
+  Spotify = "spotify.com",
+  Reddit = "reddit.com",
+  Goodreads = "goodreads.com",
+  Wikipedia = "wikipedia.org",
+  LinkedIn = "linkedin.com",
 }
 
 export const COMMON_PLATFORM_NAMES: Record<CommonPlatform, string> = {
@@ -23,11 +28,15 @@ export const COMMON_PLATFORM_NAMES: Record<CommonPlatform, string> = {
   [CommonPlatform.Xiaohongshu]: "Xiaohongshu",
   [CommonPlatform.Instagram]: "Instagram",
   [CommonPlatform.Spotify]: "Spotify",
+  [CommonPlatform.Reddit]: "Reddit",
+  [CommonPlatform.Goodreads]: "Goodreads",
+  [CommonPlatform.Wikipedia]: "Wikipedia",
+  [CommonPlatform.LinkedIn]: "LinkedIn",
 };
 
 /**
  * Hosts whose links belong to each platform, without a leading `www.`.
- * Includes short-link hosts.
+ * Includes short-link hosts. `*.` matches any subdomain.
  */
 export const COMMON_PLATFORM_HOSTS: Record<CommonPlatform, readonly string[]> =
   {
@@ -54,6 +63,17 @@ export const COMMON_PLATFORM_HOSTS: Record<CommonPlatform, readonly string[]> =
       "spotify.link",
       "spoti.fi",
     ],
+    [CommonPlatform.Reddit]: [
+      "reddit.com",
+      "old.reddit.com",
+      "new.reddit.com",
+      "np.reddit.com",
+      "m.reddit.com",
+      "redd.it",
+    ],
+    [CommonPlatform.Goodreads]: ["goodreads.com", "m.goodreads.com"],
+    [CommonPlatform.Wikipedia]: ["*.wikipedia.org", "w.wiki"],
+    [CommonPlatform.LinkedIn]: ["linkedin.com", "lnkd.in"],
   };
 
 /**
@@ -93,6 +113,37 @@ export const CANONICAL_URL = {
 
   spotifyItem: (kind: SpotifyKind, id: string) =>
     `https://open.spotify.com/${kind}/${id}`,
+
+  redditPost: (id: string) => `https://www.reddit.com/comments/${id}/`,
+  redditComment: (postId: string, commentId: string) =>
+    `https://www.reddit.com/comments/${postId}/comment/${commentId}/`,
+  redditSubreddit: (name: string) => `https://www.reddit.com/r/${name}/`,
+  redditUser: (name: string) => `https://www.reddit.com/user/${name}/`,
+
+  goodreadsBook: (id: string) => `https://www.goodreads.com/book/show/${id}`,
+  goodreadsAuthor: (id: string) =>
+    `https://www.goodreads.com/author/show/${id}`,
+  goodreadsSeries: (id: string) => `https://www.goodreads.com/series/${id}`,
+
+  wikipediaArticle: (language: string, encodedTitle: string) =>
+    `https://${language}.wikipedia.org/wiki/${encodedTitle}`,
+
+  linkedinProfile: (handle: string) => `https://www.linkedin.com/in/${handle}/`,
+  linkedinCompany: (name: string) =>
+    `https://www.linkedin.com/company/${name}/`,
+  linkedinPost: (urn: LinkedInUrn) =>
+    `https://www.linkedin.com/feed/update/urn:li:${urn.type}:${urn.id}/`,
+  linkedinComment: (urn: LinkedInUrn, commentId: string) =>
+    `https://www.linkedin.com/feed/update/urn:li:${urn.type}:${urn.id}/?dashCommentUrn=${encodeURIComponent(
+      `urn:li:fsd_comment:(${commentId},urn:li:${urn.type}:${urn.id})`,
+    )}`,
+  linkedinArticle: (slug: string) => `https://www.linkedin.com/pulse/${slug}/`,
+};
+
+export const LINKEDIN_POST_TYPES = ["activity", "share", "ugcPost"] as const;
+export type LinkedInUrn = {
+  type: (typeof LINKEDIN_POST_TYPES)[number];
+  id: string;
 };
 
 export const SPOTIFY_KINDS = [
@@ -123,6 +174,20 @@ export const ID_PATTERNS = {
   spotifyId: /^[\w.-]+$/,
   /** Language prefixes in paths, such as `/en/` or `/zh-Hans/` on Bilibili. */
   localePath: /^[a-z]{2}(-[A-Za-z]{2,4})?$/,
+  redditId: /^[0-9a-z]+$/i,
+  redditName: /^[\w-]{2,21}$/,
+  goodreadsId: /^(\d+)(?:[-.].*)?$/,
+  wikipediaLanguage: /^[a-z][a-z0-9-]*$/,
+  /** Wikipedia paths for language variants, such as `/zh-hans/` or `/zh-tw/`. */
+  wikipediaVariantPath: /^zh(-[a-z]+)?$/,
+  linkedinHandle: /^[\w%-]+$/,
+  /** `/posts/<user>_<slug>-<type>-<id>-<suffix>`. */
+  linkedinPostSlug: /-(activity|share|ugcPost)-(\d+)(?:-[^-]+)?$/,
+  linkedinUrn: /^urn:li:(activity|share|ugcPost):(\d+)$/,
+  /** `dashCommentUrn`: `urn:li:fsd_comment:(<commentId>,urn:li:activity:<id>)`. */
+  linkedinDashCommentUrn: /^urn:li:fsd_comment:\((\d+),/,
+  /** `commentUrn`: `urn:li:comment:(activity:<id>,<commentId>)`. */
+  linkedinCommentUrn: /^urn:li:comment:\(\w+:\d+,(\d+)\)$/,
   /** Spotify's `/intl-ja/` style prefixes. */
   spotifyLocalePath: /^intl-[a-z]{2}(-[a-z]{2})?$/i,
 };
@@ -161,6 +226,12 @@ export const SHORT_LINK_HOSTS: readonly string[] = [
   "spoti.fi",
   "t.co",
   "lnkd.in",
+  "w.wiki",
+];
+
+/** Short links on a platform's main host, matched by path. */
+export const SHORT_LINK_PATHS: readonly { host: string; path: RegExp }[] = [
+  { host: "reddit.com", path: /^\/r\/[^/]+\/s\/[^/]+\/?$/ },
 ];
 
 /**
@@ -226,6 +297,10 @@ export const TRACKING_PARAMS: ReadonlySet<string> = new Set([
   "from_source",
   "xsec_token",
   "xsec_source",
+  "wprov",
+  "rcm",
+  "lipi",
+  "trk",
 ]);
 
 /** Bilibili's published constants for converting `av` numbers to `BV` ids. */

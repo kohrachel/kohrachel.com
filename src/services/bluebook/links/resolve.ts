@@ -4,6 +4,7 @@ import {
   INTERSTITIAL_LINK_PATTERNS,
   INTERSTITIAL_MAX_BYTES,
   SHORT_LINK_HOSTS,
+  SHORT_LINK_PATHS,
   SHORT_LINK_MAX_REDIRECTS as MAX_REDIRECTS,
   SHORT_LINK_TIMEOUT_MS as TIMEOUT_MS,
 } from "@/domain-types/bluebook/links";
@@ -13,7 +14,12 @@ function bareHost(url: string) {
 }
 
 export function isShortLink(url: string) {
-  return SHORT_LINK_HOSTS.includes(bareHost(url));
+  const host = bareHost(url);
+  const { pathname } = new URL(url);
+  return (
+    SHORT_LINK_HOSTS.includes(host) ||
+    SHORT_LINK_PATHS.some((p) => p.host === host && p.path.test(pathname))
+  );
 }
 
 /**

@@ -7,6 +7,7 @@ import {
   RESERVED_PROFILE_PATHS,
   SPOTIFY_KINDS,
   TRACKING_PARAMS,
+  type LinkedInUrn,
   type NormalizedLink,
   type SpotifyKind,
 } from "@/domain-types/bluebook/links";
@@ -42,7 +43,12 @@ export function normalizeUrl(input: string): NormalizedLink {
 export function commonPlatformForHost(host: string): CommonPlatform | null {
   const bare = host.toLowerCase().replace(/^www\./, "");
   for (const platform of Object.values(CommonPlatform)) {
-    if (COMMON_PLATFORM_HOSTS[platform].includes(bare)) return platform;
+    const matches = COMMON_PLATFORM_HOSTS[platform].some((pattern) =>
+      pattern.startsWith("*.")
+        ? bare.endsWith(pattern.slice(1))
+        : bare === pattern,
+    );
+    if (matches) return platform;
   }
   return null;
 }
@@ -66,6 +72,14 @@ function normalizeFor(
       return instagram(segments);
     case CommonPlatform.Spotify:
       return spotify(segments);
+    case CommonPlatform.Reddit:
+      return reddit(host, segments);
+    case CommonPlatform.Goodreads:
+      return goodreads(segments);
+    case CommonPlatform.Wikipedia:
+      return wikipedia(url, host, segments);
+    case CommonPlatform.LinkedIn:
+      return linkedin(url, segments);
     default:
       return assertExhaustive(platform);
   }
@@ -235,6 +249,117 @@ function spotify(segments: string[]) {
     return CANONICAL_URL.spotifyItem(kind as SpotifyKind, id);
   }
   return null;
+}
+
+function reddit(host: string, segments: string[]) {
+  if (host === "redd.it") {
+    const [id] = segments;
+    return id && ID_PATTERNS.redditId.test(id)
+      ? CANONICAL_URL.redditPost(id.toLowerCase())
+      : null;
+  }
+  const path = segments[0] === "r" ? segments.slice(2) : segments;
+  // `/r/<sub>/s/<code>` is a share link; it must be followed first.
+  if (path[0] === "s") return null;
+  const commentsIndex = path.indexOf("comments");
+  if (commentsIndex >= 0) {
+    const postId = path[commentsIndex + 1];
+    if (!postId || !ID_PATTERNS.redditId.test(postId)) return null;
+    // `/comments/<post>/comment/<id>` or `/comments/<post>/<slug>/<id>`.
+    const rest = path.slice(commentsIndex + 2);
+    const commentId = rest[1];
+    return commentId && ID_PATTERNS.redditId.test(commentId)
+      ? CANONICAL_URL.redditComment(
+          postId.toLowerCase(),
+          commentId.toLowerCase(),
+        )
+      : CANONICAL_URL.redditPost(postId.toLowerCase());
+  }
+  const [kind, name] = segments;
+  if (!name || !ID_PATTERNS.redditName.test(name)) return null;
+  if (kind === "r") return CANONICAL_URL.redditSubreddit(name.toLowerCase());
+  if (kind === "user" || kind === "u") {
+    return CANONICAL_URL.redditUser(name.toLowerCase());
+  }
+  return null;
+}
+
+function goodreads(segments: string[]) {
+  const [first, second, third] = segments;
+  const id = (value?: string) =>
+    value?.match(ID_PATTERNS.goodreadsId)?.[1] ?? null;
+  if (first === "book" && second === "show" && id(third)) {
+    return CANONICAL_URL.goodreadsBook(id(third)!);
+  }
+  if (first === "author" && second === "show" && id(third)) {
+    return CANONICAL_URL.goodreadsAuthor(id(third)!);
+  }
+  if (first === "series" && id(second)) {
+    return CANONICAL_URL.goodreadsSeries(id(second)!);
+  }
+  return null;
+}
+
+function wikipedia(url: URL, host: string, segments: string[]) {
+  const language = host.split(".")[0];
+  if (!ID_PATTERNS.wikipediaLanguage.test(language) || language === "w") {
+    return null;
+  }
+  const [first, ...rest] = segments;
+  const rawTitle =
+    first === "wiki" || ID_PATTERNS.wikipediaVariantPath.test(first ?? "")
+      ? rest.join("/")
+      : first === "w" && rest[0] === "index.php"
+        ? url.searchParams.get("title")
+        : null;
+  if (!rawTitle) return null;
+
+  let title: string;
+  try {
+    title = decodeURIComponent(rawTitle).replaceAll(" ", "_");
+  } catch {
+    return null;
+  }
+  const capitalized = title.charAt(0).toUpperCase() + title.slice(1);
+  const encoded = encodeURIComponent(capitalized).replace(
+    /%(28|29|2C|3A|2F|27|21)/g,
+    (match) => decodeURIComponent(match),
+  );
+  return CANONICAL_URL.wikipediaArticle(language, encoded);
+}
+
+function linkedin(url: URL, segments: string[]) {
+  const [first, second] = segments;
+  if (first === "in" && second && ID_PATTERNS.linkedinHandle.test(second)) {
+    return CANONICAL_URL.linkedinProfile(second.toLowerCase());
+  }
+  if (
+    first === "company" &&
+    second &&
+    ID_PATTERNS.linkedinHandle.test(second)
+  ) {
+    return CANONICAL_URL.linkedinCompany(second.toLowerCase());
+  }
+  if (first === "pulse" && second) {
+    return CANONICAL_URL.linkedinArticle(second);
+  }
+
+  const urnMatch =
+    first === "feed" && second === "update"
+      ? decodeURIComponent(segments[2] ?? "").match(ID_PATTERNS.linkedinUrn)
+      : first === "posts" && second
+        ? second.match(ID_PATTERNS.linkedinPostSlug)
+        : null;
+  if (!urnMatch) return null;
+  const urn = { type: urnMatch[1], id: urnMatch[2] } as LinkedInUrn;
+
+  const dashComment = url.searchParams.get("dashCommentUrn");
+  const comment = url.searchParams.get("commentUrn");
+  const commentId = (dashComment?.match(ID_PATTERNS.linkedinDashCommentUrn) ??
+    comment?.match(ID_PATTERNS.linkedinCommentUrn))?.[1];
+  return commentId
+    ? CANONICAL_URL.linkedinComment(urn, commentId)
+    : CANONICAL_URL.linkedinPost(urn);
 }
 
 /** Lowercase host without `www.`, no tracking params, sorted query, no trailing slash. */
