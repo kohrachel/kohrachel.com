@@ -179,8 +179,20 @@ function ldText(value: unknown) {
 }
 
 function truncate(text: string | null) {
-  if (!text || text.length <= DETAILS_MAX_DESCRIPTION_LENGTH) return text;
-  return `${text.slice(0, DETAILS_MAX_DESCRIPTION_LENGTH - 1).trimEnd()}…`;
+  return truncateText(text, DETAILS_MAX_DESCRIPTION_LENGTH);
+}
+
+/**
+ * Cuts text to at most `max` characters, ending in "…" when it was longer.
+ * Breaks at the last space if there's one in the last fifth, so words stay
+ * whole; text without spaces (such as Chinese) is cut at the limit.
+ */
+export function truncateText(text: string | null, max: number) {
+  if (!text || text.length <= max) return text;
+  const cut = text.slice(0, max - 1);
+  const space = cut.lastIndexOf(" ");
+  const end = space >= max * 0.8 ? space : cut.length;
+  return `${cut.slice(0, end).trimEnd()}…`;
 }
 
 function notAUrl(text: string | null) {

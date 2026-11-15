@@ -10,6 +10,7 @@ import {
   decodeEntities,
   positiveNumber,
   toIsoDate,
+  truncateText,
 } from "./page-meta";
 
 /** The fields of an oEmbed response that bluebook uses. */
@@ -63,10 +64,7 @@ function fromXEmbed(html: string): Partial<ItemDetails> {
   const date = links.at(-1)?.[1];
   const firstLine = cleanText(text.split("\n")[0]);
   return {
-    title:
-      firstLine && firstLine.length > DETAILS_MAX_TITLE_LENGTH
-        ? `${firstLine.slice(0, DETAILS_MAX_TITLE_LENGTH - 1).trimEnd()}…`
-        : firstLine,
+    title: truncateText(firstLine, DETAILS_MAX_TITLE_LENGTH),
     description: cleanText(text),
     publishedAt: toIsoDate(cleanText(date ? decodeEntities(date) : null)),
   };

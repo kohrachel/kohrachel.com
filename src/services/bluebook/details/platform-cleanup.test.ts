@@ -154,6 +154,60 @@ describe("cleanPageDetails", () => {
     ).toBeNull();
   });
 
+  test("splits an Instagram post into creator, caption and date", () => {
+    const caption =
+      "It started with wedding regrets. Then celebrities joined. And now… even politics?! 👀 Indonesia’s “Stop the Wedding” trend is getting more interesting by the day. #StopTheWedding #Indonesia #SocialMedi";
+    expect(
+      cleanPageDetails(
+        CommonPlatform.Instagram,
+        details({
+          title: `Grace Gumala on Instagram: "${caption}`,
+          description: `33 likes, 0 comments - gracegumala on November 15, 2026: "${caption.slice(0, 150)}`,
+        }),
+      ),
+    ).toMatchObject({
+      creator: "Grace Gumala",
+      title:
+        "It started with wedding regrets. Then celebrities joined. And now… even politics?! 👀 Indonesia’s “Stop the Wedding”…",
+      description: caption.slice(0, 150),
+      publishedAt: new Date("November 15, 2026").toISOString(),
+    });
+  });
+
+  test("keeps a short Instagram caption whole, without the closing quote", () => {
+    expect(
+      cleanPageDetails(
+        CommonPlatform.Instagram,
+        details({
+          title:
+            'Comedians Interview Experts on Instagram: "OUT NOW ON YOUTUBE AND NEBULA: Alison Leiby interviews Dr. Karen Tang about menstrual health!"',
+        }),
+      ),
+    ).toMatchObject({
+      creator: "Comedians Interview Experts",
+      title:
+        "OUT NOW ON YOUTUBE AND NEBULA: Alison Leiby interviews Dr. Karen Tang about menstrual health!",
+    });
+  });
+
+  test("names an Instagram profile and drops its follower counts", () => {
+    expect(
+      cleanPageDetails(
+        CommonPlatform.Instagram,
+        details({
+          title: "Grace Gumala (@gracegumala) • Instagram photos and videos",
+          description:
+            "14K Followers, 1,552 Following, 1,223 Posts - See Instagram photos and videos from Grace Gumala (@gracegumala)",
+        }),
+        "https://www.instagram.com/gracegumala/",
+      ),
+    ).toMatchObject({
+      title: "Grace Gumala (@gracegumala)",
+      creator: "Grace Gumala",
+      description: null,
+    });
+  });
+
   test.each([
     "Sign Up | LinkedIn",
     "LinkedIn Login, Sign in | LinkedIn",

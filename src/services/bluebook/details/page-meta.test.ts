@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { isoDurationToSeconds, parsePageMeta } from "./page-meta";
+import { isoDurationToSeconds, parsePageMeta, truncateText } from "./page-meta";
 
 const page = (head: string, body = "") =>
   `<!doctype html><html><head>${head}</head><body>${body}</body></html>`;
@@ -117,5 +117,16 @@ describe("isoDurationToSeconds", () => {
     ["4:13", null],
   ] as const)("%s", (input, expected) => {
     expect(isoDurationToSeconds(input)).toBe(expected);
+  });
+});
+
+describe("truncateText", () => {
+  test.each([
+    ["short", 10, "short"],
+    ["the quick brown fox jumps", 20, "the quick brown fox…"],
+    ["supercalifragilistic expialidocious", 20, "supercalifragilisti…"],
+    ["我们总在追问什么是真正的爱自己又为何说", 10, "我们总在追问什么是…"],
+  ] as const)("%s (%i)", (text, max, expected) => {
+    expect(truncateText(text, max)).toBe(expected);
   });
 });

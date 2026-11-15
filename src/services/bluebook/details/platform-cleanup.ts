@@ -1,5 +1,6 @@
 import { assertExhaustive } from "@/lib/utils";
 import {
+  DETAILS_MAX_TITLE_LENGTH,
   LOGIN_PAGE_TITLE,
   PLATFORM_TITLE_SUFFIXES,
   type ItemDetails,
@@ -8,7 +9,7 @@ import {
   COMMON_PLATFORM_NAMES,
   CommonPlatform,
 } from "@/domain-types/bluebook/links";
-import { cleanText } from "./page-meta";
+import { cleanText, toIsoDate, truncateText } from "./page-meta";
 
 /**
  * Tidies details read from a common platform's page at `url` (the cleaned
@@ -64,10 +65,11 @@ function platformSpecific(
       )?.[1];
       return details.creator || !host ? {} : { creator: cleanText(host) };
     }
+    case CommonPlatform.Instagram:
+      return instagram(details);
     case CommonPlatform.YouTube:
     case CommonPlatform.X:
     case CommonPlatform.Xiaohongshu:
-    case CommonPlatform.Instagram:
     case CommonPlatform.Reddit:
     case CommonPlatform.Goodreads:
     case CommonPlatform.Wikipedia:
@@ -90,4 +92,34 @@ function bilibiliSpace(details: ItemDetails, url: URL): Partial<ItemDetails> {
   return isProfile
     ? { title: owner ?? details.title, creator: owner }
     : { title: null, creator: owner, description: null, thumbnailUrl: null };
+}
+
+/**
+ * Instagram's page text, for a post:
+ * - title: `Name on Instagram: "caption…"`
+ * - description: `33 likes, 0 comments - handle on November 15, 2026: "caption…"`
+ * and for a profile, a description of follower counts instead of the bio.
+ */
+function instagram(details: ItemDetails): Partial<ItemDetails> {
+  const post = details.title?.match(/^(.+?) on Instagram: "([\s\S]*?)"?$/);
+  const meta = details.description?.match(
+    /^[\d.,KMB]+ likes?, [\d.,KMB]+ comments? - \S+ on (.+?): "([\s\S]*?)"?$/,
+  );
+  if (post) {
+    const caption = cleanText(meta?.[2] ?? post[2]);
+    return {
+      creator: cleanText(post[1]),
+      title: truncateText(cleanText(post[2]), DETAILS_MAX_TITLE_LENGTH),
+      description: caption,
+      publishedAt: details.publishedAt ?? toIsoDate(meta?.[1] ?? null),
+    };
+  }
+  // Profile: "Grace Gumala (@gracegumala)".
+  const profile = details.title?.match(/^(.+?) \(@[\w.]+\)$/);
+  return {
+    creator: profile ? cleanText(profile[1]) : details.creator,
+    description: /^[\d.,KMB]+ Followers,/.test(details.description ?? "")
+      ? null
+      : details.description,
+  };
 }
