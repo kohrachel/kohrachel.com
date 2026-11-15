@@ -67,8 +67,9 @@ async function findLinkInPage(response: Response, pattern: RegExp) {
   while (bytes < INTERSTITIAL_MAX_BYTES) {
     const { done, value } = await reader.read();
     if (done) break;
-    bytes += value.byteLength;
-    html += decoder.decode(value, { stream: true });
+    const chunk = value.subarray(0, INTERSTITIAL_MAX_BYTES - bytes);
+    bytes += chunk.byteLength;
+    html += decoder.decode(chunk, { stream: true });
     const match = html.match(pattern);
     if (match) {
       await reader.cancel();
