@@ -1,0 +1,3 @@
+ALTER TABLE "bluebook"."items" DROP COLUMN "platform";--> statement-breakpoint
+ALTER TABLE "bluebook"."items" ADD COLUMN "platform" text GENERATED ALWAYS AS (regexp_replace(substring(normalized_url from '^https://([^/?#:]+)'), '^www\.', '')) STORED NOT NULL;--> statement-breakpoint
+ALTER TABLE "bluebook"."items" ADD CONSTRAINT "items_normalized_url_format_check" CHECK ("normalized_url" ~ '^https://[a-z0-9.-]+(:[0-9]+)?/');
