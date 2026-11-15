@@ -34,7 +34,7 @@ function constraintMessage(error: unknown) {
 export async function updatePost(
   input: UpdatePostInput,
 ): Promise<UpdatePostResult> {
-  requireWriteAccess();
+  await requireWriteAccess();
   const parsed = updatePostSchema.parse(input);
   let updated;
   try {

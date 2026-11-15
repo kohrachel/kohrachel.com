@@ -6,11 +6,11 @@ import { requireWriteAccess } from "@/server/auth/gate";
 import { getPostService, listAllPostsService } from "@/services/posts/admin";
 
 export async function listAllPosts() {
-  requireWriteAccess();
+  await requireWriteAccess();
   return listAllPostsService();
 }
 
 export async function getPost(id: number) {
-  requireWriteAccess();
+  await requireWriteAccess();
   return getPostService(id);
 }

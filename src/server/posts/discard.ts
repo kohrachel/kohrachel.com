@@ -5,7 +5,7 @@ import { discardDraftService } from "@/services/posts/draft";
 import { postIdSchema } from "@/domain-types/posts/schema";
 
 export async function discardDraft(id: number) {
-  requireWriteAccess();
+  await requireWriteAccess();
   const postId = postIdSchema.parse(id);
   const row = await discardDraftService(postId);
   if (!row) throw new Error(`Post ${postId} not found`);

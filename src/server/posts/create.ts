@@ -6,7 +6,7 @@ import { createPostService } from "@/services/posts/create";
 
 /** Creates an empty draft and opens it in the editor. */
 export async function createPost() {
-  requireWriteAccess();
+  await requireWriteAccess();
   const row = await createPostService();
   redirect(`/editor/${row.id}`);
 }
