@@ -55,6 +55,29 @@ It is the single source of truth for the format — do not hardcode or
 paraphrase it. Keep its TODO comments verbatim, and replace only the
 placeholder comment inside `<details>` with your own text.
 
+## Database schema changes
+
+If the PR adds or changes the database schema (files in `src/db/entities/` or
+a new migration), describe it with one markdown table per affected database
+table, inside `<details>`. Put each table under a `###` heading with the
+table's name. Use these columns:
+
+| Column | Type | Null? | Default | Other properties |
+|---|---|---|---|---|
+| `id` | bigint | no | auto (identity) | Primary key |
+
+- **New table:** list every column.
+- **Changed table:** list only the columns that were added, changed or
+  removed, and mark each one (e.g. "added", "changed: now not null",
+  "removed").
+- **Other properties:** keys, foreign keys and their delete behavior, unique
+  constraints, indexes, check constraints, and a short note on what the
+  column is for when the name doesn't say it.
+- **Rules that span columns:** list them in a short note under the table,
+  e.g. a unique pair of columns or a cascade chain across tables.
+- **Enums:** list their values in the Type column, e.g.
+  `enum date_precision (day / month / year)`.
+
 ## Rules
 
 - Do **not** write anything in the Why or What sections. Those are for the
