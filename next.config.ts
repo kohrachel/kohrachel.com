@@ -3,6 +3,16 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Enables the `use cache` directive, `cacheTag`, and `cacheLife`.
   cacheComponents: true,
+  async redirects() {
+    return [
+      {
+        source: "/bluebook/:path*",
+        has: [{ type: "host", value: "(www\\.)?kohrachel\\.com" }],
+        destination: "https://bluebook.kohrachel.com/:path*",
+        permanent: false,
+      },
+    ];
+  },
   async rewrites() {
     return {
       // Serve bluebook.* from the /bluebook routes. Runs before the filesystem
