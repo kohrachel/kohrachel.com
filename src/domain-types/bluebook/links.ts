@@ -152,6 +152,46 @@ export const RESERVED_PROFILE_PATHS: ReadonlySet<string> = new Set([
   "developer",
 ]);
 
+/** Hosts whose links are redirects to be followed before cleanup. */
+export const SHORT_LINK_HOSTS: readonly string[] = [
+  "b23.tv",
+  "bili2233.cn",
+  "xhslink.com",
+  "spotify.link",
+  "spoti.fi",
+  "t.co",
+  "lnkd.in",
+];
+
+/**
+ * "You're leaving this site" pages that carry the real link in a query
+ * parameter. Unwrapped before anything else.
+ */
+export const REDIRECT_WRAPPERS: readonly {
+  host: string;
+  path: string;
+  param: string;
+}[] = [
+  { host: "linkedin.com", path: "/safety/go", param: "url" },
+  { host: "google.com", path: "/url", param: "q" },
+  { host: "google.com", path: "/url", param: "url" },
+];
+
+/**
+ * Short-link hosts that show a "you're leaving" page instead of redirecting.
+ * The pattern finds the real link in the page.
+ */
+export const INTERSTITIAL_LINK_PATTERNS: Readonly<Record<string, RegExp>> = {
+  "lnkd.in":
+    /<a\b[^>]*data-tracking-control-name="external_url_click"[^>]*href="([^"]+)"/,
+};
+
+/** How much of an interstitial page to read when looking for the link. */
+export const INTERSTITIAL_MAX_BYTES = 64 * 1024;
+
+export const SHORT_LINK_MAX_REDIRECTS = 5;
+export const SHORT_LINK_TIMEOUT_MS = 5000;
+
 /** Query parameters removed from every link, plus anything starting with `utm_`. */
 export const TRACKING_PARAMS: ReadonlySet<string> = new Set([
   "fbclid",
