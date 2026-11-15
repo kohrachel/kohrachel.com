@@ -26,9 +26,11 @@ export function bvToAv(bvid: string): bigint {
   const chars = bvid.split("");
   [chars[3], chars[9]] = [chars[9], chars[3]];
   [chars[4], chars[7]] = [chars[7], chars[4]];
-  let tmp = BigInt(0);
-  for (const char of chars.slice(3)) {
-    tmp = tmp * BASE + BigInt(ALPHABET.indexOf(char));
-  }
+  const tmp = chars
+    .slice(3)
+    .reduce(
+      (acc, char) => acc * BASE + BigInt(ALPHABET.indexOf(char)),
+      BigInt(0),
+    );
   return (tmp & MASK_CODE) ^ XOR_CODE;
 }
