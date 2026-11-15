@@ -11,8 +11,13 @@ import "server-only";
 import { hasSession } from "./session";
 
 export async function requireWriteAccess() {
-  if (process.env.NODE_ENV === "development") return;
-  if (!(await hasSession())) {
+  if (!(await canWrite())) {
     throw new Error("unauthorized");
   }
+}
+
+/** Whether this request may write, for pages that show owner-only UI. */
+export async function canWrite(): Promise<boolean> {
+  if (process.env.NODE_ENV === "development") return true;
+  return hasSession();
 }

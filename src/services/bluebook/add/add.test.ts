@@ -183,7 +183,7 @@ describe.skipIf(!hasDatabase)("previewing a link", () => {
 
   test("summarizes an item you already have, without fetching", async () => {
     await save({ consumedOn: "2026-01-02" });
-    await save({ consumedOn: "2026-11-15" });
+    await save({ consumedOn: "2026-11-15", consumedPrecision: "month" });
     network.requested.length = 0;
 
     const result = await previewLinkService("https://youtu.be/dQw4w9WgXcQ");
@@ -196,7 +196,7 @@ describe.skipIf(!hasDatabase)("previewing a link", () => {
         platform: "youtube.com",
         isDeleted: false,
         entryCount: 2,
-        lastConsumedOn: "2026-11-15",
+        lastConsumed: { on: "2026-11-01", precision: "month" },
       },
     });
     expect(network.requested).toEqual([]);

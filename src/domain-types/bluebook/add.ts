@@ -62,8 +62,8 @@ export type ExistingItem = {
   /** A deleted item is restored, with its old entries, when saved again. */
   isDeleted: boolean;
   entryCount: number;
-  /** `YYYY-MM-DD`, or `null` if it has no entries. */
-  lastConsumedOn: string | null;
+  /** The latest consumed date (`YYYY-MM-DD`), or `null` with no entries. */
+  lastConsumed: { on: string; precision: DatePrecision } | null;
 };
 
 export type PreviewResult =

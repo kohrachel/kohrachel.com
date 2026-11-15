@@ -1,5 +1,5 @@
 import "server-only";
-import { count, eq, max } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { entries, items } from "@/db/schema";
 import type { ExistingItem, PreviewResult } from "@/domain-types/bluebook/add";
@@ -43,13 +43,24 @@ export async function findItem(
       platform: items.platform,
       deletedAt: items.deletedAt,
       entryCount: count(entries.id),
-      lastConsumedOn: max(entries.consumedOn),
     })
     .from(items)
     .leftJoin(entries, eq(entries.itemId, items.id))
     .where(eq(items.normalizedUrl, normalizedUrl))
     .groupBy(items.id);
   if (!row) return null;
+
+  const [lastConsumed] = await db
+    .select({ on: entries.consumedOn, precision: entries.consumedPrecision })
+    .from(entries)
+    .where(eq(entries.itemId, row.id))
+    .orderBy(desc(entries.consumedOn), desc(entries.id))
+    .limit(1);
+
   const { deletedAt, ...item } = row;
-  return { ...item, isDeleted: deletedAt !== null };
+  return {
+    ...item,
+    isDeleted: deletedAt !== null,
+    lastConsumed: lastConsumed ?? null,
+  };
 }
