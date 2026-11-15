@@ -8,6 +8,6 @@ import {
 } from "@/domain-types/posts/image";
 
 export async function createPostImageUpload(input: PostImageUpload) {
-  requireWriteAccess();
+  await requireWriteAccess();
   return createPostImageUploadService(postImageUploadSchema.parse(input));
 }

@@ -171,7 +171,10 @@ Phase 1 (now): dev-mode gate.
 if (process.env.NODE_ENV !== "development") throw new Error("unauthorized");
 ```
 
-Phase 2 (when writes must work in prod): single shared secret.
+Phase 2 (when writes must work in prod): single shared secret. **Implemented** in
+`src/server/auth/session.ts` + `gate.ts`; log in at `kohrachel.com/admin/login`.
+The cookie holds a signed expiry (HMAC with `ADMIN_SECRET`), not the secret itself,
+and is shared across `*.kohrachel.com`. `next dev` stays allowed without logging in.
 
 ```
 // src/server/auth/require-admin.ts  (shape only)
