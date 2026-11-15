@@ -38,7 +38,14 @@ export function parsePageMeta(html: string, pageUrl: string): PageMeta {
       ldText(head.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]),
     creator:
       ldAuthor(ld) ??
-      notAUrl(get("author", "article:author", "book:author")) ??
+      notAUrl(
+        get(
+          "author",
+          "article:author",
+          "book:author",
+          "music:musician_description",
+        ),
+      ) ??
       null,
     publishedAt:
       toIsoDate(
@@ -46,6 +53,7 @@ export function parsePageMeta(html: string, pageUrl: string): PageMeta {
           "article:published_time",
           "og:published_time",
           "video:release_date",
+          "music:release_date",
           "datepublished",
           "date",
           "dc.date",
@@ -63,8 +71,9 @@ export function parsePageMeta(html: string, pageUrl: string): PageMeta {
       pageUrl,
     ),
     durationSeconds:
-      positiveNumber(get("video:duration", "og:video:duration")) ??
-      isoDurationToSeconds(ldText(ld?.duration)),
+      positiveNumber(
+        get("video:duration", "og:video:duration", "music:duration"),
+      ) ?? isoDurationToSeconds(ldText(ld?.duration)),
     width: positiveNumber(get("og:video:width")),
     height: positiveNumber(get("og:video:height")),
   };

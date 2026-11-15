@@ -9,6 +9,7 @@ import {
 import { CommonPlatform } from "@/domain-types/bluebook/links";
 import { fillMissing } from "./merge";
 import { fetchOEmbed, oembedRequestUrl } from "./oembed";
+import { titleFromLink } from "./link-title";
 import { fetchPageDetails } from "./page";
 import { titleFromShareText } from "./share-text";
 import { fetchWikipediaDetails } from "./wikipedia";
@@ -26,8 +27,8 @@ export type DetailsInput = {
 
 /**
  * Fetches details to pre-fill the confirm form, from the best source first:
- * the platform's own API, its oEmbed endpoint, the page itself, then the
- * share text. Never throws: whatever can't be found stays `null` for the form
+ * the platform's own API, its oEmbed endpoint, the page itself, the share
+ * text, then (for profiles) a title built from the link. Never throws: whatever can't be found stays `null` for the form
  * to fill in.
  */
 export async function fetchDetails(
@@ -69,11 +70,18 @@ export async function fetchDetails(
     }
   }
 
-  return fillMissing(
+  result = fillMissing(
     result,
     { title: titleFromShareText(input.pastedText, input.url) },
     "share_text",
   );
+  return commonPlatform
+    ? fillMissing(
+        result,
+        { title: titleFromLink(commonPlatform, normalizedUrl) },
+        "link",
+      )
+    : result;
 }
 
 /** The platform's own API, for platforms that have one bluebook uses. */

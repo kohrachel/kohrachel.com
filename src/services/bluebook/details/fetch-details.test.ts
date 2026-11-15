@@ -277,6 +277,54 @@ describe("fetchDetails", () => {
     expect(result.details.title).toBe("中文标题");
   });
 
+  test("throws away bot checks on any site", async () => {
+    routes["https://example.com/post"] = html(
+      `<title>Reddit - Prove your humanity</title><meta name="description" content="x">`,
+    );
+    const result = await fetchDetails(input({}));
+    expect(result.sources).toEqual({});
+  });
+
+  test("falls back to a title from the link for profiles", async () => {
+    const subreddit = "https://www.reddit.com/r/sysadmin/";
+    routes[subreddit] = html(`<title>Reddit - Prove your humanity</title>`);
+    const result = await fetchDetails(
+      input({
+        resolvedUrl: subreddit,
+        normalizedUrl: subreddit,
+        commonPlatform: CommonPlatform.Reddit,
+      }),
+    );
+    expect(result.details.title).toBe("r/sysadmin");
+    expect(result.sources).toEqual({ title: "link" });
+  });
+
+  test("reads a Spotify track's artist, duration and release date from its page", async () => {
+    const track = "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl";
+    routes[track] = html(`<head>
+      <link rel="alternate" type="application/json+oembed" href="https://open.spotify.com/oembed?url=x">
+      <meta property="og:title" content="Cut To The Feeling"/>
+      <meta property="og:description" content="Carly Rae Jepsen · Cut To The Feeling · Song · 2017"/>
+      <meta name="music:duration" content="208"/>
+      <meta name="music:release_date" content="2017-05-26"/>
+      <meta name="music:musician_description" content="Carly Rae Jepsen"/>
+    </head>`);
+    const result = await fetchDetails(
+      input({
+        resolvedUrl: track,
+        normalizedUrl: track,
+        commonPlatform: CommonPlatform.Spotify,
+      }),
+    );
+    expect(result.details).toMatchObject({
+      title: "Cut To The Feeling",
+      creator: "Carly Rae Jepsen",
+      durationSeconds: 208,
+      publishedAt: "2017-05-26T00:00:00.000Z",
+    });
+    expect(requested.some((url) => url.includes("/oembed"))).toBe(false);
+  });
+
   describe("Wikipedia", () => {
     const article = {
       normalizedUrl: "https://en.wikipedia.org/wiki/Mariah_Carey",

@@ -40,7 +40,12 @@ export const EMPTY_DETAILS: ItemDetails = {
 
 /** Where a detail came from, in the order they're tried. */
 export type DetailsSource =
-  "wikipedia_api" | "oembed" | "page_meta" | "share_text";
+  | "wikipedia_api"
+  | "oembed"
+  | "page_meta"
+  | "share_text"
+  /** Built from the link itself, such as `r/sysadmin` or `@jack`. */
+  | "link";
 
 export type DetailsResult = {
   details: ItemDetails;
@@ -51,16 +56,15 @@ export type DetailsResult = {
 /**
  * Platforms whose oEmbed endpoint is called directly, instead of reading the
  * page and looking for one. `link` is which form of the link to send.
+ *
+ * Spotify isn't listed: for a show, its oEmbed returns the latest episode's
+ * title instead of the show's. Its page has everything instead.
  */
 export const KNOWN_OEMBED_ENDPOINTS: Partial<
   Record<CommonPlatform, { endpoint: string; link: "normalized" | "resolved" }>
 > = {
   [CommonPlatform.YouTube]: {
     endpoint: "https://www.youtube.com/oembed?format=json",
-    link: "normalized",
-  },
-  [CommonPlatform.Spotify]: {
-    endpoint: "https://open.spotify.com/oembed",
     link: "normalized",
   },
   // Reddit's endpoint needs the full link, including the subreddit.
@@ -73,6 +77,13 @@ export const KNOWN_OEMBED_ENDPOINTS: Partial<
     link: "normalized",
   },
 };
+
+/**
+ * A page with a title like this is a bot check, not the content, so its
+ * details are thrown away. Applies to every site.
+ */
+export const BOT_CHECK_PAGE_TITLE =
+  /prove your humanity|^just a moment|^attention required|^access denied|are you a robot|verify (?:that )?you are (?:a )?human|^security check/i;
 
 /**
  * A request that ends on one of these paths reached a login wall or an error
@@ -98,6 +109,8 @@ export const PLATFORM_TITLE_SUFFIXES: Partial<Record<CommonPlatform, RegExp>> =
     [CommonPlatform.Goodreads]: /\s+(?:by\s+.+\s+)?\|\s+Goodreads$/,
     [CommonPlatform.Spotify]: /\s+\|\s+Spotify$/,
     [CommonPlatform.Reddit]: /\s+:\s+r\/\w+$/,
+    [CommonPlatform.X]: /\s+(?:on|\/)\s+X$/,
+    [CommonPlatform.Instagram]: /\s+•\s+Instagram(?:\s+photos and videos)?$/,
   };
 
 /** Sent with every request, so sites can see who is asking. */
