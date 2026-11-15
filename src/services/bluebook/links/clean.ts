@@ -30,15 +30,14 @@ export async function cleanLink(text: string): Promise<CleanLinkResult> {
     return { ok: false, reason: "no_link" };
   }
 
-  let resolvedUrl = unwrapRedirect(url);
-  if (!isPublicHttpUrl(new URL(resolvedUrl))) {
+  const unwrapped = unwrapRedirect(url);
+  if (!isPublicHttpUrl(new URL(unwrapped))) {
     return { ok: false, reason: "no_link" };
   }
-  if (isShortLink(resolvedUrl)) {
-    const target = await resolveShortLink(resolvedUrl);
-    if (!target) return { ok: false, reason: "short_link_failed" };
-    resolvedUrl = target;
-  }
+  const resolvedUrl = isShortLink(unwrapped)
+    ? await resolveShortLink(unwrapped)
+    : unwrapped;
+  if (!resolvedUrl) return { ok: false, reason: "short_link_failed" };
 
   const normalized = normalizeUrl(resolvedUrl);
   return normalized.ok ? { ...normalized, url, resolvedUrl } : normalized;

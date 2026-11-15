@@ -39,57 +39,63 @@ export async function fetchDetails(
   input: DetailsInput,
 ): Promise<DetailsResult> {
   const { commonPlatform, resolvedUrl, normalizedUrl } = input;
-  let result: DetailsResult = { details: { ...EMPTY_DETAILS }, sources: {} };
-
-  if (!commonPlatform) {
-    result = await fetchPageDetails(resolvedUrl, null);
-  } else {
-    const known = KNOWN_OEMBED_ENDPOINTS[commonPlatform];
-    const [api, oembed, page] = await Promise.all([
-      fetchFromPlatformApi(commonPlatform, normalizedUrl),
-      known
-        ? fetchOEmbed(
-            oembedRequestUrl(
-              known.endpoint,
-              known.link === "resolved"
-                ? resolvedUrl
-                : known.link === "normalized"
-                  ? normalizedUrl
-                  : known.link(normalizedUrl),
-            ),
-          )
-        : null,
-      fetchPageDetails(
-        // Xiaohongshu pages only open with the token in the link as shared.
-        commonPlatform === CommonPlatform.Xiaohongshu
-          ? resolvedUrl
-          : normalizedUrl,
-        commonPlatform,
-      ),
-    ]);
-    if (api) result = fillMissing(result, api.details, api.source);
-    result = fillMissing(result, oembed, "oembed");
-    for (const field of Object.keys(page.sources) as (keyof ItemDetails)[]) {
-      result = fillMissing(
-        result,
-        { [field]: page.details[field] },
-        page.sources[field]!,
-      );
-    }
-  }
-
-  result = fillMissing(
-    result,
+  const shareText: Layer = [
     { title: titleFromShareText(input.pastedText, input.url) },
     "share_text",
+  ];
+  const layers: Layer[] = commonPlatform
+    ? [
+        ...(await platformLayers(commonPlatform, resolvedUrl, normalizedUrl)),
+        shareText,
+        [detailsFromLink(commonPlatform, normalizedUrl), "link"],
+      ]
+    : [...pageLayers(await fetchPageDetails(resolvedUrl, null)), shareText];
+
+  return layers.reduce<DetailsResult>(
+    (result, [details, source]) => fillMissing(result, details, source),
+    { details: { ...EMPTY_DETAILS }, sources: {} },
   );
-  return commonPlatform
-    ? fillMissing(
-        result,
-        detailsFromLink(commonPlatform, normalizedUrl),
-        "link",
-      )
-    : result;
+}
+
+type Layer = [details: Partial<ItemDetails> | null, source: DetailsSource];
+
+/** A common platform's API, oEmbed and page details, best first. */
+async function platformLayers(
+  platform: CommonPlatform,
+  resolvedUrl: string,
+  normalizedUrl: string,
+): Promise<Layer[]> {
+  const known = KNOWN_OEMBED_ENDPOINTS[platform];
+  const [api, oembed, page] = await Promise.all([
+    fetchFromPlatformApi(platform, normalizedUrl),
+    known
+      ? fetchOEmbed(
+          oembedRequestUrl(
+            known.endpoint,
+            known.link === "resolved"
+              ? resolvedUrl
+              : known.link === "normalized"
+                ? normalizedUrl
+                : known.link(normalizedUrl),
+          ),
+        )
+      : null,
+    fetchPageDetails(
+      // Xiaohongshu pages only open with the token in the link as shared.
+      platform === CommonPlatform.Xiaohongshu ? resolvedUrl : normalizedUrl,
+      platform,
+    ),
+  ]);
+  const rest: Layer[] = [[oembed, "oembed"], ...pageLayers(page)];
+  return api ? [[api.details, api.source], ...rest] : rest;
+}
+
+/** Each of the page's fields, with the source it came from. */
+function pageLayers(page: DetailsResult): Layer[] {
+  return (Object.keys(page.sources) as (keyof ItemDetails)[]).map((field) => [
+    { [field]: page.details[field] },
+    page.sources[field]!,
+  ]);
 }
 
 /** The platform's own API, for platforms that have one bluebook uses. */

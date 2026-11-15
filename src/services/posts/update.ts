@@ -21,11 +21,11 @@ export async function updatePostService({ id, patch }: UpdatePostInput) {
 
     const changes: Partial<Post> = { updatedAt: new Date() };
 
-    let draft = current.draft;
-    if (Object.keys(draftFields).length > 0) {
-      draft = { ...liveFields(current), ...draft, ...draftFields };
-      changes.draft = draft;
-    }
+    const hasDraftFields = Object.keys(draftFields).length > 0;
+    const draft = hasDraftFields
+      ? { ...liveFields(current), ...current.draft, ...draftFields }
+      : current.draft;
+    if (hasDraftFields) changes.draft = draft;
 
     if (isPublished === true) {
       Object.assign(changes, draft ?? {}, {

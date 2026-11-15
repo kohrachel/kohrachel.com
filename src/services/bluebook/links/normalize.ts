@@ -236,11 +236,11 @@ function instagram(segments: string[]) {
 }
 
 function spotify(segments: string[]) {
-  let path = segments;
-  if (ID_PATTERNS.spotifyLocalePath.test(path[0] ?? "")) path = path.slice(1);
-  if (path[0] === "embed") path = path.slice(1);
-
-  const [kind, id] = path;
+  const withoutLocale = ID_PATTERNS.spotifyLocalePath.test(segments[0] ?? "")
+    ? segments.slice(1)
+    : segments;
+  const [kind, id] =
+    withoutLocale[0] === "embed" ? withoutLocale.slice(1) : withoutLocale;
   if (
     SPOTIFY_KINDS.includes(kind as SpotifyKind) &&
     id &&
@@ -314,18 +314,22 @@ function wikipedia(url: URL, host: string, segments: string[]) {
         : null;
   if (!rawTitle) return null;
 
-  let title: string;
-  try {
-    title = decodeURIComponent(rawTitle).replaceAll(" ", "_");
-  } catch {
-    return null;
-  }
+  const title = decodeOrNull(rawTitle)?.replaceAll(" ", "_");
+  if (title === undefined) return null;
   const capitalized = title.charAt(0).toUpperCase() + title.slice(1);
   const encoded = encodeURIComponent(capitalized).replace(
     /%(28|29|2C|3A|2F|27|21)/g,
     (match) => decodeURIComponent(match),
   );
   return CANONICAL_URL.wikipediaArticle(language, encoded);
+}
+
+function decodeOrNull(text: string) {
+  try {
+    return decodeURIComponent(text);
+  } catch {
+    return null;
+  }
 }
 
 function linkedin(url: URL, segments: string[]) {

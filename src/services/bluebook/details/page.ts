@@ -36,11 +36,11 @@ export async function fetchPageDetails(
     : parsed.details;
   if (!details) return empty;
 
-  let result = empty;
   // Common platforms' oEmbed endpoints are chosen in KNOWN_OEMBED_ENDPOINTS
   // (Spotify's is left out on purpose), so only other sites' are followed.
-  if (parsed.oembedUrl && !platform) {
-    result = fillMissing(result, await fetchOEmbed(parsed.oembedUrl), "oembed");
-  }
-  return fillMissing(result, details, "page_meta");
+  const fromOEmbed =
+    parsed.oembedUrl && !platform
+      ? fillMissing(empty, await fetchOEmbed(parsed.oembedUrl), "oembed")
+      : empty;
+  return fillMissing(fromOEmbed, details, "page_meta");
 }

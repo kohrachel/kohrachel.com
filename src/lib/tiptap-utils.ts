@@ -150,12 +150,11 @@ export function focusNextNode(editor: Editor) {
 
   const end = doc.content.size;
   const para = paragraphType.create();
-  let tr = state.tr.insert(end, para);
+  const tr = state.tr.insert(end, para);
 
   // Place the selection inside the new paragraph
   const $inside = tr.doc.resolve(end + 1);
-  tr = tr.setSelection(TextSelection.near($inside)).scrollIntoView();
-  view.dispatch(tr);
+  view.dispatch(tr.setSelection(TextSelection.near($inside)).scrollIntoView());
   return true;
 }
 

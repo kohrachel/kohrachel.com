@@ -47,28 +47,9 @@ export async function saveLinkService(
       .onConflictDoNothing({ target: items.normalizedUrl })
       .returning({ id: items.id });
 
-    let itemId: number;
-    let outcome: "created" | "added_entry" | "restored";
-    if (created) {
-      itemId = created.id;
-      outcome = "created";
-    } else {
-      const [current] = await tx
-        .select({ id: items.id, deletedAt: items.deletedAt })
-        .from(items)
-        .where(eq(items.normalizedUrl, normalizedUrl))
-        .for("update");
-      itemId = current.id;
-      if (current.deletedAt) {
-        await tx
-          .update(items)
-          .set({ ...fields, deletedAt: null, updatedAt: sql`now()` })
-          .where(eq(items.id, itemId));
-        outcome = "restored";
-      } else {
-        outcome = "added_entry";
-      }
-    }
+    const { itemId, outcome } = created
+      ? { itemId: created.id, outcome: "created" as const }
+      : await reuseItem(tx, normalizedUrl, fields);
 
     const [entry] = await tx
       .insert(entries)
@@ -80,6 +61,29 @@ export async function saveLinkService(
       .returning({ id: entries.id });
     return { ok: true, outcome, itemId, entryId: entry.id };
   });
+}
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/** The item that already has this link, restored with `fields` if it was deleted. */
+async function reuseItem(
+  tx: Tx,
+  normalizedUrl: string,
+  fields: Partial<typeof items.$inferInsert>,
+) {
+  const [current] = await tx
+    .select({ id: items.id, deletedAt: items.deletedAt })
+    .from(items)
+    .where(eq(items.normalizedUrl, normalizedUrl))
+    .for("update");
+  if (!current.deletedAt) {
+    return { itemId: current.id, outcome: "added_entry" as const };
+  }
+  await tx
+    .update(items)
+    .set({ ...fields, deletedAt: null, updatedAt: sql`now()` })
+    .where(eq(items.id, current.id));
+  return { itemId: current.id, outcome: "restored" as const };
 }
 
 /**

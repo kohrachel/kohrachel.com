@@ -31,20 +31,23 @@ export function cleanPageDetails(
     return null;
   }
 
-  let title = details.title;
-  const suffix = PLATFORM_TITLE_SUFFIXES[platform];
-  if (title && suffix) title = cleanText(title.replace(suffix, ""));
-  // Some platforms show only their own name instead of the real title.
-  const names = [COMMON_PLATFORM_NAMES[platform], platform].map((n) =>
-    n.toLowerCase(),
-  );
-  if (title && names.includes(title.toLowerCase())) title = null;
-
+  const title = cleanTitle(platform, details.title);
   return {
     ...details,
     title,
     ...platformSpecific(platform, { ...details, title }, new URL(url)),
   };
+}
+
+function cleanTitle(platform: CommonPlatform, title: string | null) {
+  if (!title) return title;
+  const suffix = PLATFORM_TITLE_SUFFIXES[platform];
+  const cleaned = suffix ? cleanText(title.replace(suffix, "")) : title;
+  // Some platforms show only their own name instead of the real title.
+  const names = [COMMON_PLATFORM_NAMES[platform], platform].map((n) =>
+    n.toLowerCase(),
+  );
+  return cleaned && names.includes(cleaned.toLowerCase()) ? null : cleaned;
 }
 
 function platformSpecific(

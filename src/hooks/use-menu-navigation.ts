@@ -171,13 +171,7 @@ export function useMenuNavigation<T>({
       }
     };
 
-    let targetElement: HTMLElement | null = null;
-
-    if (editor) {
-      targetElement = editor.view.dom;
-    } else if (containerRef?.current) {
-      targetElement = containerRef.current;
-    }
+    const targetElement = editor?.view.dom ?? containerRef?.current ?? null;
 
     if (targetElement) {
       targetElement.addEventListener("keydown", handleKeyboardNavigation, true);
