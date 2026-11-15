@@ -208,6 +208,16 @@ describe("cleanPageDetails", () => {
     });
   });
 
+  test("ignores a LinkedIn comment's page, which shows the post", () => {
+    expect(
+      cleanPageDetails(
+        CommonPlatform.LinkedIn,
+        details({ title: "The post's text | Rachel Koh" }),
+        "https://www.linkedin.com/feed/update/urn:li:activity:7497938302063235073/?dashCommentUrn=urn%3Ali%3Afsd_comment%3A(7497940407838720001%2Curn%3Ali%3Aactivity%3A7497938302063235073)",
+      ),
+    ).toBeNull();
+  });
+
   test.each([
     "Sign Up | LinkedIn",
     "LinkedIn Login, Sign in | LinkedIn",

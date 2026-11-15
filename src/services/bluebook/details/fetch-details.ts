@@ -4,15 +4,19 @@ import {
   EMPTY_DETAILS,
   KNOWN_OEMBED_ENDPOINTS,
   type DetailsResult,
+  type DetailsSource,
   type ItemDetails,
 } from "@/domain-types/bluebook/details";
 import { CommonPlatform } from "@/domain-types/bluebook/links";
 import { fillMissing } from "./merge";
 import { fetchOEmbed, oembedRequestUrl } from "./oembed";
-import { titleFromLink } from "./link-title";
+import { fetchBilibiliDetails } from "./bilibili";
+import { detailsFromLink } from "./link-details";
+import { fetchLinkedInDetails } from "./linkedin";
 import { fetchPageDetails } from "./page";
 import { titleFromShareText } from "./share-text";
 import { fetchWikipediaDetails } from "./wikipedia";
+import { fetchYouTubeDetails } from "./youtube";
 
 export type DetailsInput = {
   /** The link as pasted, found in `pastedText`. */
@@ -28,7 +32,7 @@ export type DetailsInput = {
 /**
  * Fetches details to pre-fill the confirm form, from the best source first:
  * the platform's own API, its oEmbed endpoint, the page itself, the share
- * text, then (for profiles) a title built from the link. Never throws: whatever can't be found stays `null` for the form
+ * text, then what the link itself says (profile names, post dates). Never throws: whatever can't be found stays `null` for the form
  * to fill in.
  */
 export async function fetchDetails(
@@ -78,7 +82,7 @@ export async function fetchDetails(
   return commonPlatform
     ? fillMissing(
         result,
-        { title: titleFromLink(commonPlatform, normalizedUrl) },
+        detailsFromLink(commonPlatform, normalizedUrl),
         "link",
       )
     : result;
@@ -88,21 +92,29 @@ export async function fetchDetails(
 async function fetchFromPlatformApi(
   platform: CommonPlatform,
   normalizedUrl: string,
-) {
+): Promise<{ details: Partial<ItemDetails>; source: DetailsSource } | null> {
+  const from = async (
+    fetching: Promise<Partial<ItemDetails> | null>,
+    source: DetailsSource,
+  ) => {
+    const details = await fetching;
+    return details && { details, source };
+  };
   switch (platform) {
-    case CommonPlatform.Wikipedia: {
-      const details = await fetchWikipediaDetails(normalizedUrl);
-      return details && { details, source: "wikipedia_api" as const };
-    }
     case CommonPlatform.YouTube:
+      return from(fetchYouTubeDetails(normalizedUrl), "youtube_api");
     case CommonPlatform.Bilibili:
+      return from(fetchBilibiliDetails(normalizedUrl), "bilibili_api");
+    case CommonPlatform.Wikipedia:
+      return from(fetchWikipediaDetails(normalizedUrl), "wikipedia_api");
+    case CommonPlatform.LinkedIn:
+      return from(fetchLinkedInDetails(normalizedUrl), "linkedin_embed");
     case CommonPlatform.X:
     case CommonPlatform.Xiaohongshu:
     case CommonPlatform.Instagram:
     case CommonPlatform.Spotify:
     case CommonPlatform.Reddit:
     case CommonPlatform.Goodreads:
-    case CommonPlatform.LinkedIn:
       return null;
     default:
       return assertExhaustive(platform);

@@ -62,9 +62,12 @@ export async function fetchText(
 }
 
 /** Fetches a public JSON API response. Returns `null` on any failure. */
-export async function fetchJson<T>(url: string): Promise<T | null> {
+export async function fetchJson<T>(
+  url: string,
+  { maxBytes = DETAILS_MAX_JSON_BYTES }: { maxBytes?: number } = {},
+): Promise<T | null> {
   const fetched = await fetchText(url, {
-    maxBytes: DETAILS_MAX_JSON_BYTES,
+    maxBytes,
     accept: "application/json",
   });
   if (!fetched) return null;

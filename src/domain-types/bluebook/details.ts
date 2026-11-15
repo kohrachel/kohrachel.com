@@ -40,7 +40,10 @@ export const EMPTY_DETAILS: ItemDetails = {
 
 /** Where a detail came from, in the order they're tried. */
 export type DetailsSource =
+  | "youtube_api"
+  | "bilibili_api"
   | "wikipedia_api"
+  | "linkedin_embed"
   | "oembed"
   | "page_meta"
   | "share_text"
@@ -113,6 +116,31 @@ export const PLATFORM_TITLE_SUFFIXES: Partial<Record<CommonPlatform, RegExp>> =
     [CommonPlatform.Instagram]: /\s+•\s+Instagram(?:\s+photos and videos)?$/,
   };
 
+export const YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3";
+
+/** Bilibili's public web APIs. No key; they answer `{ code: 0, data }`. */
+export const BILIBILI_API = {
+  video: (bvid: string) =>
+    `https://api.bilibili.com/x/web-interface/view?bvid=${bvid}`,
+  favorites: (fid: string) =>
+    `https://api.bilibili.com/x/v3/fav/folder/info?media_id=${fid}`,
+  season: (key: "ep_id" | "season_id", id: string) =>
+    `https://api.bilibili.com/pgc/view/web/season?${key}=${id}`,
+};
+
+/** LinkedIn's public "embed this post" page, which works for some posts. */
+export const LINKEDIN_EMBED_URL = (urn: string) =>
+  `https://www.linkedin.com/embed/feed/update/${urn}`;
+
+/**
+ * LinkedIn post and comment ids, and X post ids since late 2010, start with
+ * a timestamp: the id shifted right 22 bits is milliseconds since the epoch
+ * below. That gives a post's date from its link alone.
+ */
+export const ID_TIMESTAMP_EPOCH_MS = { linkedin: 0, x: 1288834974657 };
+/** X ids from before the timestamp format are smaller than this. */
+export const X_FIRST_TIMESTAMP_ID = BigInt("29700859247");
+
 /** Sent with every request, so sites can see who is asking. */
 export const DETAILS_USER_AGENT =
   "bluebook/1.0 (+https://bluebook.kohrachel.com)";
@@ -122,6 +150,11 @@ export const DETAILS_MAX_REDIRECTS = 5;
 /** Pages are read only this far; titles and meta tags are near the top. */
 export const DETAILS_MAX_PAGE_BYTES = 512 * 1024;
 export const DETAILS_MAX_JSON_BYTES = 1024 * 1024;
+/**
+ * A Bilibili anime season's response lists every episode (1.7 MB for a
+ * 317-episode series), so it's allowed more.
+ */
+export const BILIBILI_SEASON_MAX_BYTES = 8 * 1024 * 1024;
 /** Titles made from a post's text (X) are cut to this many characters. */
 export const DETAILS_MAX_TITLE_LENGTH = 120;
 /** Longer descriptions are cut to this many characters. */

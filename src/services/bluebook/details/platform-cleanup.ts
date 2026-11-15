@@ -22,6 +22,14 @@ export function cleanPageDetails(
   url: string,
 ): ItemDetails | null {
   if (details.title && LOGIN_PAGE_TITLE.test(details.title)) return null;
+  // A LinkedIn comment's page shows the post it's on, so its details (text,
+  // author, date) belong to the post, not the comment.
+  if (
+    platform === CommonPlatform.LinkedIn &&
+    new URL(url).searchParams.has("dashCommentUrn")
+  ) {
+    return null;
+  }
 
   let title = details.title;
   const suffix = PLATFORM_TITLE_SUFFIXES[platform];
