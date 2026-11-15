@@ -5,5 +5,5 @@ import { relations } from "./relations";
 
 config({ path: ".env" }); // or .env.local
 
-const client = postgres(process.env.DATABASE_URL!, { prepare: false });
+const client = postgres(process.env.DATABASE_URL!, { max: 1, prepare: false });
 export const db = drizzle({ client, relations });
