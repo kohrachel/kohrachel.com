@@ -171,8 +171,10 @@ describe("fetchDetails", () => {
 
   test("calls known oEmbed endpoints with the right form of the link", async () => {
     const youtube = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    // Asked with the /shorts/ form, so YouTube reports the video's real shape.
+    const shorts = "https://www.youtube.com/shorts/dQw4w9WgXcQ";
     network.routes[
-      `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(youtube)}`
+      `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(shorts)}`
     ] = json({
       type: "video",
       title: "Never Gonna Give You Up",
@@ -208,6 +210,28 @@ describe("fetchDetails", () => {
       }),
     );
     expect(post.details.title).toBe("Root cause");
+  });
+
+  test("gets a YouTube Short's vertical size", async () => {
+    const watch = "https://www.youtube.com/watch?v=lG4atCDzv0E";
+    network.routes[
+      `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent("https://www.youtube.com/shorts/lG4atCDzv0E")}`
+    ] = json({
+      type: "video",
+      title: "There’s Something Weird Inside Mars",
+      width: 113,
+      height: 200,
+    });
+    const result = await fetchDetails(
+      input({
+        url: "https://youtube.com/shorts/lG4atCDzv0E?si=9YnHrm2iYWPjuMtr",
+        resolvedUrl:
+          "https://youtube.com/shorts/lG4atCDzv0E?si=9YnHrm2iYWPjuMtr",
+        normalizedUrl: watch,
+        commonPlatform: CommonPlatform.YouTube,
+      }),
+    );
+    expect(result.details).toMatchObject({ width: 113, height: 200 });
   });
 
   test("reads an X post's text and date from its embed", async () => {

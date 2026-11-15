@@ -51,7 +51,11 @@ export async function fetchDetails(
         ? fetchOEmbed(
             oembedRequestUrl(
               known.endpoint,
-              known.link === "resolved" ? resolvedUrl : normalizedUrl,
+              known.link === "resolved"
+                ? resolvedUrl
+                : known.link === "normalized"
+                  ? normalizedUrl
+                  : known.link(normalizedUrl),
             ),
           )
         : null,

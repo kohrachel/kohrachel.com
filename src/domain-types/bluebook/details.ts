@@ -64,11 +64,24 @@ export type DetailsResult = {
  * title instead of the show's. Its page has everything instead.
  */
 export const KNOWN_OEMBED_ENDPOINTS: Partial<
-  Record<CommonPlatform, { endpoint: string; link: "normalized" | "resolved" }>
+  Record<
+    CommonPlatform,
+    {
+      endpoint: string;
+      link: "normalized" | "resolved" | ((normalizedUrl: string) => string);
+    }
+  >
 > = {
+  // Asked with a video's `/shorts/` link, YouTube reports its real shape:
+  // 113×200 for a Short, 200×113 for any other video. Asked with the
+  // `/watch?v=` link, every video comes back 200×113.
   [CommonPlatform.YouTube]: {
     endpoint: "https://www.youtube.com/oembed?format=json",
-    link: "normalized",
+    link: (normalizedUrl) =>
+      normalizedUrl.replace(
+        /^https:\/\/www\.youtube\.com\/watch\?v=([\w-]{11})$/,
+        "https://www.youtube.com/shorts/$1",
+      ),
   },
   // Reddit's endpoint needs the full link, including the subreddit.
   [CommonPlatform.Reddit]: {
