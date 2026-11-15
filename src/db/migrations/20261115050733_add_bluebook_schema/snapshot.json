@@ -1,7 +1,7 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "3ee92736-a290-4f41-a8f6-37b6d75e2051",
+  "id": "e9775787-540e-4de4-a138-fd65880a7b3b",
   "prevIds": [
     "45cf04c6-31ec-4f07-90bb-b9b977cf47f8"
   ],
@@ -35,12 +35,6 @@
     {
       "isRlsEnabled": true,
       "name": "mentions",
-      "entityType": "tables",
-      "schema": "bluebook"
-    },
-    {
-      "isRlsEnabled": true,
-      "name": "reviews",
       "entityType": "tables",
       "schema": "bluebook"
     },
@@ -124,6 +118,45 @@
       "table": "entries"
     },
     {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'{\"type\":\"doc\",\"content\":[]}'",
+      "generated": null,
+      "identity": null,
+      "name": "content",
+      "entityType": "columns",
+      "schema": "bluebook",
+      "table": "entries"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "''",
+      "generated": null,
+      "identity": null,
+      "name": "plain_text",
+      "entityType": "columns",
+      "schema": "bluebook",
+      "table": "entries"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "content_edited_at",
+      "entityType": "columns",
+      "schema": "bluebook",
+      "table": "entries"
+    },
+    {
       "type": "timestamp with time zone",
       "typeSchema": null,
       "notNull": true,
@@ -132,6 +165,19 @@
       "generated": null,
       "identity": null,
       "name": "created_at",
+      "entityType": "columns",
+      "schema": "bluebook",
+      "table": "entries"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
       "entityType": "columns",
       "schema": "bluebook",
       "table": "entries"
@@ -331,7 +377,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "review_id",
+      "name": "entry_id",
       "entityType": "columns",
       "schema": "bluebook",
       "table": "mentions"
@@ -374,93 +420,6 @@
       "entityType": "columns",
       "schema": "bluebook",
       "table": "mentions"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "byDefault",
-        "name": "reviews_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "9223372036854775807",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "bluebook",
-      "table": "reviews"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "entry_id",
-      "entityType": "columns",
-      "schema": "bluebook",
-      "table": "reviews"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'{\"type\":\"doc\",\"content\":[]}'",
-      "generated": null,
-      "identity": null,
-      "name": "content",
-      "entityType": "columns",
-      "schema": "bluebook",
-      "table": "reviews"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "''",
-      "generated": null,
-      "identity": null,
-      "name": "plain_text",
-      "entityType": "columns",
-      "schema": "bluebook",
-      "table": "reviews"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "bluebook",
-      "table": "reviews"
-    },
-    {
-      "type": "timestamp with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "bluebook",
-      "table": "reviews"
     },
     {
       "type": "bigint",
@@ -789,7 +748,7 @@
       "nameExplicit": true,
       "columns": [
         {
-          "value": "review_id",
+          "value": "entry_id",
           "isExpression": false,
           "asc": true,
           "nullsFirst": false,
@@ -808,7 +767,7 @@
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "mentions_review_id_target_item_id_unique",
+      "name": "mentions_entry_id_target_item_id_unique",
       "entityType": "indexes",
       "schema": "bluebook",
       "table": "mentions"
@@ -833,27 +792,6 @@
       "entityType": "indexes",
       "schema": "bluebook",
       "table": "mentions"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "entry_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": true,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "reviews_entry_id_unique",
-      "entityType": "indexes",
-      "schema": "bluebook",
-      "table": "reviews"
     },
     {
       "nameExplicit": true,
@@ -896,16 +834,16 @@
     {
       "nameExplicit": true,
       "columns": [
-        "review_id"
+        "entry_id"
       ],
       "schemaTo": "bluebook",
-      "tableTo": "reviews",
+      "tableTo": "entries",
       "columnsTo": [
         "id"
       ],
       "onUpdate": "CASCADE",
       "onDelete": "CASCADE",
-      "name": "mentions_review_id_fkey",
+      "name": "mentions_entry_id_fkey",
       "entityType": "fks",
       "schema": "bluebook",
       "table": "mentions"
@@ -926,23 +864,6 @@
       "entityType": "fks",
       "schema": "bluebook",
       "table": "mentions"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "entry_id"
-      ],
-      "schemaTo": "bluebook",
-      "tableTo": "entries",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "CASCADE",
-      "onDelete": "CASCADE",
-      "name": "reviews_entry_id_fkey",
-      "entityType": "fks",
-      "schema": "bluebook",
-      "table": "reviews"
     },
     {
       "nameExplicit": true,
@@ -1007,16 +928,6 @@
       "entityType": "pks",
       "schema": "bluebook",
       "table": "mentions"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": true,
-      "name": "reviews_pkey",
-      "entityType": "pks",
-      "schema": "bluebook",
-      "table": "reviews"
     },
     {
       "columns": [

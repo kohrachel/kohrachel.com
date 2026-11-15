@@ -10,13 +10,13 @@ import {
 import { sql } from "drizzle-orm";
 import { bluebook } from "./schema";
 import { items } from "./items";
-import { reviews } from "./reviews";
+import { entries } from "./entries";
 
 export const mentions = bluebook.table.withRLS(
   "mentions",
   {
     id: bigint({ mode: "number" }).generatedByDefaultAsIdentity(),
-    reviewId: bigint("review_id", { mode: "number" }).notNull(),
+    entryId: bigint("entry_id", { mode: "number" }).notNull(),
     targetItemId: bigint("target_item_id", { mode: "number" }).notNull(),
     context: text().default("").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -26,9 +26,9 @@ export const mentions = bluebook.table.withRLS(
   (table) => [
     primaryKey({ columns: [table.id], name: "mentions_pkey" }),
     foreignKey({
-      columns: [table.reviewId],
-      foreignColumns: [reviews.id],
-      name: "mentions_review_id_fkey",
+      columns: [table.entryId],
+      foreignColumns: [entries.id],
+      name: "mentions_entry_id_fkey",
     })
       .onDelete("cascade")
       .onUpdate("cascade"),
@@ -39,8 +39,8 @@ export const mentions = bluebook.table.withRLS(
     })
       .onDelete("cascade")
       .onUpdate("cascade"),
-    uniqueIndex("mentions_review_id_target_item_id_unique").on(
-      table.reviewId,
+    uniqueIndex("mentions_entry_id_target_item_id_unique").on(
+      table.entryId,
       table.targetItemId,
     ),
     index("mentions_target_item_id_idx").on(table.targetItemId),

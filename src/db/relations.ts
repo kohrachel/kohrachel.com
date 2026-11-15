@@ -24,15 +24,7 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.items.id,
       optional: false,
     }),
-    review: r.one.reviews({ from: r.entries.id, to: r.reviews.entryId }),
-  },
-  reviews: {
-    entry: r.one.entries({
-      from: r.reviews.entryId,
-      to: r.entries.id,
-      optional: false,
-    }),
-    mentions: r.many.mentions({ from: r.reviews.id, to: r.mentions.reviewId }),
+    mentions: r.many.mentions({ from: r.entries.id, to: r.mentions.entryId }),
   },
   mentions: {
     target: r.one.items({
@@ -40,9 +32,9 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.items.id,
       optional: false,
     }),
-    review: r.one.reviews({
-      from: r.mentions.reviewId,
-      to: r.reviews.id,
+    entry: r.one.entries({
+      from: r.mentions.entryId,
+      to: r.entries.id,
       optional: false,
     }),
   },
