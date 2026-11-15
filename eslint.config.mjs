@@ -13,7 +13,7 @@ const eslintConfig = defineConfig([
     settings: {
       tailwindcss: {
         // Tailwind v4 entry stylesheet used to resolve the theme.
-        cssConfigPath: "src/app/globals.css",
+        cssConfigPath: "src/app/(site)/globals.css",
       },
     },
     rules: {

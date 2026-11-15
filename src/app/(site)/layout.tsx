@@ -9,13 +9,13 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const yangBagus = localFont({
   variable: "--font-yang-bagus",
-  src: "./fonts/yang-bagus.otf",
+  src: "../fonts/yang-bagus.otf",
   fallback: ["system-ui", "sans-serif"],
 });
 
 const tiny = localFont({
   variable: "--font-tiny",
-  src: "./fonts/tiny-variable.ttf",
+  src: "../fonts/tiny-variable.ttf",
   // Not used on first paint; still loads on demand if a page uses it.
   preload: false,
   fallback: ["system-ui", "sans-serif"],
@@ -23,15 +23,15 @@ const tiny = localFont({
 
 const basteleur = localFont({
   variable: "--font-basteleur",
-  src: "./fonts/Basteleur-Bold.otf",
+  src: "../fonts/Basteleur-Bold.otf",
   fallback: ["system-ui", "sans-serif"],
 });
 
 const lcd = localFont({
   variable: "--font-lcd",
   src: [
-    { path: "./fonts/lcd.ttf", style: "normal" },
-    { path: "./fonts/lcd-italic.ttf", style: "italic" },
+    { path: "../fonts/lcd.ttf", style: "normal" },
+    { path: "../fonts/lcd-italic.ttf", style: "italic" },
   ],
   fallback: ["ui-monospace", "monospace"],
   // Not used on first paint; still loads on demand if a page uses it.
