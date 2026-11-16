@@ -16,7 +16,8 @@ import { isPublicHttpUrl } from "@/services/bluebook/links/resolve";
  * - `added_entry`: a new entry on the item that already has this link. The
  *   item's own details are left as they are.
  * - `restored`: the deleted item that had this link comes back, with the
- *   form's details and its old entries, plus a new entry.
+ *   form's details and its old entries, plus a new entry. Metadata fetched
+ *   again replaces the old values; anything not fetched again is kept.
  */
 export async function saveLinkService(
   input: ParsedSaveInput,
@@ -69,7 +70,9 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 async function reuseItem(
   tx: Tx,
   normalizedUrl: string,
-  fields: Partial<typeof items.$inferInsert>,
+  fields: Partial<typeof items.$inferInsert> & {
+    metadata: Record<string, unknown>;
+  },
 ) {
   const [current] = await tx
     .select({ id: items.id, deletedAt: items.deletedAt })
@@ -81,7 +84,12 @@ async function reuseItem(
   }
   await tx
     .update(items)
-    .set({ ...fields, deletedAt: null, updatedAt: sql`now()` })
+    .set({
+      ...fields,
+      metadata: sql`${items.metadata} || ${JSON.stringify(fields.metadata)}::jsonb`,
+      deletedAt: null,
+      updatedAt: sql`now()`,
+    })
     .where(eq(items.id, current.id));
   return { itemId: current.id, outcome: "restored" as const };
 }

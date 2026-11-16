@@ -107,6 +107,19 @@ describe.skipIf(!hasDatabase)("saving a link", () => {
     expect(await rows(sql`select id from bluebook.entries`)).toHaveLength(2);
   });
 
+  test("keeps old metadata that wasn't fetched again when restoring", async () => {
+    await save({ metadata: { durationSeconds: 214, width: 1280 } });
+    await db.execute(sql`update bluebook.items set deleted_at = now()`);
+
+    await save({ metadata: { width: 640, description: "New" } });
+    const [item] = await rows(sql`select metadata from bluebook.items`);
+    expect(item.metadata).toEqual({
+      durationSeconds: 214,
+      width: 640,
+      description: "New",
+    });
+  });
+
   test("handles two saves of a new link at once", async () => {
     const results = await Promise.all([save(), save()]);
     expect(results.map((r) => r.ok && r.outcome).sort()).toEqual([
@@ -183,7 +196,7 @@ describe.skipIf(!hasDatabase)("previewing a link", () => {
 
   test("summarizes an item you already have, without fetching", async () => {
     await save({ consumedOn: "2026-01-02" });
-    await save({ consumedOn: "2026-11-15" });
+    await save({ consumedOn: "2026-11-15", consumedPrecision: "month" });
     network.requested.length = 0;
 
     const result = await previewLinkService("https://youtu.be/dQw4w9WgXcQ");
@@ -194,9 +207,11 @@ describe.skipIf(!hasDatabase)("previewing a link", () => {
         id: 1,
         title: "Never Gonna Give You Up",
         platform: "youtube.com",
+        isFavorite: false,
+        publishedAt: "2009-10-25T06:57:33.000Z",
         isDeleted: false,
         entryCount: 2,
-        lastConsumedOn: "2026-11-15",
+        lastConsumed: { on: "2026-11-01", precision: "month" },
       },
     });
     expect(network.requested).toEqual([]);
