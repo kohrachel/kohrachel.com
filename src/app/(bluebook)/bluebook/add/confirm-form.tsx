@@ -16,7 +16,7 @@ import type {
 import { formatDuration } from "@/lib/bluebook/format";
 
 type Preview = Extract<PreviewResult, { ok: true }>;
-export type Saved = Extract<SaveResult, { ok: true }> & { title: string };
+export type Saved = Extract<SaveResult, { ok: true }>;
 
 const SOURCE_LABELS: Record<DetailsSource, string> = {
   youtube_api: "YouTube API",
@@ -108,7 +108,7 @@ export function ConfirmForm({
     startTransition(async () => {
       try {
         const result = await saveLink(input);
-        if (result.ok) onSaved({ ...result, title });
+        if (result.ok) onSaved(result);
         else setError(result.error);
       } catch {
         setError("Couldn't save. Try again, or check you're still logged in.");

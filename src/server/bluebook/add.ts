@@ -1,5 +1,6 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { requireWriteAccess } from "@/server/auth/gate";
 import {
   previewInputSchema,
@@ -11,6 +12,7 @@ import {
 } from "@/domain-types/bluebook/add";
 import { previewLinkService } from "@/services/bluebook/add/preview";
 import { saveLinkService } from "@/services/bluebook/add/save";
+import { itemTag } from "@/services/bluebook/items/cache-tags";
 
 /** Cleans up a pasted link and fetches details for the confirm form. */
 export async function previewLink(input: PreviewInput): Promise<PreviewResult> {
@@ -26,5 +28,7 @@ export async function saveLink(input: SaveInput): Promise<SaveResult> {
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid" };
   }
-  return saveLinkService(parsed.data);
+  const result = await saveLinkService(parsed.data);
+  if (result.ok) updateTag(itemTag(result.itemId));
+  return result;
 }
