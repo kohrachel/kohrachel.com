@@ -194,6 +194,7 @@ describe.skipIf(!hasDatabase)("previewing a link", () => {
         id: 1,
         title: "Never Gonna Give You Up",
         platform: "youtube.com",
+        isFavorite: false,
         isDeleted: false,
         entryCount: 2,
         lastConsumed: { on: "2026-11-01", precision: "month" },

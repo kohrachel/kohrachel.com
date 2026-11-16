@@ -1,23 +1,7 @@
 import Link from "next/link";
 import type { ExistingItem, PreviewResult } from "@/domain-types/bluebook/add";
-import type {
-  DetailField,
-  DetailsResult,
-  DetailsSource,
-} from "@/domain-types/bluebook/details";
 import { COMMON_PLATFORM_NAMES } from "@/domain-types/bluebook/links";
-import { formatDate, formatDuration } from "@/lib/bluebook/format";
-
-const SOURCE_LABELS: Record<DetailsSource, string> = {
-  youtube_api: "YouTube API",
-  bilibili_api: "Bilibili API",
-  wikipedia_api: "Wikipedia API",
-  linkedin_embed: "LinkedIn embed",
-  oembed: "oEmbed",
-  page_meta: "page",
-  share_text: "share text",
-  link: "link",
-};
+import { formatDate } from "@/lib/bluebook/format";
 
 export function PreviewView({ result }: { result: PreviewResult }) {
   if (!result.ok) {
@@ -46,7 +30,6 @@ export function PreviewView({ result }: { result: PreviewResult }) {
         </Link>
       </p>
       {result.existing && <ExistingView existing={result.existing} />}
-      {result.details && <DetailsView result={result.details} />}
     </section>
   );
 }
@@ -88,70 +71,6 @@ function ExistingView({ existing }: { existing: ExistingItem }) {
           ? "Saving brings it back with them."
           : "Saving adds a new entry."}
       </p>
-    </div>
-  );
-}
-
-function DetailsView({ result }: { result: DetailsResult }) {
-  const { details, sources } = result;
-  const filled = Object.keys(sources).length > 0;
-  if (!filled) {
-    return (
-      <p className="text-sm text-stone-500">
-        Couldn&apos;t fetch any details. You&apos;ll fill them in.
-      </p>
-    );
-  }
-
-  const rows: [DetailField, string, string | null][] = [
-    ["title", "Title", details.title],
-    ["creator", "Creator", details.creator],
-    [
-      "publishedAt",
-      "Published",
-      details.publishedAt && formatDate(details.publishedAt),
-    ],
-    [
-      "durationSeconds",
-      "Length",
-      details.durationSeconds ? formatDuration(details.durationSeconds) : null,
-    ],
-    [
-      "width",
-      "Size",
-      details.width && details.height
-        ? `${details.width}×${details.height}${details.height > details.width ? " (vertical)" : ""}`
-        : null,
-    ],
-    ["description", "Description", details.description],
-  ];
-
-  return (
-    <div className="flex flex-col gap-3 text-sm">
-      {details.thumbnailUrl && (
-        <img
-          src={details.thumbnailUrl}
-          alt=""
-          referrerPolicy="no-referrer"
-          className="max-h-60 w-fit max-w-full rounded-md object-contain"
-        />
-      )}
-      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
-        {rows.map(
-          ([field, label, value]) =>
-            value && (
-              <div key={field} className="contents">
-                <dt className="text-stone-500">{label}</dt>
-                <dd className="whitespace-pre-line">
-                  {value}{" "}
-                  <span className="text-xs text-stone-400">
-                    from {SOURCE_LABELS[sources[field]!]}
-                  </span>
-                </dd>
-              </div>
-            ),
-        )}
-      </dl>
     </div>
   );
 }

@@ -41,6 +41,7 @@ export async function findItem(
       title: items.title,
       creator: items.creator,
       platform: items.platform,
+      isFavorite: items.isFavorite,
       deletedAt: items.deletedAt,
       entryCount: count(entries.id),
     })

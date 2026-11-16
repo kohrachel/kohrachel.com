@@ -2,13 +2,23 @@
 
 import { useState, useTransition } from "react";
 import { previewLink } from "@/server/bluebook/add";
-import type { PreviewResult } from "@/domain-types/bluebook/add";
+import type { PreviewResult, SaveOutcome } from "@/domain-types/bluebook/add";
+import { ConfirmForm, type Saved } from "./confirm-form";
 import { PreviewView } from "./preview-view";
+
+const SAVED_MESSAGES: Record<SaveOutcome, [string, string]> = {
+  created: ["Saved", "."],
+  added_entry: ["Added a new entry to", "."],
+  restored: ["Restored", ", with its old entries."],
+};
 
 export function PasteFlow() {
   const [text, setText] = useState("");
   const [result, setResult] = useState<PreviewResult | null>(null);
   const [failed, setFailed] = useState(false);
+  const [saved, setSaved] = useState<Saved | null>(null);
+  // Remounts the confirm form for each preview, so it starts from that one.
+  const [previewCount, setPreviewCount] = useState(0);
   const [pending, startTransition] = useTransition();
 
   function preview() {
@@ -16,6 +26,8 @@ export function PasteFlow() {
     startTransition(async () => {
       try {
         setResult(await previewLink({ text }));
+        setPreviewCount((count) => count + 1);
+        setSaved(null);
         setFailed(false);
       } catch {
         setResult(null);
@@ -28,6 +40,12 @@ export function PasteFlow() {
     setText("");
     setResult(null);
     setFailed(false);
+    setSaved(null);
+  }
+
+  function onSaved(next: Saved) {
+    clear();
+    setSaved(next);
   }
 
   return (
@@ -84,7 +102,24 @@ export function PasteFlow() {
           Something went wrong. Try again, or check you&apos;re still logged in.
         </p>
       )}
-      {result && !pending && <PreviewView result={result} />}
+      {saved && (
+        <p role="status" className="text-sm">
+          {SAVED_MESSAGES[saved.outcome][0]} <strong>{saved.title}</strong>
+          {SAVED_MESSAGES[saved.outcome][1]}
+        </p>
+      )}
+      {result && !pending && (
+        <>
+          <PreviewView result={result} />
+          {result.ok && (
+            <ConfirmForm
+              key={previewCount}
+              preview={result}
+              onSaved={onSaved}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 }
