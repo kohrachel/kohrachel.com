@@ -18,8 +18,10 @@ type Video = {
   pic?: string;
   duration?: number;
   dimension?: Dimension;
+  cid?: number;
   pages?: {
     page?: number;
+    cid?: number;
     part?: string;
     duration?: number;
     dimension?: Dimension;
@@ -92,7 +94,12 @@ async function video(bvid: string, part: number) {
     thumbnailUrl: https(data.pic),
     durationSeconds: positiveNumber(page?.duration ?? data.duration),
     ...size(page?.dimension ?? data.dimension),
+    playerId: cid(part > 1 ? page?.cid : data.cid),
   };
+}
+
+function cid(value: number | undefined) {
+  return positiveNumber(value) ? String(value) : null;
 }
 
 async function season(

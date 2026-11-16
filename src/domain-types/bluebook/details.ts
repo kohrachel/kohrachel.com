@@ -12,6 +12,8 @@ export type ItemDetails = {
   /** Pixel size of the video or image, when known. Taller than wide = vertical. */
   width: number | null;
   height: number | null;
+  /** An id the platform's player needs that isn't in the link: Bilibili's `cid`. */
+  playerId: string | null;
 };
 
 export type DetailField = keyof ItemDetails;
@@ -25,6 +27,7 @@ export const DETAIL_FIELDS: readonly DetailField[] = [
   "durationSeconds",
   "width",
   "height",
+  "playerId",
 ];
 
 export const EMPTY_DETAILS: ItemDetails = {
@@ -36,6 +39,7 @@ export const EMPTY_DETAILS: ItemDetails = {
   durationSeconds: null,
   width: null,
   height: null,
+  playerId: null,
 };
 
 /** Where a detail came from, in the order they're tried. */

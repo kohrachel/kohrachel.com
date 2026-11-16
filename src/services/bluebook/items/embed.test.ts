@@ -18,9 +18,11 @@ describe("embedFor", () => {
 
   test("plays Bilibili videos with danmaku, including later parts", () => {
     expect(
-      embedFor(CANONICAL_URL.bilibiliVideo("BV154AwzWEje", 1), {}),
+      embedFor(CANONICAL_URL.bilibiliVideo("BV154AwzWEje", 1), {
+        playerId: "36860134114",
+      }),
     ).toEqual({
-      src: "https://player.bilibili.com/player.html?bvid=BV154AwzWEje&p=1&danmaku=1&autoplay=0",
+      src: "https://player.bilibili.com/player.html?bvid=BV154AwzWEje&cid=36860134114&p=1&danmaku=1&autoplay=0",
       width: 16,
       height: 9,
     });

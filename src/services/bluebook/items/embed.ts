@@ -14,7 +14,10 @@ export function embedFor(
     const width = positiveNumber(metadata.width);
     const height = positiveNumber(metadata.height);
     return {
-      src: player(match.slice(1).filter(Boolean)),
+      src: player(
+        match.slice(1).filter(Boolean),
+        typeof metadata.playerId === "string" ? metadata.playerId : null,
+      ),
       ...(width && height ? { width, height } : DEFAULT_EMBED_SIZE),
     };
   }

@@ -99,6 +99,7 @@ export function ConfirmForm({
             durationSeconds: details.durationSeconds,
             width: details.width,
             height: details.height,
+            playerId: details.playerId,
           }
         : {},
       isFavorite,

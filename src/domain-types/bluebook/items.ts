@@ -21,17 +21,21 @@ export type ItemPageData = {
 
 /**
  * Players for the videos that play on their item page, read from the item's
- * cleaned-up link (see `CANONICAL_URL`).
+ * cleaned-up link (see `CANONICAL_URL`) and its saved `playerId`.
  */
-export const EMBEDS = [
+export const EMBEDS: {
+  link: RegExp;
+  player: (ids: string[], playerId: string | null) => string;
+}[] = [
   {
     link: /^https:\/\/www\.youtube\.com\/watch\?v=([\w-]{11})$/,
-    player: ([id]: string[]) => `https://www.youtube-nocookie.com/embed/${id}`,
+    player: ([id]) => `https://www.youtube-nocookie.com/embed/${id}`,
   },
   {
     link: /^https:\/\/www\.bilibili\.com\/video\/(BV[0-9A-Za-z]{10})(?:\?p=(\d+))?$/,
-    player: ([bvid, part = "1"]: string[]) =>
-      `https://player.bilibili.com/player.html?bvid=${bvid}&p=${part}&danmaku=1&autoplay=0`,
+    // Without the cid, Bilibili's player refuses some videos.
+    player: ([bvid, part = "1"], cid) =>
+      `https://player.bilibili.com/player.html?bvid=${bvid}${cid ? `&cid=${cid}` : ""}&p=${part}&danmaku=1&autoplay=0`,
   },
 ];
 
