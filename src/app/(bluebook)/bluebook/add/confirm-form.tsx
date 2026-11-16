@@ -44,6 +44,8 @@ const MONTHS = Array.from({ length: 12 }, (_, i) =>
 
 const inputClass =
   "w-full rounded-md border border-stone-300 bg-transparent px-2 py-1.5 text-base outline-none focus:border-stone-500";
+// iOS Safari gives date inputs a minimum width, and no height when empty.
+const dateInputClass = `${inputClass} block min-h-[2.375rem] min-w-0 appearance-none`;
 
 /**
  * The confirm form. For a link you already have, it only asks when you
@@ -160,7 +162,7 @@ export function ConfirmForm({
               type="date"
               value={publishedOn}
               onChange={(event) => setPublishedOn(event.target.value)}
-              className={inputClass}
+              className={dateInputClass}
             />
           </Field>
           <label className="flex items-center gap-2 text-sm">
@@ -316,7 +318,7 @@ function ConsumedField({
               event.target.value && onDateChange(event.target.value)
             }
             required
-            className={inputClass}
+            className={dateInputClass}
           />
         )}
         {precision === "month" && (

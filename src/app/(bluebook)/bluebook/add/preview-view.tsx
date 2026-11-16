@@ -39,7 +39,7 @@ function problemMessage(result: Extract<PreviewResult, { ok: false }>) {
     case "no_link":
       return "No link found in that text.";
     case "short_link_failed":
-      return "Couldn't open that short link. Try the full link instead.";
+      return "Couldn't open that short link. Open it in your browser and copy the link from the address bar instead.";
     case "unsupported_page": {
       const name = COMMON_PLATFORM_NAMES[result.commonPlatform];
       return `That's a ${name} link, but not a ${name} page bluebook can save.`;
