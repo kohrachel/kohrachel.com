@@ -1,0 +1,43 @@
+import type { DatePrecision } from "./add";
+
+/** An item and its entries, as its page shows them. */
+export type ItemPageData = {
+  id: number;
+  url: string;
+  normalizedUrl: string;
+  platform: string;
+  title: string;
+  creator: string | null;
+  publishedAt: Date | null;
+  metadata: Record<string, unknown>;
+  isFavorite: boolean;
+  entries: {
+    id: number;
+    consumedOn: string;
+    consumedPrecision: DatePrecision;
+    plainText: string;
+  }[];
+};
+
+/**
+ * Players for the videos that play on their item page, read from the item's
+ * cleaned-up link (see `CANONICAL_URL`) and its saved `playerId`.
+ */
+export const EMBEDS: {
+  link: RegExp;
+  player: (ids: string[], playerId: string | null) => string;
+}[] = [
+  {
+    link: /^https:\/\/www\.youtube\.com\/watch\?v=([\w-]{11})$/,
+    player: ([id]) => `https://www.youtube-nocookie.com/embed/${id}`,
+  },
+  {
+    link: /^https:\/\/www\.bilibili\.com\/video\/(BV[0-9A-Za-z]{10})(?:\?p=(\d+))?$/,
+    // Without the cid, Bilibili's player refuses some videos.
+    player: ([bvid, part = "1"], cid) =>
+      `https://player.bilibili.com/player.html?bvid=${bvid}${cid ? `&cid=${cid}` : ""}&p=${part}&danmaku=1&autoplay=0`,
+  },
+];
+
+/** Videos without a known size are shown 16:9. */
+export const DEFAULT_EMBED_SIZE = { width: 16, height: 9 };

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { headers } from "next/headers";
 import { Suspense } from "react";
 import { canWrite } from "@/server/auth/gate";
+import { bluebookBasePath, mainSiteUrl } from "@/server/bluebook/paths";
 import { PasteFlow } from "./paste-flow";
 
 export const metadata: Metadata = {
@@ -22,25 +22,14 @@ export default function AddPage() {
 }
 
 async function OwnerOnly() {
-  if (await canWrite()) return <PasteFlow />;
+  if (await canWrite())
+    return <PasteFlow basePath={await bluebookBasePath()} />;
   return (
     <p>
       Only the owner can add links.{" "}
-      <Link href={await loginUrl()} className="underline">
+      <Link href={await mainSiteUrl("/admin/login")} className="underline">
         Log in
       </Link>
     </p>
   );
-}
-
-/**
- * The login page is on the main site. On `bluebook.kohrachel.com` that's
- * another host; on a Vercel preview, bluebook lives at `/bluebook` on the
- * same host.
- */
-async function loginUrl() {
-  const host = (await headers()).get("host") ?? "";
-  return host.startsWith("bluebook.")
-    ? `https://${host.slice("bluebook.".length)}/admin/login`
-    : "/admin/login";
 }

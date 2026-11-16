@@ -132,6 +132,7 @@ describe("Bilibili APIs", () => {
       pic: "http://i0.hdslb.com/bfs/archive/cover.jpg",
       duration: 600,
       dimension: { width: 1920, height: 1080, rotate: 0 },
+      cid: 1001,
       pages: [
         {
           page: 1,
@@ -141,6 +142,7 @@ describe("Bilibili APIs", () => {
         },
         {
           page: 2,
+          cid: 1002,
           part: "第二集",
           duration: 300,
           dimension: { width: 1920, height: 1080, rotate: 1 },
@@ -162,6 +164,7 @@ describe("Bilibili APIs", () => {
       durationSeconds: 600,
       width: 1920,
       height: 1080,
+      playerId: "1001",
     });
   });
 
@@ -176,6 +179,7 @@ describe("Bilibili APIs", () => {
       durationSeconds: 300,
       width: 1080,
       height: 1920,
+      playerId: "1002",
     });
   });
 

@@ -35,6 +35,7 @@ describe("parsePageMeta", () => {
       durationSeconds: null,
       width: null,
       height: null,
+      playerId: null,
     });
     expect(oembedUrl).toBeNull();
   });
