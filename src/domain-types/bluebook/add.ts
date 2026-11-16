@@ -7,13 +7,16 @@ export type DatePrecision = (typeof DATE_PRECISIONS)[number];
 
 const httpUrl = z.url({ protocol: /^https?$/ });
 /** Empty or blank text from the form means "not set". */
-const optionalText = (max: number) =>
+export const optionalText = (max: number) =>
   z
     .string()
     .trim()
     .max(max)
     .nullable()
     .transform((text) => text || null);
+
+export const itemTitleSchema = z.string().trim().min(1, "Add a title").max(500);
+export const publishedAtSchema = z.iso.datetime({ offset: true }).nullable();
 
 export const previewInputSchema = z.object({
   text: z.string().trim().min(1, "Paste a link").max(5000),
@@ -40,9 +43,9 @@ export const saveInputSchema = z.object({
    * this again on the server, never taken from the browser.
    */
   resolvedUrl: httpUrl,
-  title: z.string().trim().min(1, "Add a title").max(500),
+  title: itemTitleSchema,
   creator: optionalText(300),
-  publishedAt: z.iso.datetime({ offset: true }).nullable(),
+  publishedAt: publishedAtSchema,
   metadata: itemMetadataSchema.default({}),
   isFavorite: z.boolean().default(false),
   /** `YYYY-MM-DD`. With month or year precision, the day (and month) are ignored. */

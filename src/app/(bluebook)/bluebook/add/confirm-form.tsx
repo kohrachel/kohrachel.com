@@ -13,7 +13,9 @@ import type {
   DetailField,
   DetailsSource,
 } from "@/domain-types/bluebook/details";
+import { dateInputValue, publishedAtFromInput } from "@/lib/bluebook/dates";
 import { formatDuration } from "@/lib/bluebook/format";
+import { buttonClass, dateInputClass, inputClass } from "../styles";
 
 type Preview = Extract<PreviewResult, { ok: true }>;
 export type Saved = Extract<SaveResult, { ok: true }>;
@@ -42,11 +44,6 @@ const MONTHS = Array.from({ length: 12 }, (_, i) =>
   }),
 );
 
-const inputClass =
-  "w-full rounded-md border border-stone-300 bg-transparent px-2 py-1.5 text-base outline-none focus:border-stone-500";
-// iOS Safari gives date inputs a minimum width, and no height when empty.
-const dateInputClass = `${inputClass} block min-h-[2.375rem] min-w-0 appearance-none`;
-
 /**
  * The confirm form. For a link you already have, it only asks when you
  * watched or read it; otherwise it's pre-filled with the fetched details.
@@ -64,13 +61,14 @@ export function ConfirmForm({
   const entryOnly = existing !== null && !existing.isDeleted;
   const initialPublishedAt =
     details?.publishedAt ?? existing?.publishedAt ?? null;
-  const initialPublishedOn = initialPublishedAt?.slice(0, 10) ?? "";
 
   const [title, setTitle] = useState(details?.title ?? existing?.title ?? "");
   const [creator, setCreator] = useState(
     details?.creator ?? existing?.creator ?? "",
   );
-  const [publishedOn, setPublishedOn] = useState(initialPublishedOn);
+  const [publishedOn, setPublishedOn] = useState(
+    dateInputValue(initialPublishedAt),
+  );
   const [isFavorite, setIsFavorite] = useState(existing?.isFavorite ?? false);
   const [consumedOn, setConsumedOn] = useState(localToday);
   const [consumedPrecision, setConsumedPrecision] =
@@ -84,14 +82,7 @@ export function ConfirmForm({
       resolvedUrl: preview.resolvedUrl,
       title,
       creator,
-      // Unchanged, the date keeps its time; a date typed in is
-      // saved at midnight UTC.
-      publishedAt:
-        publishedOn === initialPublishedOn
-          ? initialPublishedAt
-          : publishedOn
-            ? `${publishedOn}T00:00:00Z`
-            : null,
+      publishedAt: publishedAtFromInput(initialPublishedAt, publishedOn),
       metadata: details
         ? {
             description: details.description,
@@ -192,7 +183,7 @@ export function ConfirmForm({
       <button
         type="submit"
         disabled={pending || (!entryOnly && !title.trim())}
-        className="w-fit rounded-md bg-stone-900 px-4 py-1.5 text-sm text-white disabled:opacity-50"
+        className={buttonClass}
       >
         {pending
           ? "Saving…"

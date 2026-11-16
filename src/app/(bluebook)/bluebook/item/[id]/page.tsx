@@ -5,9 +5,12 @@ import { Suspense } from "react";
 import type { ItemPageData } from "@/domain-types/bluebook/items";
 import { COMMON_PLATFORM_NAMES } from "@/domain-types/bluebook/links";
 import { formatDate, formatDuration } from "@/lib/bluebook/format";
+import { canWrite } from "@/server/auth/gate";
 import { getItem } from "@/server/bluebook/items";
+import { bluebookBasePath } from "@/server/bluebook/paths";
 import { embedFor, type Embed } from "@/services/bluebook/items/embed";
 import { commonPlatformForHost } from "@/services/bluebook/links/normalize";
+import { DeleteEntryButton, ItemTools } from "./owner-tools";
 
 type Props = PageProps<"/bluebook/item/[id]">;
 
@@ -47,6 +50,9 @@ async function ItemContent({ params }: { params: Props["params"] }) {
         <LinkOutCard item={item} />
       )}
       <Details item={item} />
+      <Suspense fallback={null}>
+        <OwnerItemTools item={item} />
+      </Suspense>
       <Entries entries={item.entries} />
     </>
   );
@@ -155,11 +161,42 @@ function Entries({ entries }: { entries: ItemPageData["entries"] }) {
             {entry.plainText && (
               <p className="whitespace-pre-line">{entry.plainText}</p>
             )}
+            {entries.length > 1 && (
+              <Suspense fallback={null}>
+                <OwnerOnly>
+                  <DeleteEntryButton id={entry.id} />
+                </OwnerOnly>
+              </Suspense>
+            )}
           </li>
         ))}
       </ol>
     </section>
   );
+}
+
+/**
+ * The owner's controls. They read the login cookie, so they load on their
+ * own and the rest of the page stays cached.
+ */
+async function OwnerItemTools({ item }: { item: ItemPageData }) {
+  if (!(await canWrite())) return null;
+  return (
+    <ItemTools
+      item={{
+        id: item.id,
+        title: item.title,
+        creator: item.creator,
+        publishedAt: item.publishedAt?.toISOString() ?? null,
+        isFavorite: item.isFavorite,
+      }}
+      basePath={await bluebookBasePath()}
+    />
+  );
+}
+
+async function OwnerOnly({ children }: { children: React.ReactNode }) {
+  return (await canWrite()) ? children : null;
 }
 
 function platformName(platform: string) {
