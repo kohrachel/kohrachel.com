@@ -60,7 +60,9 @@ export function ConfirmForm({
   const details = preview.details?.details;
   const sources = preview.details?.sources ?? {};
   const entryOnly = existing !== null && !existing.isDeleted;
-  const initialPublishedOn = details?.publishedAt?.slice(0, 10) ?? "";
+  const initialPublishedAt =
+    details?.publishedAt ?? existing?.publishedAt ?? null;
+  const initialPublishedOn = initialPublishedAt?.slice(0, 10) ?? "";
 
   const [title, setTitle] = useState(details?.title ?? existing?.title ?? "");
   const [creator, setCreator] = useState(
@@ -80,11 +82,11 @@ export function ConfirmForm({
       resolvedUrl: preview.resolvedUrl,
       title,
       creator,
-      // Unchanged, the fetched date keeps its time; a date typed in is
+      // Unchanged, the date keeps its time; a date typed in is
       // saved at midnight UTC.
       publishedAt:
         publishedOn === initialPublishedOn
-          ? (details?.publishedAt ?? null)
+          ? initialPublishedAt
           : publishedOn
             ? `${publishedOn}T00:00:00Z`
             : null,

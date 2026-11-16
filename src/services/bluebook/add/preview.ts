@@ -42,6 +42,7 @@ export async function findItem(
       creator: items.creator,
       platform: items.platform,
       isFavorite: items.isFavorite,
+      publishedAt: items.publishedAt,
       deletedAt: items.deletedAt,
       entryCount: count(entries.id),
     })
@@ -58,9 +59,10 @@ export async function findItem(
     .orderBy(desc(entries.consumedOn), desc(entries.id))
     .limit(1);
 
-  const { deletedAt, ...item } = row;
+  const { deletedAt, publishedAt, ...item } = row;
   return {
     ...item,
+    publishedAt: publishedAt?.toISOString() ?? null,
     isDeleted: deletedAt !== null,
     lastConsumed: lastConsumed ?? null,
   };

@@ -60,6 +60,7 @@ export type ExistingItem = {
   creator: string | null;
   platform: string;
   isFavorite: boolean;
+  publishedAt: string | null;
   /** A deleted item is restored, with its old entries, when saved again. */
   isDeleted: boolean;
   entryCount: number;
