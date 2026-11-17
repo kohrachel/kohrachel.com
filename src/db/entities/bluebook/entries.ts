@@ -45,6 +45,7 @@ export const entries = bluebook.table.withRLS(
       .onDelete("cascade")
       .onUpdate("cascade"),
     index("entries_item_id_created_at_idx").on(table.itemId, table.createdAt),
+    index("entries_plain_text_search_idx").using("pgroonga", table.plainText),
   ],
 );
 
