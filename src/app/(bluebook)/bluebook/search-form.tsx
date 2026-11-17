@@ -17,7 +17,8 @@ const chipClass =
 
 /**
  * The homepage's search box and filters. Filters search as soon as they
- * change; typed text searches on Enter. Everything lives in the address.
+ * change; typed text searches on Enter, once it's more than spaces, and ×
+ * clears it. Everything lives in the address.
  */
 export function SearchForm({
   basePath,
@@ -62,7 +63,10 @@ export function SearchForm({
       className="flex flex-col gap-3 text-sm"
       onSubmit={(event) => {
         event.preventDefault();
-        search(current);
+        const trimmed = query.trim();
+        if (!trimmed) return;
+        setQuery(trimmed);
+        search({ ...current, query: trimmed });
       }}
     >
       <div className="flex gap-2">
@@ -90,7 +94,7 @@ export function SearchForm({
             </button>
           )}
         </div>
-        <button type="submit" className={buttonClass}>
+        <button type="submit" disabled={!query.trim()} className={buttonClass}>
           Search
         </button>
       </div>
