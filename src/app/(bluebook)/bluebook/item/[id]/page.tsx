@@ -3,13 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import type { ItemPageData } from "@/domain-types/bluebook/items";
-import { COMMON_PLATFORM_NAMES } from "@/domain-types/bluebook/links";
 import { formatDate, formatDuration } from "@/lib/bluebook/format";
 import { canWrite } from "@/server/auth/gate";
 import { getItem } from "@/server/bluebook/items";
 import { bluebookBasePath } from "@/server/bluebook/paths";
 import { embedFor, type Embed } from "@/services/bluebook/items/embed";
-import { commonPlatformForHost } from "@/services/bluebook/links/normalize";
+import { platformName } from "@/services/bluebook/links/platform";
 import { DeleteEntryButton, ItemTools } from "./owner-tools";
 
 type Props = PageProps<"/bluebook/item/[id]">;
@@ -197,11 +196,6 @@ async function OwnerItemTools({ item }: { item: ItemPageData }) {
 
 async function OwnerOnly({ children }: { children: React.ReactNode }) {
   return (await canWrite()) ? children : null;
-}
-
-function platformName(platform: string) {
-  const common = commonPlatformForHost(platform);
-  return common ? COMMON_PLATFORM_NAMES[common] : platform;
 }
 
 function text(value: unknown) {
