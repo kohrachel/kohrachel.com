@@ -105,7 +105,9 @@ function Editing({
 
   function save() {
     if (!editor) return;
-    const json = editor.getJSON();
+    // ProseMirror builds attributes without a prototype, which server
+    // actions can't send as data; a JSON round trip makes them plain.
+    const json = JSON.parse(JSON.stringify(editor.getJSON()));
     startTransition(async () => {
       try {
         const result = await saveEntryText({ entryId, content: json });
