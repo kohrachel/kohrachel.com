@@ -11,7 +11,7 @@ import {
   type EditResult,
   type UpdateItemInput,
 } from "@/domain-types/bluebook/edit";
-import { itemTag } from "@/services/bluebook/items/cache-tags";
+import { ITEM_LISTS_TAG, itemTag } from "@/services/bluebook/items/cache-tags";
 import {
   deleteEntryService,
   deleteItemService,
@@ -40,7 +40,7 @@ export async function deleteEntry(input: { id: number }): Promise<EditResult> {
   return edit(deleteEntrySchema, input, ({ id }) => deleteEntryService(id));
 }
 
-/** Checks write access and the input, runs the change, and refreshes the item's page. */
+/** Checks write access and the input, runs the change, and refreshes the item's page and item lists. */
 async function edit<Schema extends z.ZodType>(
   schema: Schema,
   input: unknown,
@@ -52,6 +52,9 @@ async function edit<Schema extends z.ZodType>(
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid" };
   }
   const result = await run(parsed.data);
-  if (result.ok) updateTag(itemTag(result.itemId));
+  if (result.ok) {
+    updateTag(itemTag(result.itemId));
+    updateTag(ITEM_LISTS_TAG);
+  }
   return result;
 }

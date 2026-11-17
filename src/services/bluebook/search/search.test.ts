@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import { sql } from "drizzle-orm";
+import { CommonPlatform } from "@/domain-types/bluebook/links";
 
 // Runs only against a local test database: TEST_DATABASE_URL, with the
 // bluebook migrations applied. Search also needs the PGroonga extension
@@ -22,18 +23,20 @@ describe.skipIf(!hasDatabase)("searching items", () => {
         ('b', 'https://www.bilibili.com/video/BV154AwzWEje', '辩论：有按钮能知道对方爱你的程度', '阿詹', false, null),
         ('c', 'https://en.wikipedia.org/wiki/Mars', 'Mars', null, false, null),
         ('d', 'https://zh.wikipedia.org/wiki/猫', '猫', null, true, null),
-        ('e', 'https://example.com/gone', 'Mars, deleted', null, false, now())`);
+        ('e', 'https://example.com/gone', 'Mars, deleted', null, false, now()),
+        ('f', 'https://blog.example.org/post', 'A blog post', null, false, null)`);
     await db.execute(sql`
       insert into bluebook.entries (item_id, consumed_on, consumed_precision, plain_text, created_at) values
         (1, '2025-03-04', 'day', 'Watched it twice. The part about the core was wild!', '2025-03-04'),
         (2, '2026-01-01', 'year', '和珍妮特一起看的。我们都没按。', '2026-01-02'),
         (3, '2024-05-01', 'month', '', '2024-05-01'),
         (4, '2026-11-15', 'day', '', '2026-11-15'),
-        (5, '2026-11-15', 'day', '', '2026-11-15')`);
+        (5, '2026-11-15', 'day', '', '2026-11-15'),
+        (6, '2023-02-01', 'month', '', '2023-02-01')`);
   });
 
   test("with no search, lists every item, most recently added-to first", async () => {
-    expect(await ids({})).toEqual([4, 2, 1, 3]);
+    expect(await ids({})).toEqual([4, 2, 1, 3, 6]);
   });
 
   test("finds Chinese, including one character, and English in any case", async () => {
@@ -65,9 +68,16 @@ describe.skipIf(!hasDatabase)("searching items", () => {
     expect(await ids({ query: "nope OR mars" })).toEqual([]);
   });
 
-  test("filters by platform, including its subdomains", async () => {
-    expect(await ids({ platform: "wikipedia.org" })).toEqual([4, 3]);
-    expect(await ids({ platform: "youtube.com", query: "mars" })).toEqual([1]);
+  test("filters by platforms, including their subdomains, or other sites", async () => {
+    expect(await ids({ platforms: ["wikipedia.org"] })).toEqual([4, 3]);
+    expect(await ids({ platforms: ["youtube.com"], query: "mars" })).toEqual([
+      1,
+    ]);
+    expect(await ids({ platforms: ["youtube.com", "bilibili.com"] })).toEqual([
+      2, 1,
+    ]);
+    expect(await ids({ platforms: ["other"] })).toEqual([6]);
+    expect(await ids({ platforms: ["other", "youtube.com"] })).toEqual([1, 6]);
   });
 
   test("filters by year consumed and favorites", async () => {
@@ -76,10 +86,15 @@ describe.skipIf(!hasDatabase)("searching items", () => {
     expect(await ids({ favoritesOnly: true, year: 2025 })).toEqual([1]);
   });
 
-  test("lists the platforms and years to filter by, without deleted items", async () => {
+  test("lists the common platforms, other sites and years to filter by, without deleted items", async () => {
     expect(await searchFiltersService()).toEqual({
-      platforms: ["bilibili.com", "wikipedia.org", "youtube.com"],
-      years: [2026, 2025, 2024],
+      platforms: [
+        CommonPlatform.Bilibili,
+        CommonPlatform.Wikipedia,
+        CommonPlatform.YouTube,
+      ],
+      hasOtherPlatforms: true,
+      years: [2026, 2025, 2024, 2023],
     });
   });
 });

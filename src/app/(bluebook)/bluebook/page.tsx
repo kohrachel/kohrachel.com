@@ -1,12 +1,16 @@
-import Form from "next/form";
 import Link from "next/link";
 import { Suspense } from "react";
-import { searchParamsSchema } from "@/domain-types/bluebook/search";
+import { COMMON_PLATFORM_NAMES } from "@/domain-types/bluebook/links";
+import {
+  OTHER_PLATFORMS,
+  searchParamsSchema,
+  type SearchParams,
+} from "@/domain-types/bluebook/search";
 import { formatDate } from "@/lib/bluebook/format";
 import { bluebookBasePath } from "@/server/bluebook/paths";
 import { searchFilters, searchItems } from "@/server/bluebook/search";
 import { platformName } from "@/services/bluebook/links/platform";
-import { buttonClass, inputClass } from "./styles";
+import { SearchForm } from "./search-form";
 
 type Props = PageProps<"/bluebook">;
 
@@ -27,82 +31,42 @@ async function Search({
   searchParams: Props["searchParams"];
 }) {
   const parsed = searchParamsSchema.safeParse(await searchParams);
-  const params = parsed.success ? parsed.data : {};
+  const params: SearchParams = parsed.success ? parsed.data : { platform: [] };
   const [basePath, filters, results] = await Promise.all([
     bluebookBasePath(),
     searchFilters(),
     searchItems({
       query: params.q,
-      platform: params.platform,
+      platforms: [...params.platform].sort(),
       year: params.year,
       favoritesOnly: params.fav === "1",
     }),
   ]);
-  const filtered = !!(params.q || params.platform || params.year || params.fav);
+  const filtered = !!(
+    params.q ||
+    params.platform.length ||
+    params.year ||
+    params.fav
+  );
+  const platformOptions = [
+    ...filters.platforms.map((platform) => ({
+      value: platform,
+      label: COMMON_PLATFORM_NAMES[platform],
+    })),
+    ...(filters.hasOtherPlatforms
+      ? [{ value: OTHER_PLATFORMS, label: "Other sites" }]
+      : []),
+  ];
 
   return (
     <>
-      <Form
-        action={basePath || "/"}
-        className="flex flex-col gap-2 text-sm"
-        role="search"
-      >
-        <div className="flex gap-2">
-          <input
-            name="q"
-            type="search"
-            defaultValue={params.q}
-            placeholder="Search titles, creators and entries"
-            aria-label="Search"
-            className={inputClass}
-          />
-          <button type="submit" className={buttonClass}>
-            Search
-          </button>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <select
-            name="platform"
-            defaultValue={params.platform ?? ""}
-            aria-label="Platform"
-            className="rounded-md border border-stone-300 bg-transparent px-2 py-1"
-          >
-            <option value="">All platforms</option>
-            {filters.platforms.map((platform) => (
-              <option key={platform} value={platform}>
-                {platformName(platform)}
-              </option>
-            ))}
-          </select>
-          <select
-            name="year"
-            defaultValue={params.year ?? ""}
-            aria-label="Year watched or read"
-            className="rounded-md border border-stone-300 bg-transparent px-2 py-1"
-          >
-            <option value="">Any year</option>
-            {filters.years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-          <label className="flex items-center gap-1.5">
-            <input
-              type="checkbox"
-              name="fav"
-              value="1"
-              defaultChecked={params.fav === "1"}
-            />
-            Favorites
-          </label>
-          {filtered && (
-            <Link href={basePath || "/"} className="text-stone-500 underline">
-              Clear
-            </Link>
-          )}
-        </div>
-      </Form>
+      <SearchForm
+        key={params.q ?? ""}
+        basePath={basePath}
+        params={params}
+        platformOptions={platformOptions}
+        years={filters.years}
+      />
 
       {results.length === 0 ? (
         <p className="text-stone-500">

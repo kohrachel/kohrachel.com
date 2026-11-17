@@ -3,12 +3,17 @@ import { sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import type { DatePrecision } from "@/domain-types/bluebook/add";
 import {
+  OTHER_PLATFORMS,
   SEARCH_LIMIT,
   SEARCH_MAX_WORDS,
   type SearchFilters,
   type SearchInput,
   type SearchResult,
 } from "@/domain-types/bluebook/search";
+import {
+  COMMON_PLATFORM_NAMES,
+  CommonPlatform,
+} from "@/domain-types/bluebook/links";
 import { platformGroup } from "@/services/bluebook/links/platform";
 import { pickSnippet, searchWords } from "./snippet";
 
@@ -23,6 +28,15 @@ type Row = {
   matched_texts: string[];
 };
 
+/** On this platform: the domain itself or one of its subdomains. */
+const onPlatform = (domain: string) =>
+  sql`(i.platform = ${domain} or i.platform like ${`%.${domain}`})`;
+
+const onAnyCommonPlatform = sql`(${sql.join(
+  Object.values(CommonPlatform).map(onPlatform),
+  sql` or `,
+)})`;
+
 /**
  * Items that aren't deleted, matching the filters and every word of the
  * query (in the title, creator, platform or an entry's text), with the
@@ -31,7 +45,7 @@ type Row = {
  */
 export async function searchItemsService({
   query = "",
-  platform,
+  platforms = [],
   year,
   favoritesOnly = false,
   limit = SEARCH_LIMIT,
@@ -56,9 +70,15 @@ export async function searchItemsService({
       ]),
     ),
   ];
-  if (platform) {
+  if (platforms.length) {
     conditions.push(
-      sql`(i.platform = ${platform} or i.platform like ${`%.${platform}`})`,
+      any(
+        platforms.map((platform) =>
+          platform === OTHER_PLATFORMS
+            ? sql`not ${onAnyCommonPlatform}`
+            : onPlatform(platform),
+        ),
+      ),
     );
   }
   if (year) {
@@ -117,9 +137,12 @@ export async function searchItemsService({
   }));
 }
 
-/** The platforms and years there's something to filter by, newest year first. */
+/**
+ * The common platforms there's something on (by name), whether anything is
+ * on other sites, and the years with entries, newest first.
+ */
 export async function searchFiltersService(): Promise<SearchFilters> {
-  const [platforms, years] = await Promise.all([
+  const [platformRows, yearRows] = await Promise.all([
     db.execute(sql`
       select distinct platform from bluebook.items where deleted_at is null`),
     db.execute(sql`
@@ -128,14 +151,19 @@ export async function searchFiltersService(): Promise<SearchFilters> {
       join bluebook.items i on i.id = e.item_id and i.deleted_at is null
       order by year desc`),
   ]);
+  const groups = new Set(
+    (platformRows as unknown as { platform: string }[]).map((row) =>
+      platformGroup(row.platform),
+    ),
+  );
+  const common = Object.values(CommonPlatform).filter((platform) =>
+    groups.has(platform),
+  );
   return {
-    platforms: [
-      ...new Set(
-        (platforms as unknown as { platform: string }[]).map((row) =>
-          platformGroup(row.platform),
-        ),
-      ),
-    ].sort(),
-    years: (years as unknown as { year: number }[]).map((row) => row.year),
+    platforms: common.sort((a, b) =>
+      COMMON_PLATFORM_NAMES[a].localeCompare(COMMON_PLATFORM_NAMES[b]),
+    ),
+    hasOtherPlatforms: groups.size > common.length,
+    years: (yearRows as unknown as { year: number }[]).map((row) => row.year),
   };
 }

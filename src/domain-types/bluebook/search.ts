@@ -1,5 +1,9 @@
 import { z } from "zod";
 import type { DatePrecision } from "./add";
+import type { CommonPlatform } from "./links";
+
+/** The platform filter's value for every site that isn't a common platform. */
+export const OTHER_PLATFORMS = "other";
 
 /** Empty fields from the search form mean "not set". */
 const emptyAsUnset = (value: unknown) =>
@@ -8,7 +12,10 @@ const emptyAsUnset = (value: unknown) =>
 /** The homepage's search and filters, read from its address. */
 export const searchParamsSchema = z.object({
   q: z.preprocess(emptyAsUnset, z.string().trim().max(200).optional()),
-  platform: z.preprocess(emptyAsUnset, z.string().max(100).optional()),
+  platform: z.preprocess(
+    (value) => [value ?? []].flat().filter((v) => v !== ""),
+    z.array(z.string().max(100)).max(20),
+  ),
   year: z.preprocess(
     emptyAsUnset,
     z.coerce.number().int().min(1900).max(2100).optional(),
@@ -16,9 +23,11 @@ export const searchParamsSchema = z.object({
   fav: z.preprocess(emptyAsUnset, z.literal("1").optional()),
 });
 
+export type SearchParams = z.output<typeof searchParamsSchema>;
+
 export type SearchInput = {
   query?: string;
-  platform?: string;
+  platforms?: string[];
   year?: number;
   favoritesOnly?: boolean;
   limit?: number;
@@ -34,7 +43,11 @@ export type SearchResult = {
   snippet: string | null;
 };
 
-export type SearchFilters = { platforms: string[]; years: number[] };
+export type SearchFilters = {
+  platforms: CommonPlatform[];
+  hasOtherPlatforms: boolean;
+  years: number[];
+};
 
 export const SEARCH_LIMIT = 100;
 /** Search words beyond this many are ignored. */
