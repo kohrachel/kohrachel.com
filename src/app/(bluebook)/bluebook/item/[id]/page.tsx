@@ -9,6 +9,8 @@ import { getItem } from "@/server/bluebook/items";
 import { bluebookBasePath } from "@/server/bluebook/paths";
 import { embedFor, type Embed } from "@/services/bluebook/items/embed";
 import { platformName } from "@/services/bluebook/links/platform";
+import { EntryTextEditor } from "./entry-editor";
+import { EntryText } from "./entry-text";
 import { DeleteEntryButton, ItemTools } from "./owner-tools";
 
 type Props = PageProps<"/bluebook/item/[id]">;
@@ -41,6 +43,7 @@ async function ItemContent({ params }: { params: Props["params"] }) {
   if (!item) notFound();
 
   const embed = embedFor(item.normalizedUrl, item.metadata);
+  const basePath = await bluebookBasePath();
   return (
     <>
       {embed ? (
@@ -52,7 +55,7 @@ async function ItemContent({ params }: { params: Props["params"] }) {
       <Suspense fallback={null}>
         <OwnerItemTools item={item} />
       </Suspense>
-      <Entries entries={item.entries} />
+      <Entries item={item} basePath={basePath} />
     </>
   );
 }
@@ -147,30 +150,80 @@ function Details({ item }: { item: ItemPageData }) {
   );
 }
 
-function Entries({ entries }: { entries: ItemPageData["entries"] }) {
+function Entries({ item, basePath }: { item: ItemPageData; basePath: string }) {
+  const { entries } = item;
   return (
     <section className="flex flex-col gap-3">
       <h2 className="text-lg font-semibold">Watched or read</h2>
-      <ol className="flex flex-col gap-3">
-        {entries.map((entry) => (
-          <li key={entry.id} className="flex flex-col gap-1">
-            <p className="text-sm text-stone-500">
-              {formatDate(entry.consumedOn, entry.consumedPrecision)}
-            </p>
-            {entry.plainText && (
-              <p className="whitespace-pre-line">{entry.plainText}</p>
-            )}
-            {entries.length > 1 && (
-              <Suspense fallback={null}>
-                <OwnerOnly>
-                  <DeleteEntryButton id={entry.id} />
-                </OwnerOnly>
+      <ol className="flex flex-col gap-5">
+        {entries.map((entry) => {
+          const text = entry.plainText ? (
+            <EntryText
+              content={entry.content}
+              mentionedTitles={item.mentionedTitles}
+              basePath={basePath}
+            />
+          ) : null;
+          return (
+            <li key={entry.id} className="flex flex-col gap-1">
+              <p className="text-sm text-stone-500">
+                {formatDate(entry.consumedOn, entry.consumedPrecision)}
+                {entry.contentEditedAt && (
+                  <span
+                    title={`Edited ${entry.contentEditedAt.toISOString().slice(0, 10)}`}
+                  >
+                    {" "}
+                    · edited
+                  </span>
+                )}
+              </p>
+              <Suspense fallback={text}>
+                <OwnerEntryText
+                  entry={entry}
+                  itemId={item.id}
+                  basePath={basePath}
+                >
+                  {text}
+                </OwnerEntryText>
               </Suspense>
-            )}
-          </li>
-        ))}
+              {entries.length > 1 && (
+                <Suspense fallback={null}>
+                  <OwnerOnly>
+                    <DeleteEntryButton id={entry.id} />
+                  </OwnerOnly>
+                </Suspense>
+              )}
+            </li>
+          );
+        })}
       </ol>
     </section>
+  );
+}
+
+/** An entry's text, with the owner's button to write or edit it. */
+async function OwnerEntryText({
+  entry,
+  itemId,
+  basePath,
+  children,
+}: {
+  entry: ItemPageData["entries"][number];
+  itemId: number;
+  basePath: string;
+  children: React.ReactNode;
+}) {
+  if (!(await canWrite())) return children;
+  return (
+    <EntryTextEditor
+      entryId={entry.id}
+      itemId={itemId}
+      content={entry.content}
+      hasText={entry.plainText !== ""}
+      basePath={basePath}
+    >
+      {children}
+    </EntryTextEditor>
   );
 }
 

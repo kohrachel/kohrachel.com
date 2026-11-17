@@ -10,6 +10,11 @@ export const MENTION_CONTEXT_MAX_LENGTH = 300;
 /** Links in entry text must be web addresses. */
 export const ENTRY_LINK = /^https?:\/\//i;
 
+/** How many items the `@` picker offers. */
+export const MENTION_PICKER_LIMIT = 8;
+
+export type MentionTarget = { id: number; title: string; platform: string };
+
 export type SaveEntryTextResult =
   | { ok: true; itemId: number; changedItemIds: number[] }
   | { ok: false; error: string };
