@@ -2,6 +2,7 @@ import {
   bigint,
   boolean,
   check,
+  index,
   jsonb,
   primaryKey,
   text,
@@ -38,6 +39,12 @@ export const items = bluebook.table.withRLS(
   (table) => [
     primaryKey({ columns: [table.id], name: "items_pkey" }),
     uniqueIndex("items_normalized_url_unique").on(table.normalizedUrl),
+    index("items_search_idx").using(
+      "pgroonga",
+      table.title,
+      table.creator,
+      table.platform,
+    ),
     check("items_title_not_blank_check", sql`btrim(${table.title}) <> ''`),
     check(
       "items_normalized_url_format_check",
