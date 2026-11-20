@@ -142,15 +142,14 @@ export async function searchItemsService({
  * on other sites, and the years with entries, newest first.
  */
 export async function searchFiltersService(): Promise<SearchFilters> {
-  const [platformRows, yearRows] = await Promise.all([
-    db.execute(sql`
-      select distinct platform from bluebook.items where deleted_at is null`),
-    db.execute(sql`
-      select distinct extract(year from e.consumed_on)::int as year
-      from bluebook.entries e
-      join bluebook.items i on i.id = e.item_id and i.deleted_at is null
-      order by year desc`),
-  ]);
+  // One after another: see the note in src/db/index.ts.
+  const platformRows = await db.execute(sql`
+    select distinct platform from bluebook.items where deleted_at is null`);
+  const yearRows = await db.execute(sql`
+    select distinct extract(year from e.consumed_on)::int as year
+    from bluebook.entries e
+    join bluebook.items i on i.id = e.item_id and i.deleted_at is null
+    order by year desc`);
   const groups = new Set(
     (platformRows as unknown as { platform: string }[]).map((row) =>
       platformGroup(row.platform),
