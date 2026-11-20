@@ -32,16 +32,15 @@ async function Search({
 }) {
   const parsed = searchParamsSchema.safeParse(await searchParams);
   const params: SearchParams = parsed.success ? parsed.data : { platform: [] };
-  const [basePath, filters, results] = await Promise.all([
-    bluebookBasePath(),
-    searchFilters(),
-    searchItems({
-      query: params.q,
-      platforms: [...params.platform].sort(),
-      year: params.year,
-      favoritesOnly: params.fav === "1",
-    }),
-  ]);
+  // One after another: see the note in src/db/index.ts.
+  const basePath = await bluebookBasePath();
+  const filters = await searchFilters();
+  const results = await searchItems({
+    query: params.q,
+    platforms: [...params.platform].sort(),
+    year: params.year,
+    favoritesOnly: params.fav === "1",
+  });
   const filtered = !!(
     params.q ||
     params.platform.length ||
