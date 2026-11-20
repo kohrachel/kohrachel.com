@@ -32,7 +32,6 @@ async function Search({
 }) {
   const parsed = searchParamsSchema.safeParse(await searchParams);
   const params: SearchParams = parsed.success ? parsed.data : { platform: [] };
-  // One after another: see the note in src/db/index.ts.
   const basePath = await bluebookBasePath();
   const filters = await searchFilters();
   const results = await searchItems({
