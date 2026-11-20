@@ -1,4 +1,36 @@
 @import "tailwindcss";
+@import "./tokens.css";
+@import "./components.css" layer(components);
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-paper-sunk: var(--paper-sunk);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-margin-red: var(--margin-red);
+  --color-cover: var(--cover);
+  --color-cover-deep: var(--cover-deep);
+  --color-on-cover: var(--on-cover);
+  --color-cover-tint: var(--cover-tint);
+  --color-stamp-ink: var(--stamp-ink);
+  --color-highlight: var(--highlight);
+}
+
+/* Bridge until each page moves to bb- classes: the old stone/white colours follow the theme. */
+:root {
+  --color-stone-900: var(--ink);
+  --color-stone-700: var(--ink-muted);
+  --color-stone-600: var(--ink-muted);
+  --color-stone-500: var(--ink-muted);
+  --color-stone-400: var(--ink-muted);
+  --color-stone-300: var(--rule-strong);
+  --color-stone-200: var(--rule);
+  --color-stone-100: var(--paper-sunk);
+  --color-white: var(--paper-raised);
+}
 
 /* Entry text, read-only and in the editor. */
 .entry-text {
