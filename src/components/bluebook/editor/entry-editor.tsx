@@ -16,6 +16,7 @@ import type {
 } from "@tiptap/suggestion";
 import Link from "next/link";
 import { useImperativeHandle, useState, type Ref } from "react";
+import { Highlighted } from "../highlighted";
 import type { MentionTarget } from "@/domain-types/bluebook/entries";
 import { findMentionTargets } from "@/server/bluebook/entries";
 import { entryExtensions } from "./extensions";
@@ -35,6 +36,7 @@ export function EntryEditor({
   basePath,
   placeholder = "Write about it. Type @ to mention something you've saved.",
   autofocus = false,
+  labelledBy,
 }: {
   content?: JSONContent;
   onChange: (value: EntryEditorValue) => void;
@@ -44,13 +46,15 @@ export function EntryEditor({
   basePath: string;
   placeholder?: string;
   autofocus?: boolean;
+  /** The id of a label for the text box; without one it's "Entry text". */
+  labelledBy?: string;
 }) {
   const editor = useEditor({
     immediatelyRender: false,
     autofocus: autofocus ? "end" : false,
     extensions: [
       ...entryExtensions({
-        HTMLAttributes: { class: "mention" },
+        HTMLAttributes: { class: "bb-mention" },
         suggestion: mentionSuggestion(excludeItemId, basePath),
       }),
       Placeholder.configure({ placeholder }),
@@ -58,8 +62,12 @@ export function EntryEditor({
     content: content?.content?.length ? content : undefined,
     editorProps: {
       attributes: {
-        class: "entry-text min-h-24 px-3 py-2 outline-none",
-        "aria-label": "Entry text",
+        class: "bb-sheet-input bb-prose",
+        role: "textbox",
+        "aria-multiline": "true",
+        ...(labelledBy
+          ? { "aria-labelledby": labelledBy }
+          : { "aria-label": "Entry text" }),
       },
     },
     onUpdate: ({ editor: current }) =>
@@ -72,10 +80,12 @@ export function EntryEditor({
   });
 
   return (
-    <div className="rounded-md border border-stone-300 focus-within:border-stone-500">
+    <>
       {editor && <Toolbar editor={editor} />}
-      <EditorContent editor={editor} />
-    </div>
+      <div className="bb-editor__box">
+        <EditorContent editor={editor} />
+      </div>
+    </>
   );
 }
 
@@ -121,7 +131,7 @@ function Toolbar({ editor }: { editor: Editor }) {
       ),
   });
   return (
-    <div className="flex gap-0.5 border-b border-stone-200 p-1 text-sm">
+    <div className="bb-seg self-start" role="group" aria-label="Formatting">
       {TOOLS.map(({ name, label, title, run }) => (
         <button
           key={name}
@@ -131,9 +141,9 @@ function Toolbar({ editor }: { editor: Editor }) {
           aria-pressed={active[name]}
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => run(editor)}
-          className={`min-w-7 rounded px-1.5 py-0.5 aria-pressed:bg-stone-900 aria-pressed:text-white ${
+          className={
             name === "bold" ? "font-bold" : name === "italic" ? "italic" : ""
-          }`}
+          }
         >
           {label}
         </button>
@@ -179,7 +189,7 @@ function mentionSuggestion(
         if (!picker || !rect) return;
         Object.assign(picker.element.style, {
           position: "fixed",
-          left: `${rect.left}px`,
+          left: `${Math.max(8, Math.min(rect.left, window.innerWidth - 348))}px`,
           top: `${rect.bottom + 4}px`,
           zIndex: "50",
         });
@@ -242,28 +252,43 @@ function MentionList({
   }));
 
   return (
-    <div className="flex w-72 max-w-[90vw] flex-col rounded-md border border-stone-300 bg-white p-1 text-sm shadow-lg">
+    <div
+      className="bb-picker"
+      role="listbox"
+      aria-label="Mention something you've saved"
+      style={{ position: "relative", width: "min(340px, calc(100vw - 16px))" }}
+    >
       {items.length ? (
         items.map((item, index) => (
-          <button
+          <div
             key={item.id}
-            type="button"
+            role="option"
+            aria-selected={index === selected}
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => command(item)}
-            className={`flex flex-col rounded px-2 py-1 text-left ${
-              index === selected ? "bg-stone-100" : ""
-            }`}
+            className="bb-picker__opt"
           >
-            <span className="truncate">{item.title}</span>
-            <span className="text-xs text-stone-500">{item.platform}</span>
-          </button>
+            <span
+              aria-hidden="true"
+              className="bb-linkrow__pic bb-linkrow__pic--note"
+            />
+            <span className="bb-picker__title">
+              <Highlighted text={item.title} words={query ? [query] : []} />
+            </span>
+            <span className="bb-picker__meta">{item.platform}</span>
+          </div>
         ))
       ) : (
-        <p className="px-2 py-1 text-stone-500">
-          {query ? "Nothing saved matches. " : "Nothing saved yet. "}
-          <Link href={`${basePath}/add`} target="_blank" className="underline">
+        <p className="bb-picker__empty">
+          {query ? `Nothing saved matches “${query}”. ` : "Nothing saved yet. "}
+          <Link
+            href={`${basePath}/add`}
+            target="_blank"
+            className="text-cover underline"
+          >
             Add it first
           </Link>
+          , then mention it.
         </p>
       )}
     </div>

@@ -1,14 +1,30 @@
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import type { ItemPageData } from "@/domain-types/bluebook/items";
-import { formatDate, formatDuration } from "@/lib/bluebook/format";
+import { CommonPlatform } from "@/domain-types/bluebook/links";
+import {
+  formatDateLong,
+  formatDateShort,
+  formatDuration,
+  isoDateAt,
+  timesInWords,
+} from "@/lib/bluebook/format";
+import { thumbnailFrame } from "@/lib/bluebook/thumbnail";
 import { canWrite } from "@/server/auth/gate";
 import { getItem } from "@/server/bluebook/items";
 import { bluebookBasePath } from "@/server/bluebook/paths";
 import { embedFor, type Embed } from "@/services/bluebook/items/embed";
-import { platformName } from "@/services/bluebook/links/platform";
+import {
+  platformGroup,
+  platformName,
+} from "@/services/bluebook/links/platform";
+import { Star } from "../../star";
+import { Thumb } from "../../thumb";
+import { Connections } from "./connections";
 import { EntryTextEditor } from "./entry-editor";
 import { EntryText } from "@/components/bluebook/editor";
 import {
@@ -19,6 +35,12 @@ import {
 } from "./owner-tools";
 
 type Props = PageProps<"/bluebook/item/[id]">;
+type Entry = ItemPageData["entries"][number];
+
+const READ_PLATFORMS: string[] = [
+  CommonPlatform.Goodreads,
+  CommonPlatform.Wikipedia,
+];
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const item = await loadItem(params);
@@ -27,11 +49,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default function ItemPage({ params }: Props) {
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-8">
-      <Suspense fallback={<p className="text-stone-500">Loading…</p>}>
+    <main className="bb-page bb-page--item">
+      <Suspense fallback={<ItemLoading />}>
         <ItemContent params={params} />
       </Suspense>
     </main>
+  );
+}
+
+function ItemLoading() {
+  return (
+    <div className="bb-item" aria-label="Loading">
+      <div className="bb-item__main">
+        <div className="bb-skel" style={{ aspectRatio: "16 / 9" }} />
+        <div className="bb-skel" style={{ height: 72 }} />
+      </div>
+    </div>
   );
 }
 
@@ -49,36 +82,61 @@ async function ItemContent({ params }: { params: Props["params"] }) {
 
   const embed = embedFor(item.normalizedUrl, item.metadata);
   const basePath = await bluebookBasePath();
+  const vertical = !!embed && embed.height > embed.width;
+  const verb = embed
+    ? "Watched"
+    : READ_PLATFORMS.includes(platformGroup(item.platform))
+      ? "Read"
+      : "Watched or read";
+
+  const head = <ItemHead item={item} />;
+  const log = <EntryLog item={item} basePath={basePath} verb={verb} />;
+  const connections = <Connections item={item} basePath={basePath} />;
+  const details = (
+    <Details item={item} verb={verb} basePath={basePath} taped={!vertical} />
+  );
+
   return (
     <>
-      {embed ? (
-        <Player embed={embed} title={item.title} />
+      <Link href={basePath || "/"} className="bb-back">
+        <HugeiconsIcon icon={ArrowLeft01Icon} size={16} strokeWidth={1.8} />
+        bluebook
+      </Link>
+      {vertical ? (
+        <div className="bb-item bb-item--short">
+          <Player embed={embed} title={item.title} />
+          <div className="bb-item__side">
+            {head}
+            {log}
+            {connections}
+            <div className="max-w-80">{details}</div>
+          </div>
+        </div>
       ) : (
-        <LinkOutCard item={item} />
+        <div className="bb-item">
+          <div className="bb-item__main">
+            {embed ? (
+              <Player embed={embed} title={item.title} />
+            ) : (
+              <LinkOutCard item={item} />
+            )}
+            {head}
+            {log}
+            {connections}
+          </div>
+          {details}
+        </div>
       )}
-      <Details item={item} />
-      <Suspense fallback={null}>
-        <OwnerItemTools item={item} />
-      </Suspense>
-      <Entries item={item} basePath={basePath} />
-      <LinksOut links={item.linksOut} basePath={basePath} />
-      <MentionedIn mentions={item.mentionedIn} basePath={basePath} />
     </>
   );
 }
 
 function Player({ embed, title }: { embed: Embed; title: string }) {
   const { src, width, height } = embed;
-  const vertical = height > width;
   return (
     <div
-      className="mx-auto overflow-hidden rounded-md bg-black"
-      style={{
-        aspectRatio: `${width} / ${height}`,
-        width: vertical
-          ? `min(100%, calc(min(80vh, 640px) * ${width / height}))`
-          : "100%",
-      }}
+      className={`bb-player ${height > width ? "bb-player--vertical" : ""}`}
+      style={{ "--r": `${width} / ${height}` } as React.CSSProperties}
     >
       <iframe
         src={src}
@@ -86,7 +144,6 @@ function Player({ embed, title }: { embed: Embed; title: string }) {
         allow="encrypted-media; fullscreen; picture-in-picture"
         allowFullScreen
         loading="lazy"
-        className="size-full"
       />
     </div>
   );
@@ -94,121 +151,175 @@ function Player({ embed, title }: { embed: Embed; title: string }) {
 
 function LinkOutCard({ item }: { item: ItemPageData }) {
   const thumbnailUrl = text(item.metadata.thumbnailUrl);
+  const width = Number(item.metadata.width);
+  const height = Number(item.metadata.height);
+  const size = width > 0 && height > 0 ? { width, height } : null;
   const description = text(item.metadata.description);
+  const platform = platformName(item.platform);
+  const frame = thumbnailFrame(size);
   return (
     <Link
       href={item.normalizedUrl}
       target="_blank"
       rel="noreferrer"
-      className="flex flex-col gap-3 rounded-md border border-stone-300 p-4 hover:border-stone-500 sm:flex-row"
+      className="bb-linkout"
     >
       {thumbnailUrl && (
-        <img
-          src={thumbnailUrl}
-          alt=""
-          referrerPolicy="no-referrer"
-          className="max-h-48 w-fit max-w-full rounded object-contain sm:max-w-60"
-        />
+        <div className="bb-linkout__pic">
+          <span aria-hidden="true" className="bb-tape bb-tape--top" />
+          <div
+            className={`bb-linkout__frame ${frame.crop === "cover" ? "" : `bb-thumb--${frame.crop}`}`}
+            style={{ aspectRatio: frame.ratio }}
+          >
+            <Thumb src={thumbnailUrl} />
+          </div>
+        </div>
       )}
-      <div className="flex min-w-0 flex-col gap-1">
-        <p className="font-medium">{item.title}</p>
-        {description && (
-          <p className="line-clamp-3 text-sm text-stone-600">{description}</p>
-        )}
-        <p className="text-sm text-stone-500">
-          Open on {platformName(item.platform)} ↗
-        </p>
+      <div className="bb-linkout__body">
+        <p className="bb-meta">{platform}</p>
+        <p className="bb-item-title text-2xl/[30px]">{item.title}</p>
+        {description && <p className="bb-linkout__desc">{description}</p>}
+        <p className="bb-linkout__go">Open on {platform} ↗</p>
       </div>
     </Link>
   );
 }
 
-function Details({ item }: { item: ItemPageData }) {
+function ItemHead({ item }: { item: ItemPageData }) {
   const durationSeconds = Number(item.metadata.durationSeconds) || null;
-  const facts = [
+  const meta = [
     platformName(item.platform),
-    item.publishedAt && formatDate(item.publishedAt.toISOString()),
+    item.publishedAt && formatDateShort(item.publishedAt.toISOString(), "day"),
     durationSeconds && formatDuration(durationSeconds),
   ].filter(Boolean);
-
   return (
-    <header className="flex flex-col gap-1">
-      <h1 className="text-2xl font-semibold">
-        {item.title}
-        {item.isFavorite && (
-          <span className="ml-2 text-amber-500" title="Favorite">
-            ★
-          </span>
-        )}
-      </h1>
-      {item.creator && <p>{item.creator}</p>}
-      <p className="text-sm text-stone-500">
-        {facts.join(" · ")} ·{" "}
-        <Link
-          href={item.normalizedUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="underline"
-        >
-          Original
-        </Link>
-      </p>
-    </header>
+    <div className="bb-item__head">
+      <div className="bb-item__title-row">
+        <h1 className="bb-item-title">{item.title}</h1>
+        {item.isFavorite && <Star className="bb-star--lg" label="Favorite" />}
+      </div>
+      {item.creator && <p className="bb-item__creator">{item.creator}</p>}
+      <p className="bb-meta">{meta.join(" · ")}</p>
+    </div>
   );
 }
 
-function Entries({ item, basePath }: { item: ItemPageData; basePath: string }) {
+function Details({
+  item,
+  verb,
+  basePath,
+  taped,
+}: {
+  item: ItemPageData;
+  verb: string;
+  basePath: string;
+  taped: boolean;
+}) {
+  const durationSeconds = Number(item.metadata.durationSeconds) || null;
+  return (
+    <aside className="bb-details">
+      {taped && (
+        <span
+          aria-hidden="true"
+          className="bb-tape bb-tape--right bb-tape--top"
+        />
+      )}
+      <dl>
+        <dt>Platform</dt>
+        <dd>{platformName(item.platform)}</dd>
+        {item.publishedAt && (
+          <>
+            <dt>Published</dt>
+            <dd>{formatDateShort(item.publishedAt.toISOString(), "day")}</dd>
+          </>
+        )}
+        {durationSeconds && (
+          <>
+            <dt>Length</dt>
+            <dd>{formatDuration(durationSeconds)}</dd>
+          </>
+        )}
+        <dt>{verb}</dt>
+        <dd>{timesInWords(item.entries.length)}</dd>
+      </dl>
+      <Link
+        href={item.normalizedUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="bb-link text-sm"
+      >
+        Open original ↗
+      </Link>
+      <Suspense fallback={null}>
+        <OwnerItemTools item={item} basePath={basePath} />
+      </Suspense>
+    </aside>
+  );
+}
+
+function EntryLog({
+  item,
+  basePath,
+  verb,
+}: {
+  item: ItemPageData;
+  basePath: string;
+  verb: string;
+}) {
   const { entries } = item;
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold">Watched or read</h2>
-      <Suspense fallback={null}>
-        <OwnerOnly>
-          <AddEntryButton itemId={item.id} />
-        </OwnerOnly>
-      </Suspense>
-      <ol className="flex flex-col gap-5">
+    <section className="bb-log">
+      <div className="bb-log__head">
+        <div className="bb-log__title">
+          <h2 className="bb-section-title">
+            {verb} {timesInWords(entries.length)}
+          </h2>
+        </div>
+        <Suspense fallback={null}>
+          <OwnerOnly>
+            <AddEntryButton itemId={item.id} />
+          </OwnerOnly>
+        </Suspense>
+      </div>
+      <ol className="bb-sheet">
         {entries.map((entry) => {
-          const text = entry.plainText ? (
+          const text = (
             <EntryText
-              content={entry.content}
+              content={entry.plainText ? entry.content : null}
+              edited={!!entry.contentEditedAt}
               mentionedTitles={item.mentionedTitles}
               basePath={basePath}
             />
-          ) : null;
+          );
           return (
-            <li key={entry.id} className="flex flex-col gap-1">
-              <p className="text-sm text-stone-500">
-                {formatDate(entry.consumedOn, entry.consumedPrecision)}
-                {entry.contentEditedAt && (
-                  <span
-                    title={`Edited ${entry.contentEditedAt.toISOString().slice(0, 10)}`}
-                  >
-                    {" "}
-                    · edited
-                  </span>
-                )}
-              </p>
+            <li key={entry.id} className="bb-entry">
+              <div className="bb-entry__date">
+                <time
+                  className="bb-stamp"
+                  dateTime={isoDateAt(
+                    entry.consumedOn,
+                    entry.consumedPrecision,
+                  )}
+                  aria-label={formatDateLong(
+                    entry.consumedOn,
+                    entry.consumedPrecision,
+                  )}
+                >
+                  {formatDateShort(
+                    entry.consumedOn,
+                    entry.consumedPrecision,
+                  ).toUpperCase()}
+                </time>
+              </div>
               <Suspense fallback={text}>
-                <OwnerEntryText
+                <OwnerEntry
                   entry={entry}
                   itemId={item.id}
                   basePath={basePath}
+                  deletable={entries.length > 1}
                 >
                   {text}
-                </OwnerEntryText>
-              </Suspense>
-              <Suspense fallback={null}>
-                <OwnerOnly>
-                  <div className="flex flex-wrap items-start gap-1">
-                    <EntryDateButton
-                      id={entry.id}
-                      consumedOn={entry.consumedOn}
-                      consumedPrecision={entry.consumedPrecision}
-                    />
-                    {entries.length > 1 && <DeleteEntryButton id={entry.id} />}
-                  </div>
-                </OwnerOnly>
+                </OwnerEntry>
               </Suspense>
             </li>
           );
@@ -218,94 +329,18 @@ function Entries({ item, basePath }: { item: ItemPageData; basePath: string }) {
   );
 }
 
-/** Items this item's entries mention. */
-function LinksOut({
-  links,
-  basePath,
-}: {
-  links: ItemPageData["linksOut"];
-  basePath: string;
-}) {
-  if (!links.length) return null;
-  return (
-    <section className="flex flex-col gap-2">
-      <h2 className="text-lg font-semibold">Links out</h2>
-      <ul className="flex flex-col gap-1">
-        {links.map((link) => (
-          <li key={link.id}>
-            <ItemLink id={link.id} title={link.title} basePath={basePath} />
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-/** Other items' entries that mention this item, with the sentence around it. */
-function MentionedIn({
-  mentions,
-  basePath,
-}: {
-  mentions: ItemPageData["mentionedIn"];
-  basePath: string;
-}) {
-  if (!mentions.length) return null;
-  return (
-    <section className="flex flex-col gap-2">
-      <h2 className="text-lg font-semibold">Mentioned in</h2>
-      <ul className="flex flex-col gap-3">
-        {mentions.map((mention, index) => (
-          <li key={index} className="flex flex-col gap-0.5">
-            <p>
-              <ItemLink
-                id={mention.itemId}
-                title={mention.title}
-                basePath={basePath}
-              />
-              <span className="text-sm text-stone-500">
-                {" "}
-                · {formatDate(mention.consumedOn, mention.consumedPrecision)}
-              </span>
-            </p>
-            {mention.context && (
-              <p className="text-sm text-stone-700">{mention.context}</p>
-            )}
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-/** A link to an item, or "[removed]" once it's deleted. */
-function ItemLink({
-  id,
-  title,
-  basePath,
-}: {
-  id: number;
-  title: string | null;
-  basePath: string;
-}) {
-  return title ? (
-    <Link href={`${basePath}/item/${id}`} className="hover:underline">
-      {title}
-    </Link>
-  ) : (
-    <span className="text-stone-400">[removed]</span>
-  );
-}
-
-/** An entry's text, with the owner's button to write or edit it. */
-async function OwnerEntryText({
+/** An entry's text, with the owner's Edit · Change date · Delete under it. */
+async function OwnerEntry({
   entry,
   itemId,
   basePath,
+  deletable,
   children,
 }: {
-  entry: ItemPageData["entries"][number];
+  entry: Entry;
   itemId: number;
   basePath: string;
+  deletable: boolean;
   children: React.ReactNode;
 }) {
   if (!(await canWrite())) return children;
@@ -314,8 +349,16 @@ async function OwnerEntryText({
       entryId={entry.id}
       itemId={itemId}
       content={entry.content}
-      hasText={entry.plainText !== ""}
       basePath={basePath}
+      tools={[
+        <EntryDateButton
+          key="date"
+          id={entry.id}
+          consumedOn={entry.consumedOn}
+          consumedPrecision={entry.consumedPrecision}
+        />,
+        deletable && <DeleteEntryButton key="delete" id={entry.id} />,
+      ].filter(Boolean)}
     >
       {children}
     </EntryTextEditor>
@@ -326,7 +369,13 @@ async function OwnerEntryText({
  * The owner's controls. They read the login cookie, so they load on their
  * own and the rest of the page stays cached.
  */
-async function OwnerItemTools({ item }: { item: ItemPageData }) {
+async function OwnerItemTools({
+  item,
+  basePath,
+}: {
+  item: ItemPageData;
+  basePath: string;
+}) {
   if (!(await canWrite())) return null;
   return (
     <ItemTools
@@ -337,7 +386,7 @@ async function OwnerItemTools({ item }: { item: ItemPageData }) {
         publishedAt: item.publishedAt?.toISOString() ?? null,
         isFavorite: item.isFavorite,
       }}
-      basePath={await bluebookBasePath()}
+      basePath={basePath}
     />
   );
 }

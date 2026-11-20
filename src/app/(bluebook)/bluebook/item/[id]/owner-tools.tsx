@@ -18,10 +18,13 @@ import {
   updateItem,
 } from "@/server/bluebook/edit";
 import { ConsumedField, today } from "../../consumed-field";
+import { Notice } from "../../notice";
+import { Star } from "../../star";
 import {
   buttonClass,
   dateInputClass,
   inputClass,
+  outlineButtonClass,
   quietButtonClass,
 } from "../../styles";
 
@@ -52,7 +55,7 @@ function useEdit() {
   return { error, pending, run };
 }
 
-/** Favorite, edit and delete, for the owner. `basePath` is where bluebook starts. */
+/** Edit, favorite and delete, for the owner. `basePath` is where bluebook starts. */
 export function ItemTools({
   item,
   basePath,
@@ -65,28 +68,42 @@ export function ItemTools({
   const { error, pending, run } = useEdit();
 
   return (
-    <section className="flex flex-col gap-3 rounded-md border border-dashed border-stone-300 p-3 text-sm">
-      {mode === "view" && (
-        <div className="flex flex-wrap gap-1">
+    <>
+      {mode === "edit" ? (
+        <EditForm
+          item={item}
+          pending={pending}
+          onCancel={() => setMode("view")}
+          onSave={(input) =>
+            run(
+              () => updateItem(input),
+              () => setMode("view"),
+            )
+          }
+        />
+      ) : (
+        <div className="bb-row">
           <button
             type="button"
             disabled={pending}
+            onClick={() => setMode("edit")}
+            className={outlineButtonClass}
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            disabled={pending}
+            aria-pressed={item.isFavorite}
             onClick={() =>
               run(() =>
                 setFavorite({ id: item.id, isFavorite: !item.isFavorite }),
               )
             }
-            className={quietButtonClass}
+            className={outlineButtonClass}
           >
-            {item.isFavorite ? "★ Unfavorite" : "☆ Favorite"}
-          </button>
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => setMode("edit")}
-            className={quietButtonClass}
-          >
-            Edit
+            {item.isFavorite && <Star />}
+            {item.isFavorite ? "Unfavorite" : "Favorite"}
           </button>
           <button
             type="button"
@@ -99,27 +116,13 @@ export function ItemTools({
         </div>
       )}
 
-      {mode === "edit" && (
-        <EditForm
-          item={item}
-          pending={pending}
-          onCancel={() => setMode("view")}
-          onSave={(input) =>
-            run(
-              () => updateItem(input),
-              () => setMode("view"),
-            )
-          }
-        />
-      )}
-
       {mode === "delete" && (
-        <div className="flex flex-col gap-2">
+        <Notice kind="error" title="Delete this item?">
           <p>
-            Delete this item? It disappears from the site; pasting its link
-            again brings it back, with its entries.
+            It leaves the feed and search, and shows as [removed] where entries
+            mention it. Pasting its link again brings it back.
           </p>
-          <div className="flex gap-2">
+          <div className="bb-row mt-2">
             <button
               type="button"
               disabled={pending}
@@ -129,7 +132,7 @@ export function ItemTools({
                   () => router.push(basePath || "/"),
                 )
               }
-              className={buttonClass}
+              className={outlineButtonClass}
             >
               {pending ? "Deleting…" : "Delete"}
             </button>
@@ -139,18 +142,14 @@ export function ItemTools({
               onClick={() => setMode("view")}
               className={quietButtonClass}
             >
-              Cancel
+              Keep it
             </button>
           </div>
-        </div>
+        </Notice>
       )}
 
-      {error && (
-        <p role="alert" className="text-red-700">
-          {error}
-        </p>
-      )}
-    </section>
+      {error && <Notice kind="error" title={error} />}
+    </>
   );
 }
 
@@ -173,7 +172,7 @@ function EditForm({
 
   return (
     <form
-      className="flex flex-col gap-3"
+      className="bb-form"
       onSubmit={(event) => {
         event.preventDefault();
         onSave({
@@ -184,8 +183,8 @@ function EditForm({
         });
       }}
     >
-      <label className="flex flex-col gap-1">
-        <span className="text-stone-500">Title</span>
+      <label className="bb-field">
+        <span className="bb-label">Title</span>
         <input
           value={title}
           onChange={(event) => setTitle(event.target.value)}
@@ -194,17 +193,18 @@ function EditForm({
           className={inputClass}
         />
       </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-stone-500">Creator</span>
+      <label className="bb-field">
+        <span className="bb-label">Creator</span>
         <input
           value={creator}
           onChange={(event) => setCreator(event.target.value)}
           maxLength={300}
+          placeholder="Who made it"
           className={inputClass}
         />
       </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-stone-500">Published</span>
+      <label className="bb-field">
+        <span className="bb-label">Published</span>
         <input
           type="date"
           value={publishedOn}
@@ -212,7 +212,7 @@ function EditForm({
           className={dateInputClass}
         />
       </label>
-      <div className="flex gap-2">
+      <div className="bb-row">
         <button
           type="submit"
           disabled={pending || !title.trim()}
@@ -233,48 +233,42 @@ function EditForm({
   );
 }
 
-/** Deletes one entry, after asking. */
+/** Deletes one entry, after asking in place. */
 export function DeleteEntryButton({ id }: { id: number }) {
   const [confirming, setConfirming] = useState(false);
   const { error, pending, run } = useEdit();
 
+  if (!confirming) {
+    return (
+      <button type="button" onClick={() => setConfirming(true)}>
+        Delete
+      </button>
+    );
+  }
   return (
-    <span className="inline-flex flex-wrap items-center gap-1 text-sm">
-      {confirming ? (
-        <>
-          <span>Delete this entry?</span>
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => run(() => deleteEntry({ id }))}
-            className={quietButtonClass}
-          >
-            {pending ? "Deleting…" : "Delete"}
-          </button>
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => setConfirming(false)}
-            className={quietButtonClass}
-          >
-            Cancel
-          </button>
-        </>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setConfirming(true)}
-          className={quietButtonClass}
-        >
-          Delete
-        </button>
-      )}
+    <>
+      <span>Delete this entry?</span>
+      <button
+        type="button"
+        disabled={pending}
+        onClick={() => run(() => deleteEntry({ id }))}
+      >
+        {pending ? "Deleting…" : "Delete"}
+      </button>
+      <span aria-hidden="true">·</span>
+      <button
+        type="button"
+        disabled={pending}
+        onClick={() => setConfirming(false)}
+      >
+        Cancel
+      </button>
       {error && (
-        <span role="alert" className="text-red-700">
+        <span role="alert" className="text-margin-red">
           {error}
         </span>
       )}
-    </span>
+    </>
   );
 }
 

@@ -5,3 +5,4 @@ export const inputClass = "bb-input";
 export const dateInputClass = `${inputClass} block`;
 export const buttonClass = "bb-btn bb-btn--primary";
 export const quietButtonClass = "bb-btn bb-btn--quiet";
+export const outlineButtonClass = "bb-btn bb-btn--outline";

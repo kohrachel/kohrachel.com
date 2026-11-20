@@ -1456,3 +1456,77 @@ a.bb-linkrow:hover {
     display: flex;
   }
 }
+
+.bb-page--item {
+  max-width: var(--item-max);
+}
+.bb-item__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  min-width: 0;
+}
+.bb-item__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+.bb-details .bb-row {
+  gap: 4px;
+  margin-top: 4px;
+}
+.bb-linkrow__pic > img {
+  position: absolute;
+}
+
+/* Entry text, read on the ruled sheet and written in the editor. */
+.bb-prose ul {
+  list-style: disc;
+  padding-left: 1.25em;
+}
+.bb-prose ol {
+  list-style: decimal;
+  padding-left: 1.5em;
+}
+.bb-prose blockquote {
+  border-left: 2px solid var(--rule-strong);
+  padding-left: 12px;
+  color: var(--ink-muted);
+}
+.bb-prose strong {
+  font-weight: 600;
+}
+.bb-prose a:not(.bb-mention) {
+  color: var(--cover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.bb-prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--ink-muted);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.ProseMirror .bb-mention::before {
+  content: none;
+}
+.bb-entry__text--edited > :last-child::after {
+  content: "edited";
+  margin-left: 8px;
+  font: 400 12px/1 var(--font-sans);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+.bb-entry__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+}
+.bb-entry > .bb-editor {
+  margin: 0 0 var(--line-pitch);
+}
+.bb-editor .bb-seg button {
+  min-width: var(--chip-h);
+}

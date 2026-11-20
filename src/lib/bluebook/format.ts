@@ -77,3 +77,8 @@ export function isoDateAt(isoDate: string, precision: DatePrecision) {
     precision === "day" ? 10 : precision === "month" ? 7 : 4,
   );
 }
+
+/** 1 → "once", 2 → "twice", 3 → "3 times". */
+export function timesInWords(count: number) {
+  return count === 1 ? "once" : count === 2 ? "twice" : `${count} times`;
+}

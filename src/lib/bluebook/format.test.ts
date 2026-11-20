@@ -5,6 +5,7 @@ import {
   formatDateShort,
   formatDuration,
   formatPhotoStamp,
+  timesInWords,
 } from "./format";
 
 describe("formatDate", () => {
@@ -39,5 +40,13 @@ describe("date stamps", () => {
     expect(formatPhotoStamp("2026-03-02", "day")).toBe("'26 3 2");
     expect(formatPhotoStamp("2026-11-01", "month")).toBe("'26 11");
     expect(formatPhotoStamp("2009-01-01", "year")).toBe("'09");
+  });
+});
+
+describe("timesInWords", () => {
+  test("says once and twice in words", () => {
+    expect(timesInWords(1)).toBe("once");
+    expect(timesInWords(2)).toBe("twice");
+    expect(timesInWords(3)).toBe("3 times");
   });
 });

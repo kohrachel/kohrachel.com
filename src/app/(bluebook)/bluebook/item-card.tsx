@@ -13,7 +13,7 @@ import {
 import { estimateLines } from "@/lib/bluebook/masonry";
 import { thumbnailFrame } from "@/lib/bluebook/thumbnail";
 import { platformName } from "@/services/bluebook/links/platform";
-import { Highlighted } from "./highlighted";
+import { Highlighted } from "@/components/bluebook/highlighted";
 import { Star } from "./star";
 import { Thumb } from "./thumb";
 
