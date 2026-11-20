@@ -142,7 +142,6 @@ export async function searchItemsService({
  * on other sites, and the years with entries, newest first.
  */
 export async function searchFiltersService(): Promise<SearchFilters> {
-  // One after another: see the note in src/db/index.ts.
   const platformRows = await db.execute(sql`
     select distinct platform from bluebook.items where deleted_at is null`);
   const yearRows = await db.execute(sql`
