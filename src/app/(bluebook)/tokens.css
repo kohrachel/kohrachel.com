@@ -86,8 +86,10 @@
   --tilt-polaroid: -1.5deg;
 
   /* The --font-*-face variables come from next/font in layout.tsx. */
-  --font-display: var(--font-yang-bagus-face), var(--font-chiron-face), system-ui, sans-serif;
-  --font-serif: var(--font-basteleur-face), var(--font-chiron-face), Georgia, serif;
+  --font-display:
+    var(--font-yang-bagus-face), var(--font-chiron-face), system-ui, sans-serif;
+  --font-serif:
+    var(--font-basteleur-face), var(--font-chiron-face), Georgia, serif;
   --font-sans: var(--font-poppins-face), "LXGW WenKai", system-ui, sans-serif;
   --font-stamp: var(--font-lcd-face), ui-monospace, monospace;
   --font-mono: var(--font-geist-mono-face), ui-monospace, monospace;

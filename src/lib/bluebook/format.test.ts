@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { formatDate, formatDuration } from "./format";
+import {
+  formatDate,
+  formatDateLong,
+  formatDateShort,
+  formatDuration,
+  formatPhotoStamp,
+} from "./format";
 
 describe("formatDate", () => {
   test("shows a date at its precision", () => {
@@ -18,5 +24,20 @@ describe("formatDuration", () => {
     expect(formatDuration(214)).toBe("3:34");
     expect(formatDuration(45)).toBe("0:45");
     expect(formatDuration(3723)).toBe("1:02:03");
+  });
+});
+
+describe("date stamps", () => {
+  test("write a date out at its precision", () => {
+    expect(formatDateLong("2026-11-02", "day")).toBe("2 November 2026");
+    expect(formatDateLong("2026-09-01", "month")).toBe("September 2026");
+    expect(formatDateShort("2026-09-12", "day")).toBe("12 Sep 2026");
+    expect(formatDateShort("2026-01-01", "year")).toBe("2026");
+  });
+
+  test("print a camera imprint without leading zeros", () => {
+    expect(formatPhotoStamp("2026-03-02", "day")).toBe("'26 3 2");
+    expect(formatPhotoStamp("2026-11-01", "month")).toBe("'26 11");
+    expect(formatPhotoStamp("2009-01-01", "year")).toBe("'09");
   });
 });
