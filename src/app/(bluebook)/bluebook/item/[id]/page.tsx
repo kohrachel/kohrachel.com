@@ -56,6 +56,8 @@ async function ItemContent({ params }: { params: Props["params"] }) {
         <OwnerItemTools item={item} />
       </Suspense>
       <Entries item={item} basePath={basePath} />
+      <LinksOut links={item.linksOut} basePath={basePath} />
+      <MentionedIn mentions={item.mentionedIn} basePath={basePath} />
     </>
   );
 }
@@ -198,6 +200,84 @@ function Entries({ item, basePath }: { item: ItemPageData; basePath: string }) {
         })}
       </ol>
     </section>
+  );
+}
+
+/** Items this item's entries mention. */
+function LinksOut({
+  links,
+  basePath,
+}: {
+  links: ItemPageData["linksOut"];
+  basePath: string;
+}) {
+  if (!links.length) return null;
+  return (
+    <section className="flex flex-col gap-2">
+      <h2 className="text-lg font-semibold">Links out</h2>
+      <ul className="flex flex-col gap-1">
+        {links.map((link) => (
+          <li key={link.id}>
+            <ItemLink id={link.id} title={link.title} basePath={basePath} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Other items' entries that mention this item, with the sentence around it. */
+function MentionedIn({
+  mentions,
+  basePath,
+}: {
+  mentions: ItemPageData["mentionedIn"];
+  basePath: string;
+}) {
+  if (!mentions.length) return null;
+  return (
+    <section className="flex flex-col gap-2">
+      <h2 className="text-lg font-semibold">Mentioned in</h2>
+      <ul className="flex flex-col gap-3">
+        {mentions.map((mention, index) => (
+          <li key={index} className="flex flex-col gap-0.5">
+            <p>
+              <ItemLink
+                id={mention.itemId}
+                title={mention.title}
+                basePath={basePath}
+              />
+              <span className="text-sm text-stone-500">
+                {" "}
+                · {formatDate(mention.consumedOn, mention.consumedPrecision)}
+              </span>
+            </p>
+            {mention.context && (
+              <p className="text-sm text-stone-700">{mention.context}</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** A link to an item, or "[removed]" once it's deleted. */
+function ItemLink({
+  id,
+  title,
+  basePath,
+}: {
+  id: number;
+  title: string | null;
+  basePath: string;
+}) {
+  return title ? (
+    <Link href={`${basePath}/item/${id}`} className="hover:underline">
+      {title}
+    </Link>
+  ) : (
+    <span className="text-stone-400">[removed]</span>
   );
 }
 

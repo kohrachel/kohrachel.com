@@ -1,13 +1,16 @@
 import "server-only";
-import { and, desc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, max } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
-import { entries, items } from "@/db/schema";
+import { entries, items, mentions } from "@/db/schema";
 import type { ItemPageData } from "@/domain-types/bluebook/items";
 import { mentionedItemIds } from "@/services/bluebook/entries/content";
 import { itemTag } from "./cache-tags";
 
-/** An item with its entries, newest first; `null` if missing or deleted. */
+/**
+ * An item with its entries (newest first), the items they mention, and the
+ * other items' entries that mention it; `null` if missing or deleted.
+ */
 export async function getItemService(id: number): Promise<ItemPageData | null> {
   cacheTag(itemTag(id));
   cacheLife("hours");
@@ -60,5 +63,57 @@ export async function getItemService(id: number): Promise<ItemPageData | null> {
     mentioned.map(({ id, title, deletedAt }) => [id, deletedAt ? null : title]),
   );
 
-  return { ...item, entries: itemEntries, mentionedTitles };
+  const latestMention = max(entries.consumedOn);
+  const linksOut = (
+    await db
+      .select({
+        id: items.id,
+        title: items.title,
+        deletedAt: items.deletedAt,
+        latestMention,
+      })
+      .from(mentions)
+      .innerJoin(entries, eq(entries.id, mentions.entryId))
+      .innerJoin(items, eq(items.id, mentions.targetItemId))
+      .where(eq(entries.itemId, id))
+      .groupBy(items.id)
+      .orderBy(desc(latestMention), asc(items.id))
+  ).map(({ id: targetId, title, deletedAt }) => ({
+    id: targetId,
+    title: deletedAt ? null : title,
+  }));
+
+  const mentionedIn = (
+    await db
+      .select({
+        itemId: items.id,
+        title: items.title,
+        deletedAt: items.deletedAt,
+        consumedOn: entries.consumedOn,
+        consumedPrecision: entries.consumedPrecision,
+        context: mentions.context,
+      })
+      .from(mentions)
+      .innerJoin(entries, eq(entries.id, mentions.entryId))
+      .innerJoin(items, eq(items.id, entries.itemId))
+      .where(eq(mentions.targetItemId, id))
+      .orderBy(desc(entries.consumedOn), desc(entries.id))
+  ).map(({ deletedAt, title, context, ...mention }) => ({
+    ...mention,
+    title: deletedAt ? null : title,
+    context: deletedAt ? "" : context,
+  }));
+
+  // Linked items' titles show here, so their changes refresh this page.
+  for (const link of [...linksOut, ...mentionedIn]) {
+    cacheTag(itemTag("itemId" in link ? link.itemId : link.id));
+  }
+
+  return {
+    ...item,
+    entries: itemEntries,
+    mentionedTitles,
+    linksOut,
+    mentionedIn,
+  };
 }

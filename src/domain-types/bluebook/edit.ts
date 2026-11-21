@@ -21,4 +21,10 @@ export const deleteEntrySchema = z.object({ id: idSchema });
 export type UpdateItemInput = z.input<typeof updateItemSchema>;
 
 export type EditResult =
-  { ok: true; itemId: number } | { ok: false; error: string };
+  | {
+      ok: true;
+      itemId: number;
+      /** Other items whose pages show the change. */
+      alsoChangedItemIds?: number[];
+    }
+  | { ok: false; error: string };

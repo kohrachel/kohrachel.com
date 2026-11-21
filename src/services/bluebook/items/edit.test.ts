@@ -86,7 +86,11 @@ describe.skipIf(!hasDatabase)("editing an item", () => {
   });
 
   test("deletes an entry, but not an item's last one", async () => {
-    expect(await deleteEntryService(1)).toEqual({ ok: true, itemId: 1 });
+    expect(await deleteEntryService(1)).toEqual({
+      ok: true,
+      itemId: 1,
+      alsoChangedItemIds: [],
+    });
     expect(await deleteEntryService(2)).toEqual({
       ok: false,
       error: "This is the only entry. Delete the item instead.",
@@ -94,6 +98,19 @@ describe.skipIf(!hasDatabase)("editing an item", () => {
     expect(await rows(sql`select id from bluebook.entries`)).toEqual([
       { id: "2" },
     ]);
+  });
+
+  test("reports the items a deleted entry mentioned", async () => {
+    await db.execute(sql`
+      insert into bluebook.items (url, normalized_url, title)
+      values ('x', 'https://example.com/x', 'Mentioned')`);
+    await db.execute(sql`
+      insert into bluebook.mentions (entry_id, target_item_id) values (1, 2)`);
+    expect(await deleteEntryService(1)).toEqual({
+      ok: true,
+      itemId: 1,
+      alsoChangedItemIds: [2],
+    });
   });
 
   test("doesn't delete entries of deleted items", async () => {

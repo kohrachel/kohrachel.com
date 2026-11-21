@@ -53,7 +53,9 @@ async function edit<Schema extends z.ZodType>(
   }
   const result = await run(parsed.data);
   if (result.ok) {
-    updateTag(itemTag(result.itemId));
+    for (const id of [result.itemId, ...(result.alsoChangedItemIds ?? [])]) {
+      updateTag(itemTag(id));
+    }
     updateTag(ITEM_LISTS_TAG);
   }
   return result;

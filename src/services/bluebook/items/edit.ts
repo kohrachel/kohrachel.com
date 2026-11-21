@@ -1,7 +1,7 @@
 import "server-only";
 import { and, count, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { entries, items } from "@/db/schema";
+import { entries, items, mentions } from "@/db/schema";
 import type { EditResult } from "@/domain-types/bluebook/edit";
 
 const NOT_FOUND: EditResult = { ok: false, error: "That item doesn't exist." };
@@ -86,7 +86,16 @@ export async function deleteEntryService(id: number): Promise<EditResult> {
       };
     }
 
+    // Items this entry mentions lose it from their "Mentioned in".
+    const mentioned = await tx
+      .select({ targetItemId: mentions.targetItemId })
+      .from(mentions)
+      .where(eq(mentions.entryId, id));
     await tx.delete(entries).where(eq(entries.id, id));
-    return { ok: true, itemId: entry.itemId };
+    return {
+      ok: true,
+      itemId: entry.itemId,
+      alsoChangedItemIds: mentioned.map((mention) => mention.targetItemId),
+    };
   });
 }
