@@ -434,11 +434,12 @@ textarea.bb-input {
   font-size: 16px;
   line-height: 16px;
   letter-spacing: 0.06em;
-  color: var(--stamp);
+  z-index: 1;
+  color: #ff8a3d;
   text-shadow:
     0 0 1px #000000,
-    0 0 4px #000000b3,
-    0 0 8px #ff6a1a66;
+    0 0 3px #000000,
+    0 0 6px #ff6a1a66;
 }
 
 /* ---------- cards & grid ---------- */
@@ -479,6 +480,18 @@ textarea.bb-input {
   overflow: hidden;
   border-radius: 2px;
   background: var(--paper-sunk);
+}
+/* A soft shade along the bottom, so the date and length read on light pictures. */
+.bb-card__thumb::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 56px;
+  background: linear-gradient(to top, #000000b3, #00000059 45%, #00000000);
+  pointer-events: none;
+}
+.bb-card__dur {
+  z-index: 1;
 }
 .bb-card__thumb img {
   display: block;
