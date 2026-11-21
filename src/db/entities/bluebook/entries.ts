@@ -19,7 +19,7 @@ export const entries = bluebook.table.withRLS(
   {
     id: bigint({ mode: "number" }).generatedByDefaultAsIdentity(),
     itemId: bigint("item_id", { mode: "number" }).notNull(),
-    userId: bigint("user_id", { mode: "number" }),
+    userId: bigint("user_id", { mode: "number" }).notNull(),
     consumedOn: date("consumed_on", { mode: "string" }).notNull(),
     consumedPrecision: datePrecision("consumed_precision")
       .default("day")

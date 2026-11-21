@@ -10,7 +10,11 @@ import {
 import { sql } from "drizzle-orm";
 import { bluebook } from "./schema";
 
-export const userRole = bluebook.enum("user_role", ["owner", "member"]);
+export const userRole = bluebook.enum("user_role", [
+  "owner",
+  "admin",
+  "member",
+]);
 
 export const users = bluebook.table.withRLS(
   "users",

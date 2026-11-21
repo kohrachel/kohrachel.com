@@ -4,6 +4,9 @@ import { db } from "@/db";
 import { entries, items } from "@/db/schema";
 import type { ParsedSaveInput, SaveResult } from "@/domain-types/bluebook/add";
 import { startOfPeriod } from "@/lib/bluebook/dates";
+import { canDeleteItem, type Actor } from "@/lib/bluebook/permissions";
+import { setUserFavorite } from "@/services/bluebook/items/favorites";
+import { itemAuthorIds } from "@/services/bluebook/items/edit";
 import { normalizeUrl } from "@/services/bluebook/links/normalize";
 import { isPublicHttpUrl } from "@/services/bluebook/links/resolve";
 
@@ -14,9 +17,14 @@ import { isPublicHttpUrl } from "@/services/bluebook/links/resolve";
  *   item's own details are left as they are.
  * - `restored`: the deleted item that had this link comes back, with the
  *   form's details and its old entries, plus a new entry. Metadata fetched
- *   again replaces the old values; anything not fetched again is kept.
+ *   again replaces the old values; anything not fetched again is kept. Only
+ *   someone who could have deleted it can bring it back.
+ *
+ * The new entry is the actor's, and the favorite box stars or unstars the
+ * item for the actor.
  */
 export async function saveLinkService(
+  actor: Actor,
   input: ParsedSaveInput,
 ): Promise<SaveResult> {
   if (!isPublicHttpUrl(new URL(input.resolvedUrl))) {
@@ -35,7 +43,6 @@ export async function saveLinkService(
     creator: input.creator,
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : null,
     metadata: withoutEmpty(input.metadata),
-    isFavorite: input.isFavorite,
   };
 
   return db.transaction(async (tx) => {
@@ -45,14 +52,24 @@ export async function saveLinkService(
       .onConflictDoNothing({ target: items.normalizedUrl })
       .returning({ id: items.id });
 
-    const { itemId, outcome } = created
+    const reused = created
       ? { itemId: created.id, outcome: "created" as const }
-      : await reuseItem(tx, normalizedUrl, fields);
+      : await reuseItem(tx, actor, normalizedUrl, fields);
+    if (!reused) {
+      return {
+        ok: false,
+        error:
+          "This was deleted, and others had logged it, so only the owner or an admin can bring it back.",
+      };
+    }
+    const { itemId, outcome } = reused;
 
+    await setUserFavorite(tx, actor.id, itemId, input.isFavorite);
     const [entry] = await tx
       .insert(entries)
       .values({
         itemId,
+        userId: actor.id,
         consumedOn: startOfPeriod(input.consumedOn, input.consumedPrecision),
         consumedPrecision: input.consumedPrecision,
       })
@@ -63,9 +80,13 @@ export async function saveLinkService(
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
-/** The item that already has this link, restored with `fields` if it was deleted. */
+/**
+ * The item that already has this link, restored with `fields` if it was
+ * deleted; `null` if it was deleted and the actor can't restore it.
+ */
 async function reuseItem(
   tx: Tx,
+  actor: Actor,
   normalizedUrl: string,
   fields: Partial<typeof items.$inferInsert> & {
     metadata: Record<string, unknown>;
@@ -79,6 +100,7 @@ async function reuseItem(
   if (!current.deletedAt) {
     return { itemId: current.id, outcome: "added_entry" as const };
   }
+  if (!canDeleteItem(actor, await itemAuthorIds(tx, current.id))) return null;
   await tx
     .update(items)
     .set({

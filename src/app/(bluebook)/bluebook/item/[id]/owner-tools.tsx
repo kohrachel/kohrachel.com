@@ -58,12 +58,17 @@ function useEdit() {
   return { error, pending, run };
 }
 
-/** Edit, favorite and delete, for the owner. `basePath` is where bluebook starts. */
+/**
+ * Edit, favorite and, when allowed, delete, for signed-in people. `basePath`
+ * is where bluebook starts.
+ */
 export function ItemTools({
   item,
+  canDelete,
   basePath,
 }: {
   item: EditableItem;
+  canDelete: boolean;
   basePath: string;
 }) {
   const router = useRouter();
@@ -108,14 +113,16 @@ export function ItemTools({
             {item.isFavorite && <Star />}
             {item.isFavorite ? "Unfavorite" : "Favorite"}
           </button>
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => setMode("delete")}
-            className={quietButtonClass}
-          >
-            Delete
-          </button>
+          {canDelete && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => setMode("delete")}
+              className={quietButtonClass}
+            >
+              Delete
+            </button>
+          )}
         </div>
       )}
 

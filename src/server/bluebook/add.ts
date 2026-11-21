@@ -18,9 +18,9 @@ import { ITEM_LISTS_TAG, itemTag } from "@/services/bluebook/items/cache-tags";
 
 /** Cleans up a pasted link and fetches details for the confirm form. */
 export async function previewLink(input: PreviewInput): Promise<PreviewResult> {
-  await requireMember();
+  const actor = await requireMember();
   const { text } = previewInputSchema.parse(input);
-  return previewLinkService(text);
+  return previewLinkService(text, actor.id);
 }
 
 /**
@@ -32,7 +32,7 @@ export async function saveLink(
   input: SaveInput,
   entryText?: unknown,
 ): Promise<SaveResult> {
-  await requireMember();
+  const actor = await requireMember();
   const parsed = saveInputSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid" };
@@ -41,13 +41,13 @@ export async function saveLink(
     return { ok: false, error: "That text can't be saved." };
   }
 
-  const result = await saveLinkService(parsed.data);
+  const result = await saveLinkService(actor, parsed.data);
   if (!result.ok) return result;
   updateTag(itemTag(result.itemId));
   updateTag(ITEM_LISTS_TAG);
   if (entryText === undefined) return result;
 
-  const text = await saveEntryTextService(result.entryId, entryText);
+  const text = await saveEntryTextService(actor, result.entryId, entryText);
   if (!text.ok) return { ...result, textError: text.error };
   for (const id of text.changedItemIds) updateTag(itemTag(id));
   return result;

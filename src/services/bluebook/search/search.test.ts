@@ -10,21 +10,24 @@ const hasDatabase = !!process.env.TEST_DATABASE_URL;
 
 const { db } = hasDatabase ? await import("@/db") : { db: null! };
 const { searchFiltersService, searchItemsService } = await import("./search");
+const { resetBluebook } = await import("@/test/bluebook-users");
 
 const ids = async (input: Parameters<typeof searchItemsService>[0]) =>
   (await searchItemsService(input)).map((result) => result.id);
 
 describe.skipIf(!hasDatabase)("searching items", () => {
   beforeAll(async () => {
-    await db.execute(sql`truncate bluebook.items restart identity cascade`);
+    await resetBluebook(db);
     await db.execute(sql`
-      insert into bluebook.items (url, normalized_url, title, creator, is_favorite, deleted_at) values
-        ('a', 'https://www.youtube.com/watch?v=aaaaaaaaaaa', 'There''s Something Weird Inside Mars', 'Cleo Abram', true, null),
-        ('b', 'https://www.bilibili.com/video/BV154AwzWEje', '辩论：有按钮能知道对方爱你的程度', '阿詹', false, null),
-        ('c', 'https://en.wikipedia.org/wiki/Mars', 'Mars', null, false, null),
-        ('d', 'https://zh.wikipedia.org/wiki/猫', '猫', null, true, null),
-        ('e', 'https://example.com/gone', 'Mars, deleted', null, false, now()),
-        ('f', 'https://blog.example.org/post', 'A blog post', null, false, null)`);
+      insert into bluebook.items (url, normalized_url, title, creator, deleted_at) values
+        ('a', 'https://www.youtube.com/watch?v=aaaaaaaaaaa', 'There''s Something Weird Inside Mars', 'Cleo Abram', null),
+        ('b', 'https://www.bilibili.com/video/BV154AwzWEje', '辩论：有按钮能知道对方爱你的程度', '阿詹', null),
+        ('c', 'https://en.wikipedia.org/wiki/Mars', 'Mars', null, null),
+        ('d', 'https://zh.wikipedia.org/wiki/猫', '猫', null, null),
+        ('e', 'https://example.com/gone', 'Mars, deleted', null, now()),
+        ('f', 'https://blog.example.org/post', 'A blog post', null, null)`);
+    await db.execute(sql`
+      insert into bluebook.favorites (user_id, item_id) values (1, 1), (1, 4), (3, 2)`);
     await db.execute(sql`
       update bluebook.items set metadata = case id
         when 1 then '{"thumbnailUrl": "https://i.ytimg.com/vi/aaaaaaaaaaa/maxresdefault.jpg", "durationSeconds": 754, "thumbnailWidth": 1280, "thumbnailHeight": 720, "width": 1080, "height": 1920, "description": "Long text"}'::jsonb
@@ -33,13 +36,13 @@ describe.skipIf(!hasDatabase)("searching items", () => {
         when 6 then '{"thumbnailUrl": 5, "durationSeconds": true, "width": 1080}'::jsonb
         else metadata end`);
     await db.execute(sql`
-      insert into bluebook.entries (item_id, consumed_on, consumed_precision, plain_text, created_at) values
-        (1, '2025-03-04', 'day', 'Watched it twice. The part about the core was wild!', '2025-03-04'),
-        (2, '2026-01-01', 'year', '和珍妮特一起看的。我们都没按。', '2026-01-02'),
-        (3, '2024-05-01', 'month', '', '2024-05-01'),
-        (4, '2026-11-15', 'day', '', '2026-11-15'),
-        (5, '2026-11-15', 'day', '', '2026-11-15'),
-        (6, '2023-02-01', 'month', '', '2023-02-01')`);
+      insert into bluebook.entries (item_id, consumed_on, consumed_precision, plain_text, created_at, user_id) values
+        (1, '2025-03-04', 'day', 'Watched it twice. The part about the core was wild!', '2025-03-04', 1),
+        (2, '2026-01-01', 'year', '和珍妮特一起看的。我们都没按。', '2026-01-02', 1),
+        (3, '2024-05-01', 'month', '', '2024-05-01', 1),
+        (4, '2026-11-15', 'day', '', '2026-11-15', 1),
+        (5, '2026-11-15', 'day', '', '2026-11-15', 1),
+        (6, '2023-02-01', 'month', '', '2023-02-01', 1)`);
   });
 
   test("with no search, lists every item, most recently added-to first", async () => {
@@ -122,10 +125,24 @@ describe.skipIf(!hasDatabase)("searching items", () => {
     expect(await ids({ platforms: ["other", "youtube.com"] })).toEqual([1, 6]);
   });
 
-  test("filters by year consumed and favorites", async () => {
+  test("filters by year consumed and the viewer's favorites", async () => {
     expect(await ids({ year: 2026 })).toEqual([4, 2]);
-    expect(await ids({ favoritesOnly: true })).toEqual([4, 1]);
-    expect(await ids({ favoritesOnly: true, year: 2025 })).toEqual([1]);
+    expect(await ids({ favoritesOnly: true, viewerId: 1 })).toEqual([4, 1]);
+    expect(await ids({ favoritesOnly: true, viewerId: 1, year: 2025 })).toEqual(
+      [1],
+    );
+    expect(await ids({ favoritesOnly: true, viewerId: 3 })).toEqual([2]);
+    expect(await ids({ favoritesOnly: true })).toEqual([4, 2, 1, 3, 6]);
+  });
+
+  test("stars only the viewer's favorites, and none for visitors", async () => {
+    const starred = async (viewerId: number | null) =>
+      (await searchItemsService({ viewerId }))
+        .filter((result) => result.isFavorite)
+        .map((result) => result.id);
+    expect(await starred(1)).toEqual([4, 1]);
+    expect(await starred(3)).toEqual([2]);
+    expect(await starred(null)).toEqual([]);
   });
 
   test("lists the common platforms, other sites and years to filter by, without deleted items", async () => {
