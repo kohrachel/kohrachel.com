@@ -3,7 +3,7 @@
 import { MagicWand01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useLayoutEffect, useRef, useState, useTransition } from "react";
 import type { PreviewResult } from "@/domain-types/bluebook/add";
 import { sizeOf, thumbnailFrame } from "@/lib/bluebook/thumbnail";
 import { previewLink } from "@/server/bluebook/add";
@@ -28,6 +28,20 @@ export function PasteFlow({ basePath }: { basePath: string }) {
   // Remounts the confirm form for each preview, so it starts from that one.
   const [previewCount, setPreviewCount] = useState(0);
   const [pending, startTransition] = useTransition();
+  const saved = useRef(false);
+
+  // Leaving after a save starts the next visit fresh; leaving mid-draft keeps it.
+  useLayoutEffect(
+    () => () => {
+      if (!saved.current) return;
+      saved.current = false;
+      setText("");
+      setResult(null);
+      setDraft({ title: "", creator: "" });
+      setFailed(false);
+    },
+    [],
+  );
 
   function preview() {
     if (!text.trim() || pending) return;
@@ -53,6 +67,7 @@ export function PasteFlow({ basePath }: { basePath: string }) {
   }
 
   function onSaved({ itemId }: Saved) {
+    saved.current = true;
     router.push(`${basePath}/item/${itemId}`);
   }
 
