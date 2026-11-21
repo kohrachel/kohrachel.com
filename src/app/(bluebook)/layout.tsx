@@ -42,6 +42,10 @@ const chiron = Chiron_GoRound_TC({
   variable: "--font-chiron-face",
   weight: "700",
   preload: false,
+  // Next.js has no measurements for this font to size a fallback by, and
+  // each stack using it lists its own fallbacks after it.
+  fallback: [],
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
