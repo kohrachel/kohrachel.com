@@ -1595,3 +1595,22 @@ a.bb-linkrow:hover {
   outline: 2px solid var(--focus);
   outline-offset: 1px;
 }
+
+/* add page */
+.bb-page--form {
+  max-width: var(--form-max);
+}
+.bb-add__side {
+  position: sticky;
+  top: var(--space-6);
+  padding-top: 56px;
+}
+@media (max-width: 720px) {
+  .bb-add__side {
+    position: static;
+    padding-top: 0;
+  }
+  .bb-add__side:has(.bb-polaroid__pic--empty) {
+    display: none;
+  }
+}

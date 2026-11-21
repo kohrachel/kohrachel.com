@@ -1,12 +1,13 @@
 "use client";
 
+import { Tick02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import {
   EntryEditor,
   type EntryEditorValue,
 } from "@/components/bluebook/editor";
-import { saveLink } from "@/server/bluebook/add";
 import type {
   PreviewResult,
   SaveInput,
@@ -22,11 +23,16 @@ import {
   type ConsumedDate,
 } from "@/lib/bluebook/dates";
 import { formatDuration } from "@/lib/bluebook/format";
+import { saveLink } from "@/server/bluebook/add";
 import { ConsumedField, today } from "../consumed-field";
+import { Notice } from "../notice";
 import { buttonClass, dateInputClass, inputClass } from "../styles";
+import { platformLabel } from "./preview-view";
 
 type Preview = Extract<PreviewResult, { ok: true }>;
 export type Saved = Extract<SaveResult, { ok: true }>;
+/** The title and creator as typed, for the preview beside the form. */
+export type Draft = { title: string; creator: string };
 
 const SOURCE_LABELS: Record<DetailsSource, string> = {
   youtube_api: "YouTube API",
@@ -39,6 +45,15 @@ const SOURCE_LABELS: Record<DetailsSource, string> = {
   link: "link",
 };
 
+/** The title and creator the form starts with. */
+export function initialDraft(preview: Preview): Draft {
+  const details = preview.details?.details;
+  return {
+    title: details?.title ?? preview.existing?.title ?? "",
+    creator: details?.creator ?? preview.existing?.creator ?? "",
+  };
+}
+
 /**
  * The confirm form. For a link you already have, it only asks when you
  * watched or read it; otherwise it's pre-filled with the fetched details.
@@ -46,10 +61,12 @@ const SOURCE_LABELS: Record<DetailsSource, string> = {
 export function ConfirmForm({
   preview,
   onSaved,
+  onDraftChange,
   basePath,
 }: {
   preview: Preview;
   onSaved: (saved: Saved) => void;
+  onDraftChange: (draft: Draft) => void;
   basePath: string;
 }) {
   const { existing } = preview;
@@ -58,11 +75,10 @@ export function ConfirmForm({
   const entryOnly = existing !== null && !existing.isDeleted;
   const initialPublishedAt =
     details?.publishedAt ?? existing?.publishedAt ?? null;
+  const initial = initialDraft(preview);
+  const textLabelId = useId();
 
-  const [title, setTitle] = useState(details?.title ?? existing?.title ?? "");
-  const [creator, setCreator] = useState(
-    details?.creator ?? existing?.creator ?? "",
-  );
+  const [draft, setDraft] = useState(initial);
   const [publishedOn, setPublishedOn] = useState(
     dateInputValue(initialPublishedAt),
   );
@@ -77,13 +93,19 @@ export function ConfirmForm({
     message: string;
   } | null>(null);
 
+  function updateDraft(change: Partial<Draft>) {
+    const next = { ...draft, ...change };
+    setDraft(next);
+    onDraftChange(next);
+  }
+
   function save() {
     if (!consumed) return;
     const input: SaveInput = {
       url: preview.url,
       resolvedUrl: preview.resolvedUrl,
-      title,
-      creator,
+      title: draft.title,
+      creator: draft.creator,
       publishedAt: publishedAtFromInput(initialPublishedAt, publishedOn),
       metadata: details
         ? {
@@ -117,56 +139,62 @@ export function ConfirmForm({
     });
   }
 
-  const hint = (field: DetailField) =>
+  // Tinted while it still holds what was fetched.
+  const filled = (field: DetailField, unchanged: boolean) =>
+    sources[field] && unchanged ? "bb-input--filled" : "";
+  const tag = (field: DetailField) =>
     sources[field] && (
-      <span className="text-xs text-stone-400">
+      <span className="bb-tag">
+        <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} />
         from {SOURCE_LABELS[sources[field]]}
       </span>
     );
 
   return (
     <form
-      className="flex flex-col gap-4"
+      className="bb-form"
       onSubmit={(event) => {
         event.preventDefault();
         save();
       }}
     >
+      <Fetched preview={preview} tag={tag} />
+
       {!entryOnly && (
         <>
           {preview.details && Object.keys(sources).length === 0 && (
-            <p className="text-sm text-stone-500">
-              Couldn&apos;t fetch any details, so fill them in.
-            </p>
+            <Notice title="Couldn't fetch any details, so fill them in.">
+              The link is saved either way.
+            </Notice>
           )}
-          {details && <FetchedOnly details={details} hint={hint} />}
-
-          <Field label="Title" hint={hint("title")}>
+          <Field label="Title" tag={tag("title")}>
             <input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
+              value={draft.title}
+              onChange={(event) => updateDraft({ title: event.target.value })}
               required
               maxLength={500}
-              className={inputClass}
+              placeholder="What is it called?"
+              className={`${inputClass} ${filled("title", draft.title === initial.title)}`}
             />
           </Field>
-          <Field label="Creator" hint={hint("creator")}>
+          <Field label="Creator" tag={tag("creator")}>
             <input
-              value={creator}
-              onChange={(event) => setCreator(event.target.value)}
+              value={draft.creator}
+              onChange={(event) => updateDraft({ creator: event.target.value })}
               maxLength={300}
-              className={inputClass}
+              placeholder="Who made it"
+              className={`${inputClass} ${filled("creator", draft.creator === initial.creator)}`}
             />
           </Field>
-          <Field label="Published" hint={hint("publishedAt")}>
+          <Field label="Published" tag={tag("publishedAt")} narrow>
             <input
               type="date"
               value={publishedOn}
               onChange={(event) => setPublishedOn(event.target.value)}
-              className={dateInputClass}
+              className={`${dateInputClass} ${filled("publishedAt", publishedOn === dateInputValue(initialPublishedAt))}`}
             />
           </Field>
-          <label className="flex items-center gap-2 text-sm">
+          <label className="bb-check">
             <input
               type="checkbox"
               checked={isFavorite}
@@ -177,94 +205,108 @@ export function ConfirmForm({
         </>
       )}
 
-      <ConsumedField initial={today()} onChange={setConsumed} />
+      <ConsumedField
+        initial={today()}
+        onChange={setConsumed}
+        label="When did you watch or read it?"
+      />
 
-      <div className="flex flex-col gap-1 text-sm">
-        <span className="text-stone-500">Write about it (optional)</span>
+      <div className="bb-field">
+        <span className="bb-field__head">
+          <span className="bb-label" id={textLabelId}>
+            What did you think?
+          </span>
+          <span className="bb-hint">
+            Optional · type @ to mention something you&apos;ve saved
+          </span>
+        </span>
         <EntryEditor
           onChange={setText}
           excludeItemId={existing?.id}
           basePath={basePath}
+          placeholder="A line or a page, now or later."
+          labelledBy={textLabelId}
         />
       </div>
 
-      {error && (
-        <p role="alert" className="text-sm text-red-700">
-          {error}
-        </p>
-      )}
+      {error && <Notice kind="error" title={error} />}
       {textFailure ? (
-        <p role="alert" className="text-sm text-red-700">
-          Saved the link, but not your text ({textFailure.message}). Copy your
-          text, then{" "}
+        <Notice
+          kind="error"
+          title={`Saved the link, but not your text (${textFailure.message}).`}
+        >
+          Copy your text, then{" "}
           <Link
             href={`${basePath}/item/${textFailure.itemId}`}
-            className="underline"
+            className="bb-link"
           >
             open the item
           </Link>{" "}
           to add it there.
-        </p>
+        </Notice>
       ) : (
-        <button
-          type="submit"
-          disabled={pending || !consumed || (!entryOnly && !title.trim())}
-          className={buttonClass}
-        >
-          {pending
-            ? "Saving…"
-            : entryOnly
-              ? "Add entry"
-              : existing?.isDeleted
-                ? "Restore"
-                : "Save"}
-        </button>
+        <div className="bb-row">
+          <button
+            type="submit"
+            disabled={
+              pending || !consumed || (!entryOnly && !draft.title.trim())
+            }
+            className={buttonClass}
+          >
+            {pending
+              ? "Saving…"
+              : entryOnly
+                ? "Add entry"
+                : existing?.isDeleted
+                  ? "Restore"
+                  : "Save"}
+          </button>
+        </div>
       )}
     </form>
   );
 }
 
-/** Fetched details that are saved as they are, not edited. */
-function FetchedOnly({
-  details,
-  hint,
+/**
+ * The link being saved, with the fetched details that are saved as they
+ * are: length, size and description.
+ */
+function Fetched({
+  preview,
+  tag,
 }: {
-  details: NonNullable<Preview["details"]>["details"];
-  hint: (field: DetailField) => React.ReactNode;
+  preview: Preview;
+  tag: (field: DetailField) => React.ReactNode;
 }) {
+  const details = preview.details?.details;
   const size =
-    details.width && details.height
+    details?.width && details.height
       ? `${details.width}×${details.height}${details.height > details.width ? " (vertical)" : ""}`
       : null;
+  const facts = [
+    details?.durationSeconds && formatDuration(details.durationSeconds),
+    size,
+  ].filter(Boolean);
 
   return (
-    <div className="flex flex-col gap-2 text-sm">
-      {details.thumbnailUrl && (
-        <img
-          src={details.thumbnailUrl}
-          alt=""
-          referrerPolicy="no-referrer"
-          className="max-h-60 w-fit max-w-full rounded-md object-contain"
-        />
-      )}
-      {(details.durationSeconds || size) && (
-        <p className="text-stone-500">
-          {details.durationSeconds && (
-            <>
-              {formatDuration(details.durationSeconds)}{" "}
-              {hint("durationSeconds")}{" "}
-            </>
-          )}
-          {size && (
-            <>
-              {size} {hint("width")}
-            </>
-          )}
-        </p>
-      )}
-      {details.description && (
-        <p className="line-clamp-4 whitespace-pre-line text-stone-600">
-          {details.description} {hint("description")}
+    <div className="bb-stack gap-2">
+      <div className="bb-fetched">
+        <span className="bb-tag">{platformLabel(preview)}</span>
+        <Link
+          href={preview.normalizedUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="bb-fetched__url"
+        >
+          {preview.normalizedUrl.replace(/^https?:\/\/(www\.)?/, "")}
+        </Link>
+        {facts.length > 0 && (
+          <span className="bb-hint text-[13px]/5">{facts.join(" · ")}</span>
+        )}
+      </div>
+      {details?.description && (
+        <p className="bb-hint line-clamp-3 text-[13px]/5 whitespace-pre-line">
+          {details.description} {tag("description")}
         </p>
       )}
     </div>
@@ -273,17 +315,20 @@ function FetchedOnly({
 
 function Field({
   label,
-  hint,
+  tag,
+  narrow = false,
   children,
 }: {
   label: string;
-  hint?: React.ReactNode;
+  tag?: React.ReactNode;
+  narrow?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex flex-col gap-1 text-sm">
-      <span className="text-stone-500">
-        {label} {hint}
+    <label className={`bb-field ${narrow ? "max-w-60" : ""}`}>
+      <span className="bb-field__head">
+        <span className="bb-label">{label}</span>
+        {tag}
       </span>
       {children}
     </label>
