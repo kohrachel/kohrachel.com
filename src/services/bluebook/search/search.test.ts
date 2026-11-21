@@ -27,9 +27,9 @@ describe.skipIf(!hasDatabase)("searching items", () => {
         ('f', 'https://blog.example.org/post', 'A blog post', null, false, null)`);
     await db.execute(sql`
       update bluebook.items set metadata = case id
-        when 1 then '{"thumbnailUrl": "https://i.ytimg.com/vi/aaaaaaaaaaa/maxresdefault.jpg", "durationSeconds": 754, "width": 1080, "height": 1920, "description": "Long text"}'::jsonb
+        when 1 then '{"thumbnailUrl": "https://i.ytimg.com/vi/aaaaaaaaaaa/maxresdefault.jpg", "durationSeconds": 754, "thumbnailWidth": 1280, "thumbnailHeight": 720, "width": 1080, "height": 1920, "description": "Long text"}'::jsonb
         when 3 then '{"thumbnailUrl": "https://upload.wikimedia.org/mars.jpg"}'::jsonb
-        when 4 then '{"thumbnailUrl": "javascript:alert(1)", "durationSeconds": "12", "width": "1080", "height": 1920}'::jsonb
+        when 4 then '{"thumbnailUrl": "javascript:alert(1)", "durationSeconds": "12", "width": "1080", "height": 1920, "thumbnailWidth": 0, "thumbnailHeight": 300}'::jsonb
         when 6 then '{"thumbnailUrl": 5, "durationSeconds": true, "width": 1080}'::jsonb
         else metadata end`);
     await db.execute(sql`
@@ -70,12 +70,13 @@ describe.skipIf(!hasDatabase)("searching items", () => {
     expect(chinese.snippet).toBe("和珍妮特一起看的。");
   });
 
-  test("includes the thumbnail, a video's length and size, and nothing else from the metadata", async () => {
+  test("includes the thumbnail and its size, a video's length and size, and nothing else from the metadata", async () => {
     const results = await searchItemsService({});
     const byId = new Map(results.map((result) => [result.id, result]));
     expect(byId.get(1)).toMatchObject({
       thumbnailUrl: "https://i.ytimg.com/vi/aaaaaaaaaaa/maxresdefault.jpg",
       durationSeconds: 754,
+      thumbnailSize: { width: 1280, height: 720 },
       videoSize: { width: 1080, height: 1920 },
     });
     expect(byId.get(1)).not.toHaveProperty("width");
@@ -83,6 +84,7 @@ describe.skipIf(!hasDatabase)("searching items", () => {
     expect(byId.get(3)).toMatchObject({
       thumbnailUrl: "https://upload.wikimedia.org/mars.jpg",
       durationSeconds: null,
+      thumbnailSize: null,
       videoSize: null,
     });
     expect(byId.get(2)).toMatchObject({
@@ -97,6 +99,7 @@ describe.skipIf(!hasDatabase)("searching items", () => {
       expect(results.find((result) => result.id === id)).toMatchObject({
         thumbnailUrl: null,
         durationSeconds: null,
+        thumbnailSize: null,
         videoSize: null,
       });
     }

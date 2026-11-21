@@ -31,6 +31,8 @@ type Row = {
   duration_seconds: unknown;
   width: unknown;
   height: unknown;
+  thumbnail_width: unknown;
+  thumbnail_height: unknown;
   last_consumed_on: string | null;
   last_consumed_precision: DatePrecision | null;
   matched_texts: string[];
@@ -117,6 +119,8 @@ export async function searchItemsService({
       i.metadata->'durationSeconds' as duration_seconds,
       i.metadata->'width' as width,
       i.metadata->'height' as height,
+      i.metadata->'thumbnailWidth' as thumbnail_width,
+      i.metadata->'thumbnailHeight' as thumbnail_height,
       latest.consumed_on::text as last_consumed_on,
       latest.consumed_precision as last_consumed_precision,
       ${matchedTexts} as matched_texts
@@ -146,7 +150,8 @@ export async function searchItemsService({
       typeof row.duration_seconds === "number"
         ? positiveNumber(row.duration_seconds)
         : null,
-    videoSize: videoSize(row.width, row.height),
+    thumbnailSize: size(row.thumbnail_width, row.thumbnail_height),
+    videoSize: size(row.width, row.height),
     lastConsumed:
       row.last_consumed_on && row.last_consumed_precision
         ? { on: row.last_consumed_on, precision: row.last_consumed_precision }
@@ -162,7 +167,7 @@ function httpUrl(value: unknown) {
     : null;
 }
 
-function videoSize(width: unknown, height: unknown) {
+function size(width: unknown, height: unknown) {
   const w = typeof width === "number" ? positiveNumber(width) : null;
   const h = typeof height === "number" ? positiveNumber(height) : null;
   return w && h ? { width: w, height: h } : null;

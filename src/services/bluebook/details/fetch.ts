@@ -28,37 +28,53 @@ export async function fetchText(
     accept = "text/html,application/xhtml+xml",
   }: { maxBytes?: number; accept?: string } = {},
 ): Promise<FetchedText | null> {
-  const signal = AbortSignal.timeout(DETAILS_TIMEOUT_MS);
-  let current = url;
   try {
-    for (let hop = 0; hop <= DETAILS_MAX_REDIRECTS; hop++) {
-      if (!isPublicHttpUrl(new URL(current))) return null;
-      const response = await fetch(current, {
-        redirect: "manual",
-        signal,
-        headers: { "user-agent": DETAILS_USER_AGENT, accept },
-      });
-
-      const location = response.headers.get("location");
-      if (response.status >= 300 && response.status < 400 && location) {
-        await response.body?.cancel();
-        current = new URL(location, current).toString();
-        continue;
-      }
-      if (!response.ok) {
-        await response.body?.cancel();
-        return null;
-      }
-      return {
-        url: current,
-        contentType: response.headers.get("content-type") ?? "",
-        body: await readText(response, maxBytes),
-      };
-    }
-    return null;
+    const opened = await openPublic(url, accept);
+    if (!opened) return null;
+    return {
+      url: opened.url,
+      contentType: opened.response.headers.get("content-type") ?? "",
+      body: await readText(opened.response, maxBytes),
+    };
   } catch {
     return null;
   }
+}
+
+/**
+ * Opens a public address, following up to `DETAILS_MAX_REDIRECTS` redirects
+ * and refusing any that lead to a private address. The body is left unread;
+ * reading it also stops after `DETAILS_TIMEOUT_MS`. Returns `null` if the
+ * address isn't public or the response isn't a success. Can throw (timeouts,
+ * network errors), so callers catch.
+ */
+export async function openPublic(
+  url: string,
+  accept: string,
+): Promise<{ url: string; response: Response } | null> {
+  const signal = AbortSignal.timeout(DETAILS_TIMEOUT_MS);
+  let current = url;
+  for (let hop = 0; hop <= DETAILS_MAX_REDIRECTS; hop++) {
+    if (!isPublicHttpUrl(new URL(current))) return null;
+    const response = await fetch(current, {
+      redirect: "manual",
+      signal,
+      headers: { "user-agent": DETAILS_USER_AGENT, accept },
+    });
+
+    const location = response.headers.get("location");
+    if (response.status >= 300 && response.status < 400 && location) {
+      await response.body?.cancel();
+      current = new URL(location, current).toString();
+      continue;
+    }
+    if (!response.ok) {
+      await response.body?.cancel();
+      return null;
+    }
+    return { url: current, response };
+  }
+  return null;
 }
 
 /** Fetches a public JSON API response. Returns `null` on any failure. */

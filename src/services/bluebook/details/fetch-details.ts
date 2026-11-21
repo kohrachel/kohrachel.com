@@ -15,8 +15,9 @@ import { detailsFromLink } from "./link-details";
 import { fetchLinkedInDetails } from "./linkedin";
 import { fetchPageDetails } from "./page";
 import { titleFromShareText } from "./share-text";
+import { measureImage, type ImageSize } from "./thumbnail-size";
 import { fetchWikipediaDetails } from "./wikipedia";
-import { fetchYouTubeDetails } from "./youtube";
+import { fetchYouTubeDetails, youtubeVerticalThumbnail } from "./youtube";
 
 export type DetailsInput = {
   /** The link as pasted, found in `pastedText`. */
@@ -32,8 +33,10 @@ export type DetailsInput = {
 /**
  * Fetches details to pre-fill the confirm form, from the best source first:
  * the platform's own API, its oEmbed endpoint, the page itself, the share
- * text, then what the link itself says (profile names, post dates). Never throws: whatever can't be found stays `null` for the form
- * to fill in.
+ * text, then what the link itself says (profile names, post dates). Then
+ * the thumbnail is measured; a vertical YouTube video's vertical thumbnail
+ * is tried first. Never throws: whatever can't be found stays
+ * `null` for the form to fill in.
  */
 export async function fetchDetails(
   input: DetailsInput,
@@ -51,10 +54,52 @@ export async function fetchDetails(
       ]
     : [...pageLayers(await fetchPageDetails(resolvedUrl, null)), shareText];
 
-  return layers.reduce<DetailsResult>(
+  const result = layers.reduce<DetailsResult>(
     (result, [details, source]) => fillMissing(result, details, source),
     { details: { ...EMPTY_DETAILS }, sources: {} },
   );
+  return measureThumbnail(
+    result,
+    commonPlatform === CommonPlatform.YouTube
+      ? youtubeVerticalThumbnail(normalizedUrl, result.details)
+      : null,
+  );
+}
+
+/**
+ * Adds the thumbnail's size. `preferred`, a better-shaped thumbnail than the
+ * sources gave, is tried first and replaces theirs if it loads.
+ */
+async function measureThumbnail(
+  result: DetailsResult,
+  preferred: string | null,
+): Promise<DetailsResult> {
+  const preferredSize = preferred && (await measureImage(preferred));
+  if (preferredSize) {
+    return withThumbnail(result, preferred, preferredSize, "link");
+  }
+  const url = result.details.thumbnailUrl;
+  const size = url && (await measureImage(url));
+  return size ? withThumbnail(result, url, size) : result;
+}
+
+function withThumbnail(
+  result: DetailsResult,
+  url: string,
+  size: ImageSize,
+  source?: DetailsSource,
+): DetailsResult {
+  return {
+    details: {
+      ...result.details,
+      thumbnailUrl: url,
+      thumbnailWidth: size.width,
+      thumbnailHeight: size.height,
+    },
+    sources: source
+      ? { ...result.sources, thumbnailUrl: source }
+      : result.sources,
+  };
 }
 
 type Layer = [details: Partial<ItemDetails> | null, source: DetailsSource];

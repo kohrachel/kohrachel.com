@@ -6,6 +6,18 @@ import { fetchDetails, type DetailsInput } from "./fetch-details";
 
 const network = installFakeNetwork();
 
+/** The start of a PNG: enough to read its size. */
+const png = (width: number, height: number) => {
+  const bytes = new Uint8Array(29);
+  bytes.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13]);
+  bytes.set([0x49, 0x48, 0x44, 0x52], 12);
+  const view = new DataView(bytes.buffer);
+  view.setUint32(16, width);
+  view.setUint32(20, height);
+  bytes.set([8, 6, 0, 0, 0], 24);
+  return bytes;
+};
+
 const input = (overrides: Partial<DetailsInput>): DetailsInput => ({
   url: "https://example.com/post",
   resolvedUrl: "https://example.com/post",
@@ -212,26 +224,68 @@ describe("fetchDetails", () => {
     expect(post.details.title).toBe("Root cause");
   });
 
-  test("gets a YouTube Short's vertical size", async () => {
-    const watch = "https://www.youtube.com/watch?v=lG4atCDzv0E";
-    network.routes[
-      `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent("https://www.youtube.com/shorts/lG4atCDzv0E")}`
-    ] = json({
-      type: "video",
-      title: "There’s Something Weird Inside Mars",
-      width: 113,
-      height: 200,
-    });
-    const result = await fetchDetails(
+  describe("a YouTube video's shape", () => {
+    const shortInput = (id: string) =>
       input({
-        url: "https://youtube.com/shorts/lG4atCDzv0E?si=9YnHrm2iYWPjuMtr",
-        resolvedUrl:
-          "https://youtube.com/shorts/lG4atCDzv0E?si=9YnHrm2iYWPjuMtr",
-        normalizedUrl: watch,
+        url: `https://youtube.com/shorts/${id}?si=9YnHrm2iYWPjuMtr`,
+        resolvedUrl: `https://youtube.com/shorts/${id}?si=9YnHrm2iYWPjuMtr`,
+        normalizedUrl: `https://www.youtube.com/watch?v=${id}`,
         commonPlatform: CommonPlatform.YouTube,
-      }),
-    );
-    expect(result.details).toMatchObject({ width: 113, height: 200 });
+      });
+    const oembed = (id: string, width: number, height: number) => {
+      network.routes[
+        `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(`https://www.youtube.com/shorts/${id}`)}`
+      ] = json({
+        type: "video",
+        title: "There’s Something Weird Inside Mars",
+        thumbnail_url: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+        width,
+        height,
+      });
+      network.routes[`https://i.ytimg.com/vi/${id}/hqdefault.jpg`] = () =>
+        new Response(png(480, 360));
+    };
+
+    test("gets a Short's vertical size", async () => {
+      oembed("lG4atCDzv0E", 113, 200);
+      const result = await fetchDetails(shortInput("lG4atCDzv0E"));
+      expect(result.details).toMatchObject({ width: 113, height: 200 });
+    });
+
+    test("uses a Short's vertical thumbnail", async () => {
+      oembed("lG4atCDzv0E", 113, 200);
+      network.routes["https://i.ytimg.com/vi/lG4atCDzv0E/oardefault.jpg"] =
+        () => new Response(png(1080, 1920));
+      const result = await fetchDetails(shortInput("lG4atCDzv0E"));
+      expect(result.details).toMatchObject({
+        thumbnailUrl: "https://i.ytimg.com/vi/lG4atCDzv0E/oardefault.jpg",
+        thumbnailWidth: 1080,
+        thumbnailHeight: 1920,
+      });
+      expect(result.sources.thumbnailUrl).toBe("link");
+    });
+
+    test("keeps the usual thumbnail if the vertical one doesn't load", async () => {
+      oembed("lG4atCDzv0E", 113, 200);
+      const result = await fetchDetails(shortInput("lG4atCDzv0E"));
+      expect(result.details).toMatchObject({
+        thumbnailUrl: "https://i.ytimg.com/vi/lG4atCDzv0E/hqdefault.jpg",
+        thumbnailWidth: 480,
+        thumbnailHeight: 360,
+      });
+      expect(result.sources.thumbnailUrl).toBe("oembed");
+    });
+
+    test("doesn't look for a vertical thumbnail for a horizontal video", async () => {
+      oembed("dQw4w9WgXcQ", 200, 113);
+      const result = await fetchDetails(shortInput("dQw4w9WgXcQ"));
+      expect(result.details.thumbnailUrl).toBe(
+        "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      );
+      expect(network.requested).not.toContain(
+        "https://i.ytimg.com/vi/dQw4w9WgXcQ/oardefault.jpg",
+      );
+    });
   });
 
   test("reads an X post's text and date from its embed", async () => {
@@ -325,6 +379,34 @@ describe("fetchDetails", () => {
     expect(network.requested.some((url) => url.includes("/oembed"))).toBe(
       false,
     );
+  });
+
+  test("measures the thumbnail, without recording a source for its size", async () => {
+    network.routes["https://example.com/post"] = html(
+      `<meta property="og:image" content="https://example.com/cover.png">`,
+    );
+    network.routes["https://example.com/cover.png"] = () =>
+      new Response(png(300, 450));
+    const result = await fetchDetails(input({}));
+    expect(result.details).toMatchObject({
+      thumbnailUrl: "https://example.com/cover.png",
+      thumbnailWidth: 300,
+      thumbnailHeight: 450,
+    });
+    expect(result.sources.thumbnailUrl).toBe("page_meta");
+    expect(result.sources).not.toHaveProperty("thumbnailWidth");
+  });
+
+  test("leaves the thumbnail's size empty if it can't be measured", async () => {
+    network.routes["https://example.com/post"] = html(
+      `<meta property="og:image" content="https://example.com/gone.png">`,
+    );
+    const result = await fetchDetails(input({}));
+    expect(result.details).toMatchObject({
+      thumbnailUrl: "https://example.com/gone.png",
+      thumbnailWidth: null,
+      thumbnailHeight: null,
+    });
   });
 
   describe("Wikipedia", () => {
