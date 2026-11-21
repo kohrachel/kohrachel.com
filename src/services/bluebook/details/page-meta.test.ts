@@ -38,6 +38,8 @@ describe("parsePageMeta", () => {
       width: null,
       height: null,
       playerId: null,
+      series: null,
+      seriesPosition: null,
     });
     expect(oembedUrl).toBeNull();
   });

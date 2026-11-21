@@ -209,6 +209,43 @@ describe("cleanPageDetails", () => {
     });
   });
 
+  test("takes a Goodreads book's title and series from its app data", () => {
+    const html = `<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(
+      {
+        props: {
+          pageProps: {
+            apolloState: {
+              "Book:a": {
+                __typename: "Book",
+                legacyId: 54493401,
+                title: "Harry Potter and the Sorcerer's Stone",
+                bookSeries: [
+                  { userPosition: "1", series: { __ref: "Series:hp" } },
+                ],
+              },
+              "Series:hp": { __typename: "Series", title: "Harry Potter" },
+            },
+          },
+        },
+      },
+    )}</script>`;
+    expect(
+      cleanPageDetails(
+        CommonPlatform.Goodreads,
+        details({
+          title:
+            "Harry Potter and the Sorcerer's Stone (Harry Potter, #1… by J.K. Rowling | Goodreads",
+        }),
+        LINKS[CommonPlatform.Goodreads],
+        html,
+      ),
+    ).toMatchObject({
+      title: "Harry Potter and the Sorcerer's Stone",
+      series: "Harry Potter",
+      seriesPosition: "1",
+    });
+  });
+
   test("ignores a LinkedIn comment's page, which shows the post", () => {
     expect(
       cleanPageDetails(

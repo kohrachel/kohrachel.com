@@ -17,6 +17,8 @@ export type ItemDetails = {
   height: number | null;
   /** An id the platform's player needs that isn't in the link: Bilibili's `cid`. */
   playerId: string | null;
+  series: string | null;
+  seriesPosition: string | null;
 };
 
 export type DetailField = keyof ItemDetails;
@@ -33,6 +35,8 @@ export const DETAIL_FIELDS: readonly DetailField[] = [
   "width",
   "height",
   "playerId",
+  "series",
+  "seriesPosition",
 ];
 
 export const EMPTY_DETAILS: ItemDetails = {
@@ -47,6 +51,8 @@ export const EMPTY_DETAILS: ItemDetails = {
   width: null,
   height: null,
   playerId: null,
+  series: null,
+  seriesPosition: null,
 };
 
 /** Where a detail came from, in the order they're tried. */
