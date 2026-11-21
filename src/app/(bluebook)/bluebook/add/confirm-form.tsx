@@ -140,16 +140,27 @@ export function ConfirmForm({
     });
   }
 
-  // Tinted while it still holds what was fetched.
-  const filled = (field: DetailField, unchanged: boolean) =>
-    sources[field] && unchanged ? "bb-input--filled" : "";
-  const tag = (field: DetailField) =>
-    sources[field] && (
-      <span className="bb-tag">
-        <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} />
-        from {SOURCE_LABELS[sources[field]]}
-      </span>
+  // Only what still holds the fetched value is tinted and tagged.
+  const edited: Partial<Record<DetailField, boolean>> = {
+    title: draft.title !== initial.title,
+    creator: draft.creator !== initial.creator,
+    publishedAt: publishedOn !== dateInputValue(initialPublishedAt),
+  };
+  const fetchedFrom = (field: DetailField) =>
+    edited[field] ? undefined : sources[field];
+  const filled = (field: DetailField) =>
+    fetchedFrom(field) ? "bb-input--filled" : "";
+  const tag = (field: DetailField) => {
+    const source = fetchedFrom(field);
+    return (
+      source && (
+        <span className="bb-tag">
+          <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} />
+          from {SOURCE_LABELS[source]}
+        </span>
+      )
     );
+  };
 
   return (
     <form
@@ -175,7 +186,7 @@ export function ConfirmForm({
               required
               maxLength={500}
               placeholder="What is it called?"
-              className={`${inputClass} ${filled("title", draft.title === initial.title)}`}
+              className={`${inputClass} ${filled("title")}`}
             />
           </Field>
           <Field label="Creator" tag={tag("creator")}>
@@ -184,7 +195,7 @@ export function ConfirmForm({
               onChange={(event) => updateDraft({ creator: event.target.value })}
               maxLength={300}
               placeholder="Who made it"
-              className={`${inputClass} ${filled("creator", draft.creator === initial.creator)}`}
+              className={`${inputClass} ${filled("creator")}`}
             />
           </Field>
           <Field label="Published" tag={tag("publishedAt")} narrow>
@@ -192,10 +203,7 @@ export function ConfirmForm({
               label="Published"
               value={publishedOn}
               onChange={setPublishedOn}
-              className={filled(
-                "publishedAt",
-                publishedOn === dateInputValue(initialPublishedAt),
-              )}
+              className={filled("publishedAt")}
             />
           </Field>
           <label className="bb-check">
