@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { SearchParams } from "@/domain-types/bluebook/search";
+import { ChipSelect } from "./chip-select";
 import { Star } from "./star";
 
 type Search = {
@@ -133,28 +134,15 @@ export function SearchForm({
             </button>
           );
         })}
-        <label className={`bb-chip ${current.year ? "bb-chip--on" : ""}`}>
-          <span className="bb-sr">Year watched or read</span>
-          <select
-            name="year"
-            value={current.year ?? ""}
-            onChange={(event) =>
-              search({
-                ...current,
-                year: event.target.value
-                  ? Number(event.target.value)
-                  : undefined,
-              })
-            }
-          >
-            <option value="">Any year</option>
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </label>
+        <ChipSelect
+          label="Year watched or read"
+          value={current.year ?? null}
+          options={[
+            { value: null, label: "Any year" },
+            ...years.map((year) => ({ value: year, label: String(year) })),
+          ]}
+          onChange={(year) => search({ ...current, year: year ?? undefined })}
+        />
         <button
           type="button"
           aria-pressed={current.favoritesOnly}

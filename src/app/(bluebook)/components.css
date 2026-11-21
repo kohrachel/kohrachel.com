@@ -350,17 +350,6 @@ textarea.bb-input {
   height: 16px;
   transform: none;
 }
-.bb-chip select {
-  font: inherit;
-  line-height: 18px;
-  height: 18px;
-  color: inherit;
-  background: transparent;
-  border: 0;
-  outline: none;
-  padding: 0;
-  cursor: pointer;
-}
 
 /* ---------- scrapbook bits ---------- */
 .bb-tape {
@@ -1613,4 +1602,58 @@ a.bb-linkrow:hover {
   .bb-add__side:has(.bb-polaroid__pic--empty) {
     display: none;
   }
+}
+
+/* select: a chip that opens a list */
+.bb-select__icon {
+  display: inline-flex;
+  margin-right: -4px;
+  transition: transform 0.15s;
+}
+.bb-chip[data-popup-open] .bb-select__icon {
+  transform: rotate(180deg);
+}
+.bb-select__positioner {
+  z-index: 50;
+  outline: none;
+}
+.bb-select {
+  min-width: max(var(--anchor-width), 140px);
+  max-height: min(320px, var(--available-height));
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lift);
+  outline: none;
+  transform-origin: var(--transform-origin);
+  transition:
+    opacity 0.12s,
+    transform 0.12s;
+}
+.bb-select[data-starting-style],
+.bb-select[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.97);
+}
+.bb-select__opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font: 500 13px/20px var(--font-sans);
+  color: var(--ink);
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+}
+.bb-select__opt[data-highlighted] {
+  background: var(--cover-tint);
+}
+.bb-select__tick {
+  display: inline-flex;
+  color: var(--cover);
 }
