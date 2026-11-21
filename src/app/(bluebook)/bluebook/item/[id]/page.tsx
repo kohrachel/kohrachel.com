@@ -11,7 +11,12 @@ import { embedFor, type Embed } from "@/services/bluebook/items/embed";
 import { platformName } from "@/services/bluebook/links/platform";
 import { EntryTextEditor } from "./entry-editor";
 import { EntryText } from "./entry-text";
-import { DeleteEntryButton, ItemTools } from "./owner-tools";
+import {
+  AddEntryButton,
+  DeleteEntryButton,
+  EntryDateButton,
+  ItemTools,
+} from "./owner-tools";
 
 type Props = PageProps<"/bluebook/item/[id]">;
 
@@ -157,6 +162,11 @@ function Entries({ item, basePath }: { item: ItemPageData; basePath: string }) {
   return (
     <section className="flex flex-col gap-3">
       <h2 className="text-lg font-semibold">Watched or read</h2>
+      <Suspense fallback={null}>
+        <OwnerOnly>
+          <AddEntryButton itemId={item.id} />
+        </OwnerOnly>
+      </Suspense>
       <ol className="flex flex-col gap-5">
         {entries.map((entry) => {
           const text = entry.plainText ? (
@@ -188,13 +198,18 @@ function Entries({ item, basePath }: { item: ItemPageData; basePath: string }) {
                   {text}
                 </OwnerEntryText>
               </Suspense>
-              {entries.length > 1 && (
-                <Suspense fallback={null}>
-                  <OwnerOnly>
-                    <DeleteEntryButton id={entry.id} />
-                  </OwnerOnly>
-                </Suspense>
-              )}
+              <Suspense fallback={null}>
+                <OwnerOnly>
+                  <div className="flex flex-wrap items-start gap-1">
+                    <EntryDateButton
+                      id={entry.id}
+                      consumedOn={entry.consumedOn}
+                      consumedPrecision={entry.consumedPrecision}
+                    />
+                    {entries.length > 1 && <DeleteEntryButton id={entry.id} />}
+                  </div>
+                </OwnerOnly>
+              </Suspense>
             </li>
           );
         })}

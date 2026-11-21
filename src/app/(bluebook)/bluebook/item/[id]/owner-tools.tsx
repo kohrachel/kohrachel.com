@@ -2,14 +2,18 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import type { DatePrecision } from "@/domain-types/bluebook/add";
 import type { EditResult } from "@/domain-types/bluebook/edit";
 import { dateInputValue, publishedAtFromInput } from "@/lib/bluebook/dates";
 import {
+  addEntry,
   deleteEntry,
   deleteItem,
   setFavorite,
+  updateEntryDate,
   updateItem,
 } from "@/server/bluebook/edit";
+import { ConsumedField, localToday } from "../../consumed-field";
 import {
   buttonClass,
   dateInputClass,
@@ -267,5 +271,138 @@ export function DeleteEntryButton({ id }: { id: number }) {
         </span>
       )}
     </span>
+  );
+}
+
+/** Changes when an entry was watched or read. */
+export function EntryDateButton({
+  id,
+  consumedOn,
+  consumedPrecision,
+}: {
+  id: number;
+  consumedOn: string;
+  consumedPrecision: DatePrecision;
+}) {
+  const [editing, setEditing] = useState(false);
+  const { error, pending, run } = useEdit();
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className={quietButtonClass}
+      >
+        Change date
+      </button>
+    );
+  }
+  return (
+    <EntryDateForm
+      initialDate={consumedOn}
+      initialPrecision={consumedPrecision}
+      submitLabel="Save date"
+      pending={pending}
+      error={error}
+      onCancel={() => setEditing(false)}
+      onSave={(date) =>
+        run(
+          () => updateEntryDate({ id, ...date }),
+          () => setEditing(false),
+        )
+      }
+    />
+  );
+}
+
+/** Adds an entry, for watching or reading it again, without pasting the link. */
+export function AddEntryButton({ itemId }: { itemId: number }) {
+  const [adding, setAdding] = useState(false);
+  const { error, pending, run } = useEdit();
+  if (!adding) {
+    return (
+      <button
+        type="button"
+        onClick={() => setAdding(true)}
+        className={quietButtonClass}
+      >
+        Add entry
+      </button>
+    );
+  }
+  return (
+    <EntryDateForm
+      initialDate={localToday()}
+      initialPrecision="day"
+      submitLabel="Add entry"
+      pending={pending}
+      error={error}
+      onCancel={() => setAdding(false)}
+      onSave={(date) =>
+        run(
+          () => addEntry({ itemId, ...date }),
+          () => setAdding(false),
+        )
+      }
+    />
+  );
+}
+
+function EntryDateForm({
+  initialDate,
+  initialPrecision,
+  submitLabel,
+  pending,
+  error,
+  onCancel,
+  onSave,
+}: {
+  initialDate: string;
+  initialPrecision: DatePrecision;
+  submitLabel: string;
+  pending: boolean;
+  error: string | null;
+  onCancel: () => void;
+  onSave: (date: {
+    consumedOn: string;
+    consumedPrecision: DatePrecision;
+  }) => void;
+}) {
+  const [consumedOn, setConsumedOn] = useState(initialDate);
+  const [consumedPrecision, setConsumedPrecision] =
+    useState<DatePrecision>(initialPrecision);
+  return (
+    <form
+      className="flex flex-col gap-2 rounded-md border border-dashed border-stone-300 p-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSave({ consumedOn, consumedPrecision });
+      }}
+    >
+      <ConsumedField
+        date={consumedOn}
+        precision={consumedPrecision}
+        onDateChange={setConsumedOn}
+        onPrecisionChange={setConsumedPrecision}
+      />
+      {error && (
+        <p role="alert" className="text-sm text-red-700">
+          {error}
+        </p>
+      )}
+      <div className="flex gap-2">
+        <button type="submit" disabled={pending} className={buttonClass}>
+          {pending ? "Saving…" : submitLabel}
+        </button>
+        <button
+          type="button"
+          disabled={pending}
+          onClick={onCancel}
+          className={quietButtonClass}
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 }

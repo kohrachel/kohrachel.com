@@ -2,11 +2,8 @@ import "server-only";
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { entries, items } from "@/db/schema";
-import type {
-  DatePrecision,
-  ParsedSaveInput,
-  SaveResult,
-} from "@/domain-types/bluebook/add";
+import type { ParsedSaveInput, SaveResult } from "@/domain-types/bluebook/add";
+import { startOfPeriod } from "@/lib/bluebook/dates";
 import { normalizeUrl } from "@/services/bluebook/links/normalize";
 import { isPublicHttpUrl } from "@/services/bluebook/links/resolve";
 
@@ -92,22 +89,6 @@ async function reuseItem(
     })
     .where(eq(items.id, current.id));
   return { itemId: current.id, outcome: "restored" as const };
-}
-
-/**
- * Approximate dates are stored as the start of their period, so "March 2026"
- * is always 2026-03-01 and sorts consistently.
- */
-export function startOfPeriod(date: string, precision: DatePrecision) {
-  const [year, month] = date.split("-");
-  switch (precision) {
-    case "day":
-      return date;
-    case "month":
-      return `${year}-${month}-01`;
-    case "year":
-      return `${year}-01-01`;
-  }
 }
 
 function withoutEmpty(metadata: Record<string, unknown>) {
