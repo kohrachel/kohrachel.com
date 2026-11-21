@@ -263,7 +263,8 @@ textarea.bb-input {
   background: var(--paper-raised);
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius-pill);
-  padding: 0 4px 0 14px;
+  /* Centres × on the round end: (control height - × size) / 2, less the border. */
+  padding: 0 calc((var(--control-h) - var(--chip-h)) / 2 - 1px) 0 14px;
   box-shadow: var(--shadow-paper);
   min-width: 0;
 }
@@ -310,8 +311,6 @@ textarea.bb-input {
 }
 .bb-search__clear:hover {
   background: var(--paper-sunk);
-}
-.bb-search__clear:hover {
   color: var(--ink);
 }
 
