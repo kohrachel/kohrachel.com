@@ -188,7 +188,10 @@ export function SearchForm({
   );
 }
 
-/** Typing sends an InputEvent; a browser filling in a suggestion doesn't. */
+/**
+ * Typing, pasting and deleting say how the text changed; a browser filling
+ * in a suggestion doesn't.
+ */
 function pickedFromList(event: Event) {
-  return !(event instanceof InputEvent);
+  return !(event instanceof InputEvent) || !event.inputType;
 }
