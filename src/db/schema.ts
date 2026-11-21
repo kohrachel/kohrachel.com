@@ -5,3 +5,5 @@ export * from "./entities/bluebook/schema";
 export * from "./entities/bluebook/items";
 export * from "./entities/bluebook/entries";
 export * from "./entities/bluebook/mentions";
+export * from "./entities/bluebook/users";
+export * from "./entities/bluebook/sessions";
