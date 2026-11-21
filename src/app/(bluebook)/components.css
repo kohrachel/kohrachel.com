@@ -1530,3 +1530,68 @@ a.bb-linkrow:hover {
 .bb-editor .bb-seg button {
   min-width: var(--chip-h);
 }
+
+/* typed date: one box, a stamp showing what it reads as */
+.bb-datefield__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.bb-datefield__row .bb-input {
+  flex: 1 1 180px;
+  max-width: 260px;
+}
+.bb-input[aria-invalid="true"] {
+  border-color: var(--margin-red);
+}
+.bb-datefield__read {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-2);
+  min-height: 28px;
+  font: 400 13px/18px var(--font-sans);
+  color: var(--ink-muted);
+}
+.bb-datefield__read--error {
+  color: var(--margin-red);
+}
+.bb-dateform {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  text-align: left;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-paper);
+}
+.bb-log__head {
+  flex-wrap: wrap;
+}
+.bb-log__head > .bb-dateform {
+  flex-basis: 100%;
+}
+.bb-entry__date:has(> .bb-dateform) {
+  grid-column: 1 / -1;
+  padding: 0 var(--space-4) var(--line-pitch);
+}
+.bb-entry__date-btn {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 0 4px;
+  margin-right: -4px;
+  cursor: pointer;
+}
+.bb-entry__date-btn:hover {
+  background: var(--cover-tint);
+}
+.bb-entry__date-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}

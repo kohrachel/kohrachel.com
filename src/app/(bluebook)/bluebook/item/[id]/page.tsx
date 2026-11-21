@@ -291,25 +291,27 @@ function EntryLog({
               basePath={basePath}
             />
           );
+          const stamp = (
+            <time
+              className="bb-stamp"
+              dateTime={isoDateAt(entry.consumedOn, entry.consumedPrecision)}
+              aria-label={formatDateLong(
+                entry.consumedOn,
+                entry.consumedPrecision,
+              )}
+            >
+              {formatDateShort(
+                entry.consumedOn,
+                entry.consumedPrecision,
+              ).toUpperCase()}
+            </time>
+          );
           return (
             <li key={entry.id} className="bb-entry">
               <div className="bb-entry__date">
-                <time
-                  className="bb-stamp"
-                  dateTime={isoDateAt(
-                    entry.consumedOn,
-                    entry.consumedPrecision,
-                  )}
-                  aria-label={formatDateLong(
-                    entry.consumedOn,
-                    entry.consumedPrecision,
-                  )}
-                >
-                  {formatDateShort(
-                    entry.consumedOn,
-                    entry.consumedPrecision,
-                  ).toUpperCase()}
-                </time>
+                <Suspense fallback={stamp}>
+                  <OwnerEntryDate entry={entry}>{stamp}</OwnerEntryDate>
+                </Suspense>
               </div>
               <Suspense fallback={text}>
                 <OwnerEntry
@@ -329,7 +331,27 @@ function EntryLog({
   );
 }
 
-/** An entry's text, with the owner's Edit · Change date · Delete under it. */
+/** An entry's date stamp, which the owner can click to change. */
+async function OwnerEntryDate({
+  entry,
+  children,
+}: {
+  entry: Entry;
+  children: React.ReactNode;
+}) {
+  if (!(await canWrite())) return children;
+  return (
+    <EntryDateButton
+      id={entry.id}
+      consumedOn={entry.consumedOn}
+      consumedPrecision={entry.consumedPrecision}
+    >
+      {children}
+    </EntryDateButton>
+  );
+}
+
+/** An entry's text, with the owner's Edit · Delete under it. */
 async function OwnerEntry({
   entry,
   itemId,
@@ -350,15 +372,9 @@ async function OwnerEntry({
       itemId={itemId}
       content={entry.content}
       basePath={basePath}
-      tools={[
-        <EntryDateButton
-          key="date"
-          id={entry.id}
-          consumedOn={entry.consumedOn}
-          consumedPrecision={entry.consumedPrecision}
-        />,
-        deletable && <DeleteEntryButton key="delete" id={entry.id} />,
-      ].filter(Boolean)}
+      tools={
+        deletable ? [<DeleteEntryButton key="delete" id={entry.id} />] : []
+      }
     >
       {children}
     </EntryTextEditor>

@@ -1,7 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { PlusSignIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { useState, useTransition, type ReactNode } from "react";
 import type { DatePrecision } from "@/domain-types/bluebook/add";
 import type { EditResult } from "@/domain-types/bluebook/edit";
 import {
@@ -9,6 +11,7 @@ import {
   publishedAtFromInput,
   type ConsumedDate,
 } from "@/lib/bluebook/dates";
+import { formatDateLong } from "@/lib/bluebook/format";
 import {
   addEntry,
   deleteEntry,
@@ -272,15 +275,20 @@ export function DeleteEntryButton({ id }: { id: number }) {
   );
 }
 
-/** Changes when an entry was watched or read. */
+/**
+ * An entry's date stamp, which the owner clicks to change when it was
+ * watched or read.
+ */
 export function EntryDateButton({
   id,
   consumedOn,
   consumedPrecision,
+  children,
 }: {
   id: number;
   consumedOn: string;
   consumedPrecision: DatePrecision;
+  children: ReactNode;
 }) {
   const [editing, setEditing] = useState(false);
   const { error, pending, run } = useEdit();
@@ -289,15 +297,18 @@ export function EntryDateButton({
       <button
         type="button"
         onClick={() => setEditing(true)}
-        className={quietButtonClass}
+        title="Change date"
+        aria-label={`Change date, ${formatDateLong(consumedOn, consumedPrecision)}`}
+        className="bb-entry__date-btn"
       >
-        Change date
+        {children}
       </button>
     );
   }
   return (
     <EntryDateForm
       initial={{ consumedOn, consumedPrecision }}
+      label="Change the date"
       submitLabel="Save date"
       pending={pending}
       error={error}
@@ -321,8 +332,9 @@ export function AddEntryButton({ itemId }: { itemId: number }) {
       <button
         type="button"
         onClick={() => setAdding(true)}
-        className={quietButtonClass}
+        className={outlineButtonClass}
       >
+        <HugeiconsIcon icon={PlusSignIcon} strokeWidth={1.8} />
         Add entry
       </button>
     );
@@ -330,6 +342,7 @@ export function AddEntryButton({ itemId }: { itemId: number }) {
   return (
     <EntryDateForm
       initial={today()}
+      label="When did you watch or read it again?"
       submitLabel="Add entry"
       pending={pending}
       error={error}
@@ -344,8 +357,10 @@ export function AddEntryButton({ itemId }: { itemId: number }) {
   );
 }
 
+/** A date to type, with Save and Cancel beside it. Escape cancels. */
 function EntryDateForm({
   initial,
+  label,
   submitLabel,
   pending,
   error,
@@ -353,6 +368,7 @@ function EntryDateForm({
   onSave,
 }: {
   initial: ConsumedDate;
+  label: string;
   submitLabel: string;
   pending: boolean;
   error: string | null;
@@ -362,19 +378,21 @@ function EntryDateForm({
   const [consumed, setConsumed] = useState<ConsumedDate | null>(initial);
   return (
     <form
-      className="flex flex-col gap-2 rounded-md border border-dashed border-stone-300 p-3"
+      className="bb-dateform"
       onSubmit={(event) => {
         event.preventDefault();
         if (consumed) onSave(consumed);
       }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && !pending) onCancel();
+      }}
     >
-      <ConsumedField initial={initial} onChange={setConsumed} />
-      {error && (
-        <p role="alert" className="text-sm text-red-700">
-          {error}
-        </p>
-      )}
-      <div className="flex gap-2">
+      <ConsumedField
+        initial={initial}
+        onChange={setConsumed}
+        label={label}
+        autoFocus
+      >
         <button
           type="submit"
           disabled={pending || !consumed}
@@ -390,7 +408,8 @@ function EntryDateForm({
         >
           Cancel
         </button>
-      </div>
+      </ConsumedField>
+      {error && <Notice kind="error" title={error} />}
     </form>
   );
 }
