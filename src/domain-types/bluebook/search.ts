@@ -42,6 +42,8 @@ export type SearchResult = {
   thumbnailUrl: string | null;
   /** Only for videos. */
   durationSeconds: number | null;
+  /** Measured from the image when the item was saved. */
+  thumbnailSize: { width: number; height: number } | null;
   /** The video's size, not the thumbnail's: they can differ in shape. */
   videoSize: { width: number; height: number } | null;
   lastConsumed: { on: string; precision: DatePrecision } | null;

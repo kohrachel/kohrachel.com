@@ -8,6 +8,9 @@ export type ItemDetails = {
   publishedAt: string | null;
   description: string | null;
   thumbnailUrl: string | null;
+  /** The thumbnail's own pixel size, measured from the image. */
+  thumbnailWidth: number | null;
+  thumbnailHeight: number | null;
   durationSeconds: number | null;
   /** Pixel size of the video or image, when known. Taller than wide = vertical. */
   width: number | null;
@@ -24,6 +27,8 @@ export const DETAIL_FIELDS: readonly DetailField[] = [
   "publishedAt",
   "description",
   "thumbnailUrl",
+  "thumbnailWidth",
+  "thumbnailHeight",
   "durationSeconds",
   "width",
   "height",
@@ -36,6 +41,8 @@ export const EMPTY_DETAILS: ItemDetails = {
   publishedAt: null,
   description: null,
   thumbnailUrl: null,
+  thumbnailWidth: null,
+  thumbnailHeight: null,
   durationSeconds: null,
   width: null,
   height: null,
@@ -56,7 +63,10 @@ export type DetailsSource =
 
 export type DetailsResult = {
   details: ItemDetails;
-  /** Which source filled each field. Fields left `null` have no entry. */
+  /**
+   * Which source filled each field. Fields left `null` have no entry, and
+   * neither does the thumbnail's size, which is measured from the image.
+   */
   sources: Partial<Record<DetailField, DetailsSource>>;
 };
 
@@ -167,6 +177,11 @@ export const DETAILS_MAX_REDIRECTS = 5;
 /** Pages are read only this far; titles and meta tags are near the top. */
 export const DETAILS_MAX_PAGE_BYTES = 512 * 1024;
 export const DETAILS_MAX_JSON_BYTES = 1024 * 1024;
+/**
+ * Thumbnails are read only until their size is found, and no further than
+ * this; the size is near the start of the file.
+ */
+export const THUMBNAIL_MAX_BYTES = 1024 * 1024;
 /**
  * A Bilibili anime season's response lists every episode (1.7 MB for a
  * 317-episode series), so it's allowed more.

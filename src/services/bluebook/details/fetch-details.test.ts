@@ -327,6 +327,39 @@ describe("fetchDetails", () => {
     );
   });
 
+  test("measures the thumbnail, without recording a source for its size", async () => {
+    network.routes["https://example.com/post"] = html(
+      `<meta property="og:image" content="https://example.com/cover.png">`,
+    );
+    network.routes["https://example.com/cover.png"] = () =>
+      new Response(
+        new Uint8Array([
+          0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13, 0x49,
+          0x48, 0x44, 0x52, 0, 0, 0x01, 0x2c, 0, 0, 0x01, 0xc2, 8, 6, 0, 0, 0,
+        ]),
+      );
+    const result = await fetchDetails(input({}));
+    expect(result.details).toMatchObject({
+      thumbnailUrl: "https://example.com/cover.png",
+      thumbnailWidth: 300,
+      thumbnailHeight: 450,
+    });
+    expect(result.sources.thumbnailUrl).toBe("page_meta");
+    expect(result.sources).not.toHaveProperty("thumbnailWidth");
+  });
+
+  test("leaves the thumbnail's size empty if it can't be measured", async () => {
+    network.routes["https://example.com/post"] = html(
+      `<meta property="og:image" content="https://example.com/gone.png">`,
+    );
+    const result = await fetchDetails(input({}));
+    expect(result.details).toMatchObject({
+      thumbnailUrl: "https://example.com/gone.png",
+      thumbnailWidth: null,
+      thumbnailHeight: null,
+    });
+  });
+
   describe("Wikipedia", () => {
     const article = {
       normalizedUrl: "https://en.wikipedia.org/wiki/Mariah_Carey",

@@ -89,6 +89,8 @@ export function ConfirmForm({
         ? {
             description: details.description,
             thumbnailUrl: details.thumbnailUrl,
+            thumbnailWidth: details.thumbnailWidth,
+            thumbnailHeight: details.thumbnailHeight,
             durationSeconds: details.durationSeconds,
             width: details.width,
             height: details.height,

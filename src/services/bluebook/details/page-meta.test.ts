@@ -32,6 +32,8 @@ describe("parsePageMeta", () => {
       publishedAt: "2024-03-04T02:00:00.000Z",
       description: "A post about attention.",
       thumbnailUrl: "https://blog.example/images/cover.png",
+      thumbnailWidth: null,
+      thumbnailHeight: null,
       durationSeconds: null,
       width: null,
       height: null,

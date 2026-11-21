@@ -27,6 +27,8 @@ export const itemMetadataSchema = z
   .object({
     description: z.string().max(5000).nullable(),
     thumbnailUrl: httpUrl.nullable(),
+    thumbnailWidth: z.number().int().positive().nullable(),
+    thumbnailHeight: z.number().int().positive().nullable(),
     durationSeconds: z.number().positive().nullable(),
     width: z.number().int().positive().nullable(),
     height: z.number().int().positive().nullable(),

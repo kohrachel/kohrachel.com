@@ -15,6 +15,7 @@ import { detailsFromLink } from "./link-details";
 import { fetchLinkedInDetails } from "./linkedin";
 import { fetchPageDetails } from "./page";
 import { titleFromShareText } from "./share-text";
+import { measureImage } from "./thumbnail-size";
 import { fetchWikipediaDetails } from "./wikipedia";
 import { fetchYouTubeDetails } from "./youtube";
 
@@ -32,8 +33,9 @@ export type DetailsInput = {
 /**
  * Fetches details to pre-fill the confirm form, from the best source first:
  * the platform's own API, its oEmbed endpoint, the page itself, the share
- * text, then what the link itself says (profile names, post dates). Never throws: whatever can't be found stays `null` for the form
- * to fill in.
+ * text, then what the link itself says (profile names, post dates). Then
+ * the thumbnail is measured. Never throws: whatever can't be found stays
+ * `null` for the form to fill in.
  */
 export async function fetchDetails(
   input: DetailsInput,
@@ -51,10 +53,23 @@ export async function fetchDetails(
       ]
     : [...pageLayers(await fetchPageDetails(resolvedUrl, null)), shareText];
 
-  return layers.reduce<DetailsResult>(
+  const result = layers.reduce<DetailsResult>(
     (result, [details, source]) => fillMissing(result, details, source),
     { details: { ...EMPTY_DETAILS }, sources: {} },
   );
+  const size =
+    result.details.thumbnailUrl &&
+    (await measureImage(result.details.thumbnailUrl));
+  return size
+    ? {
+        ...result,
+        details: {
+          ...result.details,
+          thumbnailWidth: size.width,
+          thumbnailHeight: size.height,
+        },
+      }
+    : result;
 }
 
 type Layer = [details: Partial<ItemDetails> | null, source: DetailsSource];
