@@ -22,7 +22,8 @@ const cleanPageDetails = (
   platform: CommonPlatform,
   details: typeof EMPTY_DETAILS,
   url = LINKS[platform],
-) => clean(platform, details, url);
+  html = "",
+) => clean(platform, details, url, html);
 
 const details = (overrides: Partial<typeof EMPTY_DETAILS>) => ({
   ...EMPTY_DETAILS,

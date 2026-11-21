@@ -183,6 +183,12 @@ export const DETAILS_TIMEOUT_MS = 5000;
 export const DETAILS_MAX_REDIRECTS = 5;
 /** Pages are read only this far; titles and meta tags are near the top. */
 export const DETAILS_MAX_PAGE_BYTES = 512 * 1024;
+/**
+ * Platforms whose pages are read further. Goodreads book pages run up to
+ * about 1 MB, with the publication dates near the end.
+ */
+export const PLATFORM_MAX_PAGE_BYTES: Partial<Record<CommonPlatform, number>> =
+  { [CommonPlatform.Goodreads]: 2 * 1024 * 1024 };
 export const DETAILS_MAX_JSON_BYTES = 1024 * 1024;
 /**
  * Thumbnails are read only until their size is found, and no further than
