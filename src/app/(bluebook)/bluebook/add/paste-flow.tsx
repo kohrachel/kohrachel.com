@@ -5,7 +5,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { PreviewResult } from "@/domain-types/bluebook/add";
-import { COMMON_PLATFORM_NAMES } from "@/domain-types/bluebook/links";
 import { thumbnailFrame } from "@/lib/bluebook/thumbnail";
 import { previewLink } from "@/server/bluebook/add";
 import { Notice } from "../notice";
@@ -18,9 +17,6 @@ import {
   type Saved,
 } from "./confirm-form";
 import { platformLabel, PreviewView } from "./preview-view";
-
-const PLATFORMS = Object.values(COMMON_PLATFORM_NAMES);
-const SITES = `${PLATFORMS.slice(0, -1).join(", ")} and ${PLATFORMS.at(-1)}`;
 
 /** `basePath` is where bluebook's pages start on this host. */
 export function PasteFlow({ basePath }: { basePath: string }) {
@@ -135,9 +131,6 @@ export function PasteFlow({ basePath }: { basePath: string }) {
               )}
             </div>
           </form>
-          <p className="bb-autofill__sites">
-            Best with {SITES}. Most other sites work too.
-          </p>
         </section>
 
         {failed && (
