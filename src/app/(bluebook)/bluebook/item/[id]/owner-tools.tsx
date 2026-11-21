@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { DatePrecision } from "@/domain-types/bluebook/add";
 import type { EditResult } from "@/domain-types/bluebook/edit";
-import { dateInputValue, publishedAtFromInput } from "@/lib/bluebook/dates";
+import {
+  dateInputValue,
+  publishedAtFromInput,
+  type ConsumedDate,
+} from "@/lib/bluebook/dates";
 import {
   addEntry,
   deleteEntry,
@@ -13,7 +17,7 @@ import {
   updateEntryDate,
   updateItem,
 } from "@/server/bluebook/edit";
-import { ConsumedField, localToday } from "../../consumed-field";
+import { ConsumedField, today } from "../../consumed-field";
 import {
   buttonClass,
   dateInputClass,
@@ -299,8 +303,7 @@ export function EntryDateButton({
   }
   return (
     <EntryDateForm
-      initialDate={consumedOn}
-      initialPrecision={consumedPrecision}
+      initial={{ consumedOn, consumedPrecision }}
       submitLabel="Save date"
       pending={pending}
       error={error}
@@ -332,8 +335,7 @@ export function AddEntryButton({ itemId }: { itemId: number }) {
   }
   return (
     <EntryDateForm
-      initialDate={localToday()}
-      initialPrecision="day"
+      initial={today()}
       submitLabel="Add entry"
       pending={pending}
       error={error}
@@ -349,49 +351,41 @@ export function AddEntryButton({ itemId }: { itemId: number }) {
 }
 
 function EntryDateForm({
-  initialDate,
-  initialPrecision,
+  initial,
   submitLabel,
   pending,
   error,
   onCancel,
   onSave,
 }: {
-  initialDate: string;
-  initialPrecision: DatePrecision;
+  initial: ConsumedDate;
   submitLabel: string;
   pending: boolean;
   error: string | null;
   onCancel: () => void;
-  onSave: (date: {
-    consumedOn: string;
-    consumedPrecision: DatePrecision;
-  }) => void;
+  onSave: (date: ConsumedDate) => void;
 }) {
-  const [consumedOn, setConsumedOn] = useState(initialDate);
-  const [consumedPrecision, setConsumedPrecision] =
-    useState<DatePrecision>(initialPrecision);
+  const [consumed, setConsumed] = useState<ConsumedDate | null>(initial);
   return (
     <form
       className="flex flex-col gap-2 rounded-md border border-dashed border-stone-300 p-3"
       onSubmit={(event) => {
         event.preventDefault();
-        onSave({ consumedOn, consumedPrecision });
+        if (consumed) onSave(consumed);
       }}
     >
-      <ConsumedField
-        date={consumedOn}
-        precision={consumedPrecision}
-        onDateChange={setConsumedOn}
-        onPrecisionChange={setConsumedPrecision}
-      />
+      <ConsumedField initial={initial} onChange={setConsumed} />
       {error && (
         <p role="alert" className="text-sm text-red-700">
           {error}
         </p>
       )}
       <div className="flex gap-2">
-        <button type="submit" disabled={pending} className={buttonClass}>
+        <button
+          type="submit"
+          disabled={pending || !consumed}
+          className={buttonClass}
+        >
           {pending ? "Saving…" : submitLabel}
         </button>
         <button

@@ -1,107 +1,122 @@
 "use client";
 
+import { useRef, useState, type KeyboardEvent } from "react";
 import {
-  DATE_PRECISIONS,
-  type DatePrecision,
-} from "@/domain-types/bluebook/add";
-import { dateInputClass, inputClass } from "./styles";
+  dateParts,
+  readDateParts,
+  type ConsumedDate,
+  type DateParts,
+} from "@/lib/bluebook/dates";
+import { formatDate } from "@/lib/bluebook/format";
+import { fieldClass, quietButtonClass } from "./styles";
 
-const PRECISION_LABELS: Record<DatePrecision, string> = {
-  day: "Day",
-  month: "Month",
-  year: "Year",
-};
-
-const MONTHS = Array.from({ length: 12 }, (_, i) =>
-  new Date(Date.UTC(2000, i, 1)).toLocaleDateString("en-US", {
-    month: "long",
-    timeZone: "UTC",
-  }),
-);
+const PART_FIELDS = [
+  {
+    part: "year",
+    label: "Year",
+    placeholder: "YYYY",
+    length: 4,
+    width: "w-20",
+  },
+  {
+    part: "month",
+    label: "Month",
+    placeholder: "MM",
+    length: 2,
+    width: "w-16",
+  },
+  { part: "day", label: "Day", placeholder: "DD", length: 2, width: "w-16" },
+] as const;
 
 /**
- * When you watched or read it. The date is always a full `YYYY-MM-DD`; with
- * month or year precision only that part is shown and changed.
+ * When you watched or read it: a year, then optionally a month, then
+ * optionally a day. What's filled in sets the precision. Reports the date,
+ * or `null` while the boxes don't describe one.
  */
 export function ConsumedField({
-  date,
-  precision,
-  onDateChange,
-  onPrecisionChange,
+  initial,
+  onChange,
   label = "Watched or read",
 }: {
+  initial: ConsumedDate;
+  onChange: (value: ConsumedDate | null) => void;
   label?: string;
-  date: string;
-  precision: DatePrecision;
-  onDateChange: (date: string) => void;
-  onPrecisionChange: (precision: DatePrecision) => void;
 }) {
-  const [year, month] = date.split("-");
-  const thisYear = Number(localToday().slice(0, 4));
-  const years = Array.from({ length: thisYear - 1949 }, (_, i) =>
-    String(thisYear - i),
+  const [parts, setParts] = useState<DateParts>(() =>
+    dateParts(initial.consumedOn, initial.consumedPrecision),
   );
+  const boxes = useRef<(HTMLInputElement | null)[]>([]);
+  const result = readDateParts(parts, localToday());
+
+  function update(next: DateParts) {
+    setParts(next);
+    const read = readDateParts(next, localToday());
+    onChange(read.ok ? read.value : null);
+  }
 
   return (
-    <fieldset className="flex flex-col gap-2 text-sm">
+    <fieldset className="flex flex-col gap-1.5 text-sm">
       <legend className="mb-1 text-stone-500">{label}</legend>
-      <div className="flex w-fit rounded-md border border-stone-300 p-0.5">
-        {DATE_PRECISIONS.map((option) => (
-          <button
-            key={option}
-            type="button"
-            aria-pressed={precision === option}
-            onClick={() => onPrecisionChange(option)}
-            className="rounded px-3 py-1 aria-pressed:bg-stone-900 aria-pressed:text-white"
-          >
-            {PRECISION_LABELS[option]}
-          </button>
-        ))}
-      </div>
-      <div className="flex gap-2">
-        {precision === "day" && (
-          <input
-            type="date"
-            aria-label="Date"
-            value={date}
-            onChange={(event) =>
-              event.target.value && onDateChange(event.target.value)
-            }
-            required
-            className={dateInputClass}
-          />
-        )}
-        {precision === "month" && (
-          <select
-            aria-label="Month"
-            value={month}
-            onChange={(event) =>
-              onDateChange(`${year}-${event.target.value}-01`)
-            }
-            className={inputClass}
-          >
-            {MONTHS.map((name, i) => (
-              <option key={name} value={String(i + 1).padStart(2, "0")}>
+      <div className="flex flex-wrap items-end gap-2">
+        {PART_FIELDS.map(
+          ({ part, label: name, placeholder, length, width }, i) => (
+            <label key={part} className="flex flex-col gap-1">
+              <span className="text-xs text-stone-500">
                 {name}
-              </option>
-            ))}
-          </select>
+                {part !== "year" && " (optional)"}
+              </span>
+              <input
+                ref={(box) => {
+                  boxes.current[i] = box;
+                }}
+                value={parts[part]}
+                inputMode="numeric"
+                // Typing into a filled box replaces what's there.
+                onFocus={(event) => event.target.select()}
+                placeholder={placeholder}
+                maxLength={length}
+                aria-invalid={!result.ok || undefined}
+                onChange={(event) => {
+                  const value = event.target.value.replace(/\D/g, "");
+                  update({ ...parts, [part]: value });
+                  // Move on once the part can't take another digit.
+                  const full =
+                    value.length === length ||
+                    (part === "month" && Number(value) > 1) ||
+                    (part === "day" && Number(value) > 3);
+                  if (full && value !== parts[part])
+                    boxes.current[i + 1]?.focus();
+                }}
+                onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
+                  if (event.key === "Backspace" && !parts[part] && i > 0) {
+                    event.preventDefault();
+                    boxes.current[i - 1]?.focus();
+                  }
+                }}
+                className={`${fieldClass} ${width} text-center tabular-nums aria-invalid:border-red-400`}
+              />
+            </label>
+          ),
         )}
-        {precision !== "day" && (
-          <select
-            aria-label="Year"
-            value={year}
-            onChange={(event) =>
-              onDateChange(`${event.target.value}-${month}-01`)
-            }
-            className={inputClass}
-          >
-            {years.map((option) => (
-              <option key={option}>{option}</option>
-            ))}
-          </select>
-        )}
+        <button
+          type="button"
+          onClick={() => {
+            const [year, month, day] = localToday().split("-");
+            update({ year, month, day });
+          }}
+          className={quietButtonClass}
+        >
+          Set to today
+        </button>
       </div>
+      <p
+        aria-live="polite"
+        className={result.ok ? "text-stone-500" : "text-red-700"}
+      >
+        {result.ok
+          ? formatDate(result.value.consumedOn, result.value.consumedPrecision)
+          : result.error}
+      </p>
     </fieldset>
   );
 }
@@ -111,4 +126,9 @@ export function localToday() {
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+/** Today, to the day: the starting value when adding an entry. */
+export function today(): ConsumedDate {
+  return { consumedOn: localToday(), consumedPrecision: "day" };
 }

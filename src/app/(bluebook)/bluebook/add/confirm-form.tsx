@@ -2,19 +2,22 @@
 
 import { useState, useTransition } from "react";
 import { saveLink } from "@/server/bluebook/add";
-import {
-  type DatePrecision,
-  type PreviewResult,
-  type SaveInput,
-  type SaveResult,
+import type {
+  PreviewResult,
+  SaveInput,
+  SaveResult,
 } from "@/domain-types/bluebook/add";
 import type {
   DetailField,
   DetailsSource,
 } from "@/domain-types/bluebook/details";
-import { dateInputValue, publishedAtFromInput } from "@/lib/bluebook/dates";
+import {
+  dateInputValue,
+  publishedAtFromInput,
+  type ConsumedDate,
+} from "@/lib/bluebook/dates";
 import { formatDuration } from "@/lib/bluebook/format";
-import { ConsumedField, localToday } from "../consumed-field";
+import { ConsumedField, today } from "../consumed-field";
 import { buttonClass, dateInputClass, inputClass } from "../styles";
 
 type Preview = Extract<PreviewResult, { ok: true }>;
@@ -57,13 +60,12 @@ export function ConfirmForm({
     dateInputValue(initialPublishedAt),
   );
   const [isFavorite, setIsFavorite] = useState(existing?.isFavorite ?? false);
-  const [consumedOn, setConsumedOn] = useState(localToday);
-  const [consumedPrecision, setConsumedPrecision] =
-    useState<DatePrecision>("day");
+  const [consumed, setConsumed] = useState<ConsumedDate | null>(today);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   function save() {
+    if (!consumed) return;
     const input: SaveInput = {
       url: preview.url,
       resolvedUrl: preview.resolvedUrl,
@@ -81,8 +83,7 @@ export function ConfirmForm({
           }
         : {},
       isFavorite,
-      consumedOn,
-      consumedPrecision,
+      ...consumed,
     };
     startTransition(async () => {
       try {
@@ -155,12 +156,7 @@ export function ConfirmForm({
         </>
       )}
 
-      <ConsumedField
-        date={consumedOn}
-        precision={consumedPrecision}
-        onDateChange={setConsumedOn}
-        onPrecisionChange={setConsumedPrecision}
-      />
+      <ConsumedField initial={today()} onChange={setConsumed} />
 
       {error && (
         <p role="alert" className="text-sm text-red-700">
@@ -169,7 +165,7 @@ export function ConfirmForm({
       )}
       <button
         type="submit"
-        disabled={pending || (!entryOnly && !title.trim())}
+        disabled={pending || !consumed || (!entryOnly && !title.trim())}
         className={buttonClass}
       >
         {pending
