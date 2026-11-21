@@ -19,8 +19,9 @@ type Search = {
 /**
  * The homepage's masthead (wordmark, search bar, Add) and filter chips.
  * Filters search as soon as they change;
- * typed text searches on Enter, once it's more than spaces, and × clears
- * it. Everything lives in the address.
+ * typed text searches on Enter, once it's more than spaces, a past search
+ * picked from the browser's list searches at once, and × clears it.
+ * Everything lives in the address.
  */
 export function SearchForm({
   basePath,
@@ -83,10 +84,15 @@ export function SearchForm({
             name="q"
             type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setQuery(value);
+              if (pickedFromList(event.nativeEvent) && value.trim()) {
+                search({ ...current, query: value.trim() });
+              }
+            }}
             placeholder="Search titles, creators and entries"
             aria-label="Search"
-            autoComplete="off"
             enterKeyHint="search"
           />
           {query && (
@@ -175,4 +181,9 @@ export function SearchForm({
       </div>
     </>
   );
+}
+
+/** Typing sends an InputEvent; a browser filling in a suggestion doesn't. */
+function pickedFromList(event: Event) {
+  return !(event instanceof InputEvent);
 }
