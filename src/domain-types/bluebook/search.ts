@@ -39,6 +39,11 @@ export type SearchResult = {
   creator: string | null;
   platform: string;
   isFavorite: boolean;
+  thumbnailUrl: string | null;
+  /** Only for videos. */
+  durationSeconds: number | null;
+  /** The video's size, not the thumbnail's: they can differ in shape. */
+  videoSize: { width: number; height: number } | null;
   lastConsumed: { on: string; precision: DatePrecision } | null;
   snippet: string | null;
 };
