@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { thumbnailFrame } from "./thumbnail";
+import { sizeOf, thumbnailFrame } from "./thumbnail";
 
 describe("thumbnailFrame", () => {
   test("keeps a picture's own ratio within 9:16 and 2:1", () => {
@@ -26,5 +26,18 @@ describe("thumbnailFrame", () => {
       ratio: "16 / 9",
       crop: "fit",
     });
+  });
+});
+
+describe("sizeOf", () => {
+  test("reads a width and height", () => {
+    expect(sizeOf(330, 247)).toEqual({ width: 330, height: 247 });
+  });
+
+  test("is null when either is missing or not positive", () => {
+    expect(sizeOf(null, 247)).toBeNull();
+    expect(sizeOf(330, undefined)).toBeNull();
+    expect(sizeOf(0, 247)).toBeNull();
+    expect(sizeOf("wide", 247)).toBeNull();
   });
 });

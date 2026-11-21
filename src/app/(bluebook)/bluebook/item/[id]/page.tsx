@@ -13,7 +13,7 @@ import {
   isoDateAt,
   timesInWords,
 } from "@/lib/bluebook/format";
-import { thumbnailFrame } from "@/lib/bluebook/thumbnail";
+import { sizeOf, thumbnailFrame } from "@/lib/bluebook/thumbnail";
 import { canWrite } from "@/server/auth/gate";
 import { getItem } from "@/server/bluebook/items";
 import { bluebookBasePath } from "@/server/bluebook/paths";
@@ -151,12 +151,12 @@ function Player({ embed, title }: { embed: Embed; title: string }) {
 
 function LinkOutCard({ item }: { item: ItemPageData }) {
   const thumbnailUrl = text(item.metadata.thumbnailUrl);
-  const width = Number(item.metadata.width);
-  const height = Number(item.metadata.height);
-  const size = width > 0 && height > 0 ? { width, height } : null;
   const description = text(item.metadata.description);
   const platform = platformName(item.platform);
-  const frame = thumbnailFrame(size);
+  const frame = thumbnailFrame(
+    sizeOf(item.metadata.thumbnailWidth, item.metadata.thumbnailHeight) ??
+      sizeOf(item.metadata.width, item.metadata.height),
+  );
   return (
     <Link
       href={item.normalizedUrl}

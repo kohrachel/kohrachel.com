@@ -86,7 +86,7 @@ export function ItemCard({
     );
   }
 
-  const frame = thumbnailFrame(item.videoSize);
+  const frame = thumbnailFrame(item.thumbnailSize ?? item.videoSize);
   return (
     <Link href={href} className="bb-card">
       {tape}
@@ -124,7 +124,7 @@ export function estimateCardHeight(item: SearchResult) {
   if (!item.thumbnailUrl) {
     return (87 + 24 * estimateLines(item.title, 16, 4)) * PX + snippet;
   }
-  const frame = thumbnailFrame(item.videoSize);
+  const frame = thumbnailFrame(item.thumbnailSize ?? item.videoSize);
   return (
     1 / frame.value +
     (50 + 20 * estimateLines(item.title, 22, 3)) * PX +

@@ -5,7 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { PreviewResult } from "@/domain-types/bluebook/add";
-import { thumbnailFrame } from "@/lib/bluebook/thumbnail";
+import { sizeOf, thumbnailFrame } from "@/lib/bluebook/thumbnail";
 import { previewLink } from "@/server/bluebook/add";
 import { Notice } from "../notice";
 import { buttonClass, quietButtonClass } from "../styles";
@@ -157,9 +157,8 @@ export function PasteFlow({ basePath }: { basePath: string }) {
         <Polaroid
           thumbnailUrl={details?.thumbnailUrl ?? null}
           size={
-            details?.width && details.height
-              ? { width: details.width, height: details.height }
-              : null
+            sizeOf(details?.thumbnailWidth, details?.thumbnailHeight) ??
+            sizeOf(details?.width, details?.height)
           }
           title={draft.title.trim()}
           meta={[draft.creator.trim(), ready && platformLabel(ready)]
