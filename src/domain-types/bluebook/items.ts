@@ -1,3 +1,4 @@
+import type { JSONContent } from "@tiptap/core";
 import type { DatePrecision } from "./add";
 
 /** An item and its entries, as its page shows them. */
@@ -15,7 +16,24 @@ export type ItemPageData = {
     id: number;
     consumedOn: string;
     consumedPrecision: DatePrecision;
+    content: JSONContent;
     plainText: string;
+    contentEditedAt: Date | null;
+  }[];
+  /** Current titles of the items its entries mention; `null` if deleted. */
+  mentionedTitles: Record<number, string | null>;
+  /** Items its entries mention, most recently mentioned first. */
+  linksOut: { id: number; title: string | null }[];
+  /**
+   * Other items' entries that mention it, newest first. A deleted item's
+   * title is `null` and its sentence empty.
+   */
+  mentionedIn: {
+    itemId: number;
+    title: string | null;
+    consumedOn: string;
+    consumedPrecision: DatePrecision;
+    context: string;
   }[];
 };
 

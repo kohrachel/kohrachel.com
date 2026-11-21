@@ -10,7 +10,8 @@ const hasDatabase = !!process.env.TEST_DATABASE_URL;
 const network = installFakeNetwork();
 
 const { db } = hasDatabase ? await import("@/db") : { db: null! };
-const { saveLinkService, startOfPeriod } = await import("./save");
+const { saveLinkService } = await import("./save");
+const { startOfPeriod } = await import("@/lib/bluebook/dates");
 const { findItem, previewLinkService } = await import("./preview");
 
 const save = (overrides: Partial<SaveInput> = {}) =>

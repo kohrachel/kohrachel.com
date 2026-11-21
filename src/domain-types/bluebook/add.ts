@@ -93,5 +93,12 @@ export type PreviewResult =
 export type SaveOutcome = "created" | "added_entry" | "restored";
 
 export type SaveResult =
-  | { ok: true; outcome: SaveOutcome; itemId: number; entryId: number }
+  | {
+      ok: true;
+      outcome: SaveOutcome;
+      itemId: number;
+      entryId: number;
+      /** Set if the link saved but the entry's text didn't. */
+      textError?: string;
+    }
   | { ok: false; error: string };

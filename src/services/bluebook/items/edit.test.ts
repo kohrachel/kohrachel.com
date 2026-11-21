@@ -7,9 +7,11 @@ const hasDatabase = !!process.env.TEST_DATABASE_URL;
 
 const { db } = hasDatabase ? await import("@/db") : { db: null! };
 const {
+  addEntryService,
   deleteEntryService,
   deleteItemService,
   setFavoriteService,
+  updateEntryDateService,
   updateItemService,
 } = await import("./edit");
 
@@ -86,7 +88,11 @@ describe.skipIf(!hasDatabase)("editing an item", () => {
   });
 
   test("deletes an entry, but not an item's last one", async () => {
-    expect(await deleteEntryService(1)).toEqual({ ok: true, itemId: 1 });
+    expect(await deleteEntryService(1)).toEqual({
+      ok: true,
+      itemId: 1,
+      alsoChangedItemIds: [],
+    });
     expect(await deleteEntryService(2)).toEqual({
       ok: false,
       error: "This is the only entry. Delete the item instead.",
@@ -94,6 +100,84 @@ describe.skipIf(!hasDatabase)("editing an item", () => {
     expect(await rows(sql`select id from bluebook.entries`)).toEqual([
       { id: "2" },
     ]);
+  });
+
+  test("reports the items a deleted entry mentioned", async () => {
+    await db.execute(sql`
+      insert into bluebook.items (url, normalized_url, title)
+      values ('x', 'https://example.com/x', 'Mentioned')`);
+    await db.execute(sql`
+      insert into bluebook.mentions (entry_id, target_item_id) values (1, 2)`);
+    expect(await deleteEntryService(1)).toEqual({
+      ok: true,
+      itemId: 1,
+      alsoChangedItemIds: [2],
+    });
+  });
+
+  test("changes an entry's date, at its precision", async () => {
+    expect(
+      await updateEntryDateService({
+        id: 1,
+        consumedOn: "2025-03-17",
+        consumedPrecision: "month",
+      }),
+    ).toEqual({ ok: true, itemId: 1, alsoChangedItemIds: [] });
+    expect(
+      await rows(sql`
+        select consumed_on::text as on, consumed_precision as precision
+        from bluebook.entries where id = 1`),
+    ).toEqual([{ on: "2025-03-01", precision: "month" }]);
+  });
+
+  test("reports the items an entry mentions when its date changes", async () => {
+    await db.execute(sql`
+      insert into bluebook.items (url, normalized_url, title)
+      values ('x', 'https://example.com/x', 'Mentioned')`);
+    await db.execute(sql`
+      insert into bluebook.mentions (entry_id, target_item_id) values (1, 2)`);
+    expect(
+      await updateEntryDateService({
+        id: 1,
+        consumedOn: "2024-06-30",
+        consumedPrecision: "year",
+      }),
+    ).toEqual({ ok: true, itemId: 1, alsoChangedItemIds: [2] });
+  });
+
+  test("adds an entry, at its precision", async () => {
+    expect(
+      await addEntryService({
+        itemId: 1,
+        consumedOn: "2023-08-09",
+        consumedPrecision: "year",
+      }),
+    ).toEqual({ ok: true, itemId: 1 });
+    expect(
+      await rows(sql`
+        select consumed_on::text as on, consumed_precision as precision
+        from bluebook.entries where id = 3`),
+    ).toEqual([{ on: "2023-01-01", precision: "year" }]);
+  });
+
+  test("doesn't change or add entries of missing or deleted items", async () => {
+    const date = {
+      consumedOn: "2025-01-01",
+      consumedPrecision: "day" as const,
+    };
+    expect(await addEntryService({ itemId: 99, ...date })).toEqual({
+      ok: false,
+      error: "That item doesn't exist.",
+    });
+    await deleteItemService(1);
+    expect(await addEntryService({ itemId: 1, ...date })).toEqual({
+      ok: false,
+      error: "That item doesn't exist.",
+    });
+    expect(await updateEntryDateService({ id: 1, ...date })).toEqual({
+      ok: false,
+      error: "That entry doesn't exist.",
+    });
   });
 
   test("doesn't delete entries of deleted items", async () => {

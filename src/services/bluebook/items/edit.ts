@@ -1,8 +1,10 @@
 import "server-only";
 import { and, count, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { entries, items } from "@/db/schema";
+import { entries, items, mentions } from "@/db/schema";
+import type { DatePrecision } from "@/domain-types/bluebook/add";
 import type { EditResult } from "@/domain-types/bluebook/edit";
+import { startOfPeriod } from "@/lib/bluebook/dates";
 
 const NOT_FOUND: EditResult = { ok: false, error: "That item doesn't exist." };
 
@@ -86,7 +88,74 @@ export async function deleteEntryService(id: number): Promise<EditResult> {
       };
     }
 
+    // Items this entry mentions lose it from their "Mentioned in".
+    const mentioned = await tx
+      .select({ targetItemId: mentions.targetItemId })
+      .from(mentions)
+      .where(eq(mentions.entryId, id));
     await tx.delete(entries).where(eq(entries.id, id));
-    return { ok: true, itemId: entry.itemId };
+    return {
+      ok: true,
+      itemId: entry.itemId,
+      alsoChangedItemIds: mentioned.map((mention) => mention.targetItemId),
+    };
   });
+}
+
+/**
+ * Changes when an entry was consumed. Items it mentions show its date in
+ * "Mentioned in", so they change too.
+ */
+export async function updateEntryDateService(input: {
+  id: number;
+  consumedOn: string;
+  consumedPrecision: DatePrecision;
+}): Promise<EditResult> {
+  const [updated] = await db
+    .update(entries)
+    .set({
+      consumedOn: startOfPeriod(input.consumedOn, input.consumedPrecision),
+      consumedPrecision: input.consumedPrecision,
+      updatedAt: sql`now()`,
+    })
+    .from(items)
+    .where(
+      and(
+        eq(entries.id, input.id),
+        eq(items.id, entries.itemId),
+        isNull(items.deletedAt),
+      ),
+    )
+    .returning({ itemId: entries.itemId });
+  if (!updated) return { ok: false, error: "That entry doesn't exist." };
+
+  const mentioned = await db
+    .select({ targetItemId: mentions.targetItemId })
+    .from(mentions)
+    .where(eq(mentions.entryId, input.id));
+  return {
+    ok: true,
+    itemId: updated.itemId,
+    alsoChangedItemIds: mentioned.map((mention) => mention.targetItemId),
+  };
+}
+
+/** Adds an entry to an item, without pasting its link again. */
+export async function addEntryService(input: {
+  itemId: number;
+  consumedOn: string;
+  consumedPrecision: DatePrecision;
+}): Promise<EditResult> {
+  const [item] = await db
+    .select({ id: items.id })
+    .from(items)
+    .where(live(input.itemId));
+  if (!item) return NOT_FOUND;
+
+  await db.insert(entries).values({
+    itemId: item.id,
+    consumedOn: startOfPeriod(input.consumedOn, input.consumedPrecision),
+    consumedPrecision: input.consumedPrecision,
+  });
+  return { ok: true, itemId: item.id };
 }

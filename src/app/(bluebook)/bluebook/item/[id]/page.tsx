@@ -9,7 +9,14 @@ import { getItem } from "@/server/bluebook/items";
 import { bluebookBasePath } from "@/server/bluebook/paths";
 import { embedFor, type Embed } from "@/services/bluebook/items/embed";
 import { platformName } from "@/services/bluebook/links/platform";
-import { DeleteEntryButton, ItemTools } from "./owner-tools";
+import { EntryTextEditor } from "./entry-editor";
+import { EntryText } from "@/components/bluebook/editor";
+import {
+  AddEntryButton,
+  DeleteEntryButton,
+  EntryDateButton,
+  ItemTools,
+} from "./owner-tools";
 
 type Props = PageProps<"/bluebook/item/[id]">;
 
@@ -41,6 +48,7 @@ async function ItemContent({ params }: { params: Props["params"] }) {
   if (!item) notFound();
 
   const embed = embedFor(item.normalizedUrl, item.metadata);
+  const basePath = await bluebookBasePath();
   return (
     <>
       {embed ? (
@@ -52,7 +60,9 @@ async function ItemContent({ params }: { params: Props["params"] }) {
       <Suspense fallback={null}>
         <OwnerItemTools item={item} />
       </Suspense>
-      <Entries entries={item.entries} />
+      <Entries item={item} basePath={basePath} />
+      <LinksOut links={item.linksOut} basePath={basePath} />
+      <MentionedIn mentions={item.mentionedIn} basePath={basePath} />
     </>
   );
 }
@@ -147,30 +157,168 @@ function Details({ item }: { item: ItemPageData }) {
   );
 }
 
-function Entries({ entries }: { entries: ItemPageData["entries"] }) {
+function Entries({ item, basePath }: { item: ItemPageData; basePath: string }) {
+  const { entries } = item;
   return (
     <section className="flex flex-col gap-3">
       <h2 className="text-lg font-semibold">Watched or read</h2>
-      <ol className="flex flex-col gap-3">
-        {entries.map((entry) => (
-          <li key={entry.id} className="flex flex-col gap-1">
-            <p className="text-sm text-stone-500">
-              {formatDate(entry.consumedOn, entry.consumedPrecision)}
-            </p>
-            {entry.plainText && (
-              <p className="whitespace-pre-line">{entry.plainText}</p>
-            )}
-            {entries.length > 1 && (
+      <Suspense fallback={null}>
+        <OwnerOnly>
+          <AddEntryButton itemId={item.id} />
+        </OwnerOnly>
+      </Suspense>
+      <ol className="flex flex-col gap-5">
+        {entries.map((entry) => {
+          const text = entry.plainText ? (
+            <EntryText
+              content={entry.content}
+              mentionedTitles={item.mentionedTitles}
+              basePath={basePath}
+            />
+          ) : null;
+          return (
+            <li key={entry.id} className="flex flex-col gap-1">
+              <p className="text-sm text-stone-500">
+                {formatDate(entry.consumedOn, entry.consumedPrecision)}
+                {entry.contentEditedAt && (
+                  <span
+                    title={`Edited ${entry.contentEditedAt.toISOString().slice(0, 10)}`}
+                  >
+                    {" "}
+                    · edited
+                  </span>
+                )}
+              </p>
+              <Suspense fallback={text}>
+                <OwnerEntryText
+                  entry={entry}
+                  itemId={item.id}
+                  basePath={basePath}
+                >
+                  {text}
+                </OwnerEntryText>
+              </Suspense>
               <Suspense fallback={null}>
                 <OwnerOnly>
-                  <DeleteEntryButton id={entry.id} />
+                  <div className="flex flex-wrap items-start gap-1">
+                    <EntryDateButton
+                      id={entry.id}
+                      consumedOn={entry.consumedOn}
+                      consumedPrecision={entry.consumedPrecision}
+                    />
+                    {entries.length > 1 && <DeleteEntryButton id={entry.id} />}
+                  </div>
                 </OwnerOnly>
               </Suspense>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
+
+/** Items this item's entries mention. */
+function LinksOut({
+  links,
+  basePath,
+}: {
+  links: ItemPageData["linksOut"];
+  basePath: string;
+}) {
+  if (!links.length) return null;
+  return (
+    <section className="flex flex-col gap-2">
+      <h2 className="text-lg font-semibold">Links out</h2>
+      <ul className="flex flex-col gap-1">
+        {links.map((link) => (
+          <li key={link.id}>
+            <ItemLink id={link.id} title={link.title} basePath={basePath} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Other items' entries that mention this item, with the sentence around it. */
+function MentionedIn({
+  mentions,
+  basePath,
+}: {
+  mentions: ItemPageData["mentionedIn"];
+  basePath: string;
+}) {
+  if (!mentions.length) return null;
+  return (
+    <section className="flex flex-col gap-2">
+      <h2 className="text-lg font-semibold">Mentioned in</h2>
+      <ul className="flex flex-col gap-3">
+        {mentions.map((mention, index) => (
+          <li key={index} className="flex flex-col gap-0.5">
+            <p>
+              <ItemLink
+                id={mention.itemId}
+                title={mention.title}
+                basePath={basePath}
+              />
+              <span className="text-sm text-stone-500">
+                {" "}
+                · {formatDate(mention.consumedOn, mention.consumedPrecision)}
+              </span>
+            </p>
+            {mention.context && (
+              <p className="text-sm text-stone-700">{mention.context}</p>
             )}
           </li>
         ))}
-      </ol>
+      </ul>
     </section>
+  );
+}
+
+/** A link to an item, or "[removed]" once it's deleted. */
+function ItemLink({
+  id,
+  title,
+  basePath,
+}: {
+  id: number;
+  title: string | null;
+  basePath: string;
+}) {
+  return title ? (
+    <Link href={`${basePath}/item/${id}`} className="hover:underline">
+      {title}
+    </Link>
+  ) : (
+    <span className="text-stone-400">[removed]</span>
+  );
+}
+
+/** An entry's text, with the owner's button to write or edit it. */
+async function OwnerEntryText({
+  entry,
+  itemId,
+  basePath,
+  children,
+}: {
+  entry: ItemPageData["entries"][number];
+  itemId: number;
+  basePath: string;
+  children: React.ReactNode;
+}) {
+  if (!(await canWrite())) return children;
+  return (
+    <EntryTextEditor
+      entryId={entry.id}
+      itemId={itemId}
+      content={entry.content}
+      hasText={entry.plainText !== ""}
+      basePath={basePath}
+    >
+      {children}
+    </EntryTextEditor>
   );
 }
 

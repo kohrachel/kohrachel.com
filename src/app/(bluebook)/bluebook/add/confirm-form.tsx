@@ -1,20 +1,28 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
-import { saveLink } from "@/server/bluebook/add";
 import {
-  DATE_PRECISIONS,
-  type DatePrecision,
-  type PreviewResult,
-  type SaveInput,
-  type SaveResult,
+  EntryEditor,
+  type EntryEditorValue,
+} from "@/components/bluebook/editor";
+import { saveLink } from "@/server/bluebook/add";
+import type {
+  PreviewResult,
+  SaveInput,
+  SaveResult,
 } from "@/domain-types/bluebook/add";
 import type {
   DetailField,
   DetailsSource,
 } from "@/domain-types/bluebook/details";
-import { dateInputValue, publishedAtFromInput } from "@/lib/bluebook/dates";
+import {
+  dateInputValue,
+  publishedAtFromInput,
+  type ConsumedDate,
+} from "@/lib/bluebook/dates";
 import { formatDuration } from "@/lib/bluebook/format";
+import { ConsumedField, today } from "../consumed-field";
 import { buttonClass, dateInputClass, inputClass } from "../styles";
 
 type Preview = Extract<PreviewResult, { ok: true }>;
@@ -31,19 +39,6 @@ const SOURCE_LABELS: Record<DetailsSource, string> = {
   link: "link",
 };
 
-const PRECISION_LABELS: Record<DatePrecision, string> = {
-  day: "Day",
-  month: "Month",
-  year: "Year",
-};
-
-const MONTHS = Array.from({ length: 12 }, (_, i) =>
-  new Date(Date.UTC(2000, i, 1)).toLocaleDateString("en-US", {
-    month: "long",
-    timeZone: "UTC",
-  }),
-);
-
 /**
  * The confirm form. For a link you already have, it only asks when you
  * watched or read it; otherwise it's pre-filled with the fetched details.
@@ -51,9 +46,11 @@ const MONTHS = Array.from({ length: 12 }, (_, i) =>
 export function ConfirmForm({
   preview,
   onSaved,
+  basePath,
 }: {
   preview: Preview;
   onSaved: (saved: Saved) => void;
+  basePath: string;
 }) {
   const { existing } = preview;
   const details = preview.details?.details;
@@ -70,13 +67,18 @@ export function ConfirmForm({
     dateInputValue(initialPublishedAt),
   );
   const [isFavorite, setIsFavorite] = useState(existing?.isFavorite ?? false);
-  const [consumedOn, setConsumedOn] = useState(localToday);
-  const [consumedPrecision, setConsumedPrecision] =
-    useState<DatePrecision>("day");
+  const [consumed, setConsumed] = useState<ConsumedDate | null>(today);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
+  const [text, setText] = useState<EntryEditorValue | null>(null);
+  const [textFailure, setTextFailure] = useState<{
+    itemId: number;
+    message: string;
+  } | null>(null);
+
   function save() {
+    if (!consumed) return;
     const input: SaveInput = {
       url: preview.url,
       resolvedUrl: preview.resolvedUrl,
@@ -94,14 +96,19 @@ export function ConfirmForm({
           }
         : {},
       isFavorite,
-      consumedOn,
-      consumedPrecision,
+      ...consumed,
     };
     startTransition(async () => {
       try {
-        const result = await saveLink(input);
-        if (result.ok) onSaved(result);
-        else setError(result.error);
+        const result = await saveLink(
+          input,
+          text && !text.isEmpty ? text.content : undefined,
+        );
+        if (!result.ok) setError(result.error);
+        // Stay here, so the text isn't lost.
+        else if (result.textError) {
+          setTextFailure({ itemId: result.itemId, message: result.textError });
+        } else onSaved(result);
       } catch {
         setError("Couldn't save. Try again, or check you're still logged in.");
       }
@@ -168,31 +175,49 @@ export function ConfirmForm({
         </>
       )}
 
-      <ConsumedField
-        date={consumedOn}
-        precision={consumedPrecision}
-        onDateChange={setConsumedOn}
-        onPrecisionChange={setConsumedPrecision}
-      />
+      <ConsumedField initial={today()} onChange={setConsumed} />
+
+      <div className="flex flex-col gap-1 text-sm">
+        <span className="text-stone-500">Write about it (optional)</span>
+        <EntryEditor
+          onChange={setText}
+          excludeItemId={existing?.id}
+          basePath={basePath}
+        />
+      </div>
 
       {error && (
         <p role="alert" className="text-sm text-red-700">
           {error}
         </p>
       )}
-      <button
-        type="submit"
-        disabled={pending || (!entryOnly && !title.trim())}
-        className={buttonClass}
-      >
-        {pending
-          ? "Saving…"
-          : entryOnly
-            ? "Add entry"
-            : existing?.isDeleted
-              ? "Restore"
-              : "Save"}
-      </button>
+      {textFailure ? (
+        <p role="alert" className="text-sm text-red-700">
+          Saved the link, but not your text ({textFailure.message}). Copy your
+          text, then{" "}
+          <Link
+            href={`${basePath}/item/${textFailure.itemId}`}
+            className="underline"
+          >
+            open the item
+          </Link>{" "}
+          to add it there.
+        </p>
+      ) : (
+        <button
+          type="submit"
+          disabled={pending || !consumed || (!entryOnly && !title.trim())}
+          className={buttonClass}
+        >
+          {pending
+            ? "Saving…"
+            : entryOnly
+              ? "Add entry"
+              : existing?.isDeleted
+                ? "Restore"
+                : "Save"}
+        </button>
+      )}
     </form>
   );
 }
@@ -261,96 +286,4 @@ function Field({
       {children}
     </label>
   );
-}
-
-/**
- * When you watched or read it. The date is always a full `YYYY-MM-DD`; with
- * month or year precision only that part is shown and changed.
- */
-function ConsumedField({
-  date,
-  precision,
-  onDateChange,
-  onPrecisionChange,
-}: {
-  date: string;
-  precision: DatePrecision;
-  onDateChange: (date: string) => void;
-  onPrecisionChange: (precision: DatePrecision) => void;
-}) {
-  const [year, month] = date.split("-");
-  const thisYear = Number(localToday().slice(0, 4));
-  const years = Array.from({ length: thisYear - 1949 }, (_, i) =>
-    String(thisYear - i),
-  );
-
-  return (
-    <fieldset className="flex flex-col gap-2 text-sm">
-      <legend className="mb-1 text-stone-500">Watched or read</legend>
-      <div className="flex w-fit rounded-md border border-stone-300 p-0.5">
-        {DATE_PRECISIONS.map((option) => (
-          <button
-            key={option}
-            type="button"
-            aria-pressed={precision === option}
-            onClick={() => onPrecisionChange(option)}
-            className="rounded px-3 py-1 aria-pressed:bg-stone-900 aria-pressed:text-white"
-          >
-            {PRECISION_LABELS[option]}
-          </button>
-        ))}
-      </div>
-      <div className="flex gap-2">
-        {precision === "day" && (
-          <input
-            type="date"
-            aria-label="Date"
-            value={date}
-            onChange={(event) =>
-              event.target.value && onDateChange(event.target.value)
-            }
-            required
-            className={dateInputClass}
-          />
-        )}
-        {precision === "month" && (
-          <select
-            aria-label="Month"
-            value={month}
-            onChange={(event) =>
-              onDateChange(`${year}-${event.target.value}-01`)
-            }
-            className={inputClass}
-          >
-            {MONTHS.map((name, i) => (
-              <option key={name} value={String(i + 1).padStart(2, "0")}>
-                {name}
-              </option>
-            ))}
-          </select>
-        )}
-        {precision !== "day" && (
-          <select
-            aria-label="Year"
-            value={year}
-            onChange={(event) =>
-              onDateChange(`${event.target.value}-${month}-01`)
-            }
-            className={inputClass}
-          >
-            {years.map((option) => (
-              <option key={option}>{option}</option>
-            ))}
-          </select>
-        )}
-      </div>
-    </fieldset>
-  );
-}
-
-/** Today in the browser's timezone, as `YYYY-MM-DD`. */
-function localToday() {
-  const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }

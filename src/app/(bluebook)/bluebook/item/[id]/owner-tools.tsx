@@ -2,14 +2,22 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import type { DatePrecision } from "@/domain-types/bluebook/add";
 import type { EditResult } from "@/domain-types/bluebook/edit";
-import { dateInputValue, publishedAtFromInput } from "@/lib/bluebook/dates";
 import {
+  dateInputValue,
+  publishedAtFromInput,
+  type ConsumedDate,
+} from "@/lib/bluebook/dates";
+import {
+  addEntry,
   deleteEntry,
   deleteItem,
   setFavorite,
+  updateEntryDate,
   updateItem,
 } from "@/server/bluebook/edit";
+import { ConsumedField, today } from "../../consumed-field";
 import {
   buttonClass,
   dateInputClass,
@@ -267,5 +275,128 @@ export function DeleteEntryButton({ id }: { id: number }) {
         </span>
       )}
     </span>
+  );
+}
+
+/** Changes when an entry was watched or read. */
+export function EntryDateButton({
+  id,
+  consumedOn,
+  consumedPrecision,
+}: {
+  id: number;
+  consumedOn: string;
+  consumedPrecision: DatePrecision;
+}) {
+  const [editing, setEditing] = useState(false);
+  const { error, pending, run } = useEdit();
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className={quietButtonClass}
+      >
+        Change date
+      </button>
+    );
+  }
+  return (
+    <EntryDateForm
+      initial={{ consumedOn, consumedPrecision }}
+      submitLabel="Save date"
+      pending={pending}
+      error={error}
+      onCancel={() => setEditing(false)}
+      onSave={(date) =>
+        run(
+          () => updateEntryDate({ id, ...date }),
+          () => setEditing(false),
+        )
+      }
+    />
+  );
+}
+
+/** Adds an entry, for watching or reading it again, without pasting the link. */
+export function AddEntryButton({ itemId }: { itemId: number }) {
+  const [adding, setAdding] = useState(false);
+  const { error, pending, run } = useEdit();
+  if (!adding) {
+    return (
+      <button
+        type="button"
+        onClick={() => setAdding(true)}
+        className={quietButtonClass}
+      >
+        Add entry
+      </button>
+    );
+  }
+  return (
+    <EntryDateForm
+      initial={today()}
+      submitLabel="Add entry"
+      pending={pending}
+      error={error}
+      onCancel={() => setAdding(false)}
+      onSave={(date) =>
+        run(
+          () => addEntry({ itemId, ...date }),
+          () => setAdding(false),
+        )
+      }
+    />
+  );
+}
+
+function EntryDateForm({
+  initial,
+  submitLabel,
+  pending,
+  error,
+  onCancel,
+  onSave,
+}: {
+  initial: ConsumedDate;
+  submitLabel: string;
+  pending: boolean;
+  error: string | null;
+  onCancel: () => void;
+  onSave: (date: ConsumedDate) => void;
+}) {
+  const [consumed, setConsumed] = useState<ConsumedDate | null>(initial);
+  return (
+    <form
+      className="flex flex-col gap-2 rounded-md border border-dashed border-stone-300 p-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (consumed) onSave(consumed);
+      }}
+    >
+      <ConsumedField initial={initial} onChange={setConsumed} />
+      {error && (
+        <p role="alert" className="text-sm text-red-700">
+          {error}
+        </p>
+      )}
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={pending || !consumed}
+          className={buttonClass}
+        >
+          {pending ? "Saving…" : submitLabel}
+        </button>
+        <button
+          type="button"
+          disabled={pending}
+          onClick={onCancel}
+          className={quietButtonClass}
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 }
