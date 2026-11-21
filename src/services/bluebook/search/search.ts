@@ -103,7 +103,7 @@ export async function searchItemsService({
     ? sql`${all(words.map((word) => matches(sql`i.title`, word)))} desc,`
     : sql``;
 
-  const rows = (await db.execute(sql`
+  const { rows } = await db.execute<Row>(sql`
     select i.id, i.title, i.creator, i.platform, i.is_favorite,
       latest.consumed_on::text as last_consumed_on,
       latest.consumed_precision as last_consumed_precision,
@@ -121,7 +121,7 @@ export async function searchItemsService({
       (select max(a.created_at) from bluebook.entries a where a.item_id = i.id) desc nulls last,
       i.id desc
     limit ${limit}
-  `)) as unknown as Row[];
+  `);
 
   return rows.map((row) => ({
     id: Number(row.id),
@@ -142,17 +142,15 @@ export async function searchItemsService({
  * on other sites, and the years with entries, newest first.
  */
 export async function searchFiltersService(): Promise<SearchFilters> {
-  const platformRows = await db.execute(sql`
+  const { rows: platformRows } = await db.execute<{ platform: string }>(sql`
     select distinct platform from bluebook.items where deleted_at is null`);
-  const yearRows = await db.execute(sql`
+  const { rows: yearRows } = await db.execute<{ year: number }>(sql`
     select distinct extract(year from e.consumed_on)::int as year
     from bluebook.entries e
     join bluebook.items i on i.id = e.item_id and i.deleted_at is null
     order by year desc`);
   const groups = new Set(
-    (platformRows as unknown as { platform: string }[]).map((row) =>
-      platformGroup(row.platform),
-    ),
+    platformRows.map((row) => platformGroup(row.platform)),
   );
   const common = Object.values(CommonPlatform).filter((platform) =>
     groups.has(platform),
@@ -162,6 +160,6 @@ export async function searchFiltersService(): Promise<SearchFilters> {
       COMMON_PLATFORM_NAMES[a].localeCompare(COMMON_PLATFORM_NAMES[b]),
     ),
     hasOtherPlatforms: groups.size > common.length,
-    years: (yearRows as unknown as { year: number }[]).map((row) => row.year),
+    years: yearRows.map((row) => row.year),
   };
 }
