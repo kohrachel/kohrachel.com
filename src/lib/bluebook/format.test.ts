@@ -4,6 +4,7 @@ import {
   formatDateLong,
   formatDateShort,
   formatDuration,
+  formatPhotoStamp,
   timesInWords,
 } from "./format";
 
@@ -33,6 +34,12 @@ describe("date stamps", () => {
     expect(formatDateLong("2026-09-01", "month")).toBe("September 2026");
     expect(formatDateShort("2026-09-12", "day")).toBe("12 Sep 2026");
     expect(formatDateShort("2026-01-01", "year")).toBe("2026");
+  });
+
+  test("print a camera imprint without leading zeros", () => {
+    expect(formatPhotoStamp("2026-03-02", "day")).toBe("'26 3 2");
+    expect(formatPhotoStamp("2026-11-01", "month")).toBe("'26 11");
+    expect(formatPhotoStamp("2009-01-01", "year")).toBe("'09");
   });
 });
 

@@ -17,7 +17,16 @@ import { SearchForm } from "./search-form";
 
 type Props = PageProps<"/bluebook">;
 
-const LOADING_RATIOS = [2.2, 1.6, 2, 1.4, 1.8, 2.4, 1.5, 2];
+const LOADING_RATIOS = [
+  16 / 11,
+  3 / 4,
+  16 / 9,
+  2 / 3,
+  4 / 3,
+  1,
+  16 / 12,
+  3 / 4,
+];
 
 export default function BluebookHome({ searchParams }: Props) {
   return (
