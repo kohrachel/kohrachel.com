@@ -33,6 +33,8 @@ export const itemMetadataSchema = z
     width: z.number().int().positive().nullable(),
     height: z.number().int().positive().nullable(),
     playerId: z.string().max(100).nullable(),
+    series: z.string().max(500).nullable(),
+    seriesPosition: z.string().max(50).nullable(),
   })
   .partial()
   .strict();

@@ -9,7 +9,7 @@ import {
   COMMON_PLATFORM_NAMES,
   CommonPlatform,
 } from "@/domain-types/bluebook/links";
-import { goodreadsPublishedAt } from "./goodreads";
+import { goodreadsBookDetails } from "./goodreads";
 import { cleanText, toIsoDate, truncateText } from "./page-meta";
 
 /**
@@ -82,10 +82,8 @@ function platformSpecific(
     }
     case CommonPlatform.Instagram:
       return instagram(details);
-    case CommonPlatform.Goodreads: {
-      const publishedAt = goodreadsPublishedAt(html, url.toString());
-      return publishedAt ? { publishedAt } : {};
-    }
+    case CommonPlatform.Goodreads:
+      return goodreadsBookDetails(html, url.toString());
     case CommonPlatform.YouTube:
     case CommonPlatform.X:
     case CommonPlatform.Xiaohongshu:

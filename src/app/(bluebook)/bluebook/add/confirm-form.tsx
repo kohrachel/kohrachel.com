@@ -118,6 +118,8 @@ export function ConfirmForm({
             width: details.width,
             height: details.height,
             playerId: details.playerId,
+            series: details.series,
+            seriesPosition: details.seriesPosition,
           }
         : {},
       isFavorite,
