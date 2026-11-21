@@ -260,10 +260,11 @@ minutes; a successful sign-in resets the count.
 **Sessions.** The `bluebook_session` cookie holds a random 32-byte session ID:
 `httpOnly`, `secure`, `sameSite=lax`, host-only. Each request looks up the
 session and its user in one query (cached per request) and rejects expired
-sessions and disabled users. If a session hasn't been used in the last day, its
-expiry moves out and the cookie is set again. Chrome caps cookies at 400 days,
-so that's the lifetime; a device used at least once in that window stays signed
-in indefinitely.
+sessions and disabled users. When a write action runs and the session hasn't
+been extended in the last day, its expiry moves out and the cookie is set again
+(cookies can only be set from server actions, not while a page renders). Chrome
+caps cookies at 400 days, so that's the lifetime; a device that saves something
+at least once in that window stays signed in indefinitely.
 
 **Sign out.** Deletes the session row and clears the cookie.
 

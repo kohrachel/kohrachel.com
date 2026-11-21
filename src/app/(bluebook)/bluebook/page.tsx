@@ -7,7 +7,7 @@ import {
   searchParamsSchema,
   type SearchParams,
 } from "@/domain-types/bluebook/search";
-import { canWrite } from "@/server/auth/gate";
+import { currentUser } from "@/server/bluebook/auth/gate";
 import { bluebookBasePath } from "@/server/bluebook/paths";
 import { searchFilters, searchItems } from "@/server/bluebook/search";
 import { searchWords } from "@/services/bluebook/search/snippet";
@@ -66,7 +66,7 @@ async function Home({ searchParams }: { searchParams: Props["searchParams"] }) {
     params.fav
   );
   const basePath = await bluebookBasePath();
-  const canAdd = await canWrite();
+  const canAdd = (await currentUser()) !== null;
   const filters = await searchFilters();
   const results = await searchItems({
     query: params.q,

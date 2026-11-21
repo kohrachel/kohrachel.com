@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "bun test",
-    "storage:setup": "bun run scripts/storage-setup.ts"
+    "storage:setup": "bun run scripts/storage-setup.ts",
+    "bluebook:invite": "bun run scripts/bluebook-invite.ts"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.20",

@@ -2,7 +2,7 @@
 
 import { updateTag } from "next/cache";
 import { z } from "zod";
-import { requireWriteAccess } from "@/server/auth/gate";
+import { requireMember } from "@/server/bluebook/auth/gate";
 import {
   MENTION_PICKER_LIMIT,
   type MentionTarget,
@@ -26,7 +26,7 @@ export async function findMentionTargets(input: {
   query: string;
   excludeItemId?: number;
 }): Promise<MentionTarget[]> {
-  await requireWriteAccess();
+  await requireMember();
   const parsed = findMentionTargetsSchema.safeParse(input);
   if (!parsed.success) return [];
   const { query, excludeItemId } = parsed.data;
@@ -55,7 +55,7 @@ export async function saveEntryText(input: {
   entryId: number;
   content: unknown;
 }): Promise<SaveEntryTextResult> {
-  await requireWriteAccess();
+  await requireMember();
   const parsed = saveEntryTextSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Invalid" };
 

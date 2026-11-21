@@ -12,14 +12,6 @@ export async function bluebookBasePath() {
   return (await host()).startsWith(BLUEBOOK_HOST_PREFIX) ? "" : "/bluebook";
 }
 
-/** A main-site page, which is on another host when on `bluebook.*`. */
-export async function mainSiteUrl(path: string) {
-  const current = await host();
-  return current.startsWith(BLUEBOOK_HOST_PREFIX)
-    ? `https://${current.slice(BLUEBOOK_HOST_PREFIX.length)}${path}`
-    : path;
-}
-
 async function host() {
   return (await headers()).get("host") ?? "";
 }

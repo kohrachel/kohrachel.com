@@ -2,7 +2,7 @@
 
 import { updateTag } from "next/cache";
 import type { z } from "zod";
-import { requireWriteAccess } from "@/server/auth/gate";
+import { requireMember } from "@/server/bluebook/auth/gate";
 import {
   addEntrySchema,
   deleteEntrySchema,
@@ -61,7 +61,7 @@ async function edit<Schema extends z.ZodType>(
   input: unknown,
   run: (parsed: z.output<Schema>) => Promise<EditResult>,
 ): Promise<EditResult> {
-  await requireWriteAccess();
+  await requireMember();
   const parsed = schema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid" };

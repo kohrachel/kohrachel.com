@@ -14,7 +14,7 @@ import {
   timesInWords,
 } from "@/lib/bluebook/format";
 import { sizeOf, thumbnailFrame } from "@/lib/bluebook/thumbnail";
-import { canWrite } from "@/server/auth/gate";
+import { currentUser } from "@/server/bluebook/auth/gate";
 import { getItem } from "@/server/bluebook/items";
 import { bluebookBasePath } from "@/server/bluebook/paths";
 import { embedFor, type Embed } from "@/services/bluebook/items/embed";
@@ -339,7 +339,7 @@ async function OwnerEntryDate({
   entry: Entry;
   children: React.ReactNode;
 }) {
-  if (!(await canWrite())) return children;
+  if (!(await currentUser())) return children;
   return (
     <EntryDateButton
       id={entry.id}
@@ -365,7 +365,7 @@ async function OwnerEntry({
   deletable: boolean;
   children: React.ReactNode;
 }) {
-  if (!(await canWrite())) return children;
+  if (!(await currentUser())) return children;
   return (
     <EntryTextEditor
       entryId={entry.id}
@@ -392,7 +392,7 @@ async function OwnerItemTools({
   item: ItemPageData;
   basePath: string;
 }) {
-  if (!(await canWrite())) return null;
+  if (!(await currentUser())) return null;
   return (
     <ItemTools
       item={{
@@ -408,7 +408,7 @@ async function OwnerItemTools({
 }
 
 async function OwnerOnly({ children }: { children: React.ReactNode }) {
-  return (await canWrite()) ? children : null;
+  return (await currentUser()) ? children : null;
 }
 
 function text(value: unknown) {

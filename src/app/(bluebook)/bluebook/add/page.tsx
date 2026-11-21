@@ -3,8 +3,8 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { canWrite } from "@/server/auth/gate";
-import { bluebookBasePath, mainSiteUrl } from "@/server/bluebook/paths";
+import { currentUser } from "@/server/bluebook/auth/gate";
+import { bluebookBasePath } from "@/server/bluebook/paths";
 import { Notice } from "../notice";
 import { PasteFlow } from "./paste-flow";
 
@@ -39,12 +39,12 @@ async function AddContent() {
         home
       </Link>
       <h1 className="bb-page-title">Add something</h1>
-      {(await canWrite()) ? (
+      {(await currentUser()) ? (
         <PasteFlow basePath={basePath} />
       ) : (
-        <Notice title="Only the owner can add things.">
-          <Link href={await mainSiteUrl("/admin/login")} className="bb-link">
-            Log in
+        <Notice title="Sign in to add things.">
+          <Link href={`${basePath}/login`} className="bb-link">
+            Sign in
           </Link>
         </Notice>
       )}
