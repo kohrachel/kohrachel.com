@@ -49,6 +49,9 @@ export function EntryEditor({
   /** The id of a label for the text box; without one it's "Entry text". */
   labelledBy?: string;
 }) {
+  // The page can be hidden and shown again, which rebuilds the editor; this
+  // starts it from what was typed, not from `content`.
+  const [latest, setLatest] = useState(content);
   const editor = useEditor({
     immediatelyRender: false,
     autofocus: autofocus ? "end" : false,
@@ -59,7 +62,7 @@ export function EntryEditor({
       }),
       Placeholder.configure({ placeholder }),
     ],
-    content: content?.content?.length ? content : undefined,
+    content: latest?.content?.length ? latest : undefined,
     editorProps: {
       attributes: {
         class: "bb-sheet-input bb-prose",
@@ -70,13 +73,13 @@ export function EntryEditor({
           : { "aria-label": "Entry text" }),
       },
     },
-    onUpdate: ({ editor: current }) =>
-      onChange({
-        // ProseMirror builds attributes without a prototype, which server
-        // actions can't send as data; a JSON round trip makes them plain.
-        content: JSON.parse(JSON.stringify(current.getJSON())),
-        isEmpty: current.isEmpty,
-      }),
+    onUpdate: ({ editor: current }) => {
+      // ProseMirror builds attributes without a prototype, which server
+      // actions can't send as data; a JSON round trip makes them plain.
+      const json: JSONContent = JSON.parse(JSON.stringify(current.getJSON()));
+      setLatest(json);
+      onChange({ content: json, isEmpty: current.isEmpty });
+    },
   });
 
   return (
