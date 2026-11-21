@@ -21,11 +21,11 @@ import {
   updateItem,
 } from "@/server/bluebook/edit";
 import { ConsumedField, today } from "../../consumed-field";
+import { DateField } from "../../date-field";
 import { Notice } from "../../notice";
 import { Star } from "../../star";
 import {
   buttonClass,
-  dateInputClass,
   inputClass,
   outlineButtonClass,
   quietButtonClass,
@@ -208,11 +208,10 @@ function EditForm({
       </label>
       <label className="bb-field">
         <span className="bb-label">Published</span>
-        <input
-          type="date"
+        <DateField
+          label="Published"
           value={publishedOn}
-          onChange={(event) => setPublishedOn(event.target.value)}
-          className={dateInputClass}
+          onChange={setPublishedOn}
         />
       </label>
       <div className="bb-row">

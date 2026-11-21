@@ -26,7 +26,8 @@ import { formatDuration } from "@/lib/bluebook/format";
 import { saveLink } from "@/server/bluebook/add";
 import { ConsumedField, today } from "../consumed-field";
 import { Notice } from "../notice";
-import { buttonClass, dateInputClass, inputClass } from "../styles";
+import { DateField } from "../date-field";
+import { buttonClass, inputClass } from "../styles";
 import { platformLabel } from "./preview-view";
 
 type Preview = Extract<PreviewResult, { ok: true }>;
@@ -187,11 +188,14 @@ export function ConfirmForm({
             />
           </Field>
           <Field label="Published" tag={tag("publishedAt")} narrow>
-            <input
-              type="date"
+            <DateField
+              label="Published"
               value={publishedOn}
-              onChange={(event) => setPublishedOn(event.target.value)}
-              className={`${dateInputClass} ${filled("publishedAt", publishedOn === dateInputValue(initialPublishedAt))}`}
+              onChange={setPublishedOn}
+              className={filled(
+                "publishedAt",
+                publishedOn === dateInputValue(initialPublishedAt),
+              )}
             />
           </Field>
           <label className="bb-check">

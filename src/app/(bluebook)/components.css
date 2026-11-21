@@ -1679,3 +1679,152 @@ a.bb-linkrow:hover {
   display: inline-flex;
   color: var(--cover);
 }
+
+/* ---------- date picker ---------- */
+.bb-datepick {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  text-align: left;
+  cursor: pointer;
+}
+.bb-datepick svg {
+  flex: none;
+  color: var(--ink-muted);
+}
+.bb-datepick__empty {
+  color: var(--ink-muted);
+}
+.bb-datepick[data-popup-open] {
+  border-color: var(--cover);
+}
+.bb-cal {
+  padding: var(--space-3);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lift);
+  outline: none;
+  transform-origin: var(--transform-origin);
+  transition:
+    opacity 0.12s,
+    transform 0.12s;
+}
+.bb-cal[data-starting-style],
+.bb-cal[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.97);
+}
+.bb-cal__month {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  row-gap: var(--space-2);
+}
+.bb-cal__dropdowns {
+  display: flex;
+  gap: var(--space-1);
+}
+.bb-cal__select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--chip-h);
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font: 600 15px/20px var(--font-sans);
+  color: var(--ink);
+  cursor: pointer;
+}
+.bb-cal__select:hover,
+.bb-cal__select[data-popup-open] {
+  background: var(--paper-sunk);
+}
+.bb-cal__select[data-popup-open] .bb-select__icon {
+  transform: rotate(180deg);
+}
+.bb-cal__nav {
+  display: flex;
+  gap: 2px;
+}
+.bb-cal__navbtn {
+  display: inline-grid;
+  place-items: center;
+  width: var(--chip-h);
+  height: var(--chip-h);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+.bb-cal__navbtn:hover {
+  background: var(--paper-sunk);
+  color: var(--ink);
+}
+.bb-cal__navbtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.bb-cal__grid {
+  grid-column: 1 / -1;
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+.bb-cal__weekday {
+  width: 36px;
+  height: 28px;
+  font: 500 12px/16px var(--font-sans);
+  color: var(--ink-muted);
+  text-align: center;
+}
+.bb-cal__day {
+  padding: 0;
+  text-align: center;
+}
+.bb-cal__daybtn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font: 500 14px/20px var(--font-sans);
+  color: var(--ink);
+  cursor: pointer;
+}
+.bb-cal__daybtn:hover {
+  background: var(--cover-tint);
+}
+.bb-cal__daybtn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.bb-cal__day--outside .bb-cal__daybtn {
+  color: var(--ink-muted);
+  opacity: 0.6;
+}
+.bb-cal__day--today .bb-cal__daybtn {
+  border-color: var(--cover);
+  color: var(--cover);
+}
+.bb-cal__day--selected .bb-cal__daybtn {
+  background: var(--cover);
+  border-color: var(--cover);
+  color: var(--on-cover);
+  opacity: 1;
+}
+.bb-cal__foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--rule);
+}
+.bb-cal__foot .bb-btn {
+  height: var(--chip-h);
+  padding: 0 10px;
+  color: var(--cover);
+}
