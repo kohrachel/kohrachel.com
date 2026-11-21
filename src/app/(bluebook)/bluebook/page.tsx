@@ -107,10 +107,13 @@ async function Home({ searchParams }: { searchParams: Props["searchParams"] }) {
         <div className="bb-empty">
           <span aria-hidden="true" className="bb-tape bb-tape--top" />
           <p className="bb-section-title">
-            {filtered ? "Nothing matches." : "Nothing saved yet."}
+            {filtered ? "Nothing but tumbleweeds..." : "Nothing saved yet."}
           </p>
           {filtered && (
-            <Link href={basePath || "/"} className="bb-btn bb-btn--outline">
+            <Link
+              href={chipsOn ? searchOnly(basePath, params.q) : basePath || "/"}
+              className="bb-btn bb-btn--outline"
+            >
               {chipsOn ? "Clear filters" : "Clear search"}
             </Link>
           )}
@@ -146,4 +149,11 @@ function countLine(count: number, params: SearchParams) {
   ]
     .filter(Boolean)
     .join(" ");
+}
+
+/** The homepage with the same search text and no filters. */
+function searchOnly(basePath: string, query: string | undefined) {
+  const home = basePath || "/";
+  const text = query?.trim();
+  return text ? `${home}?${new URLSearchParams({ q: text })}` : home;
 }
