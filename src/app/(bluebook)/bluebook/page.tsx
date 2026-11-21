@@ -140,11 +140,10 @@ async function Home({ searchParams }: { searchParams: Props["searchParams"] }) {
 
 /** "4 things match “grain” in 2026". */
 function countLine(count: number, params: SearchParams) {
-  const things = count === 1 ? "thing" : "things";
-  const verb = count === 1 ? "matches" : "match";
+  const items = count === 1 ? "item" : "items";
   return [
-    `${count} ${things}`,
-    params.q && `${verb} “${params.q}”`,
+    `Scavenged ${count} ${items} from the hoard`,
+    params.q && `matching “${params.q}”`,
     params.year && `in ${params.year}`,
   ]
     .filter(Boolean)
