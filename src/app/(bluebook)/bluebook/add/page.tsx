@@ -36,7 +36,7 @@ async function AddContent() {
     <>
       <Link href={basePath || "/"} className="bb-back">
         <HugeiconsIcon icon={ArrowLeft01Icon} size={16} strokeWidth={1.8} />
-        bluebook
+        home
       </Link>
       <h1 className="bb-page-title">Add something</h1>
       {(await canWrite()) ? (

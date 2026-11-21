@@ -100,7 +100,7 @@ async function ItemContent({ params }: { params: Props["params"] }) {
     <>
       <Link href={basePath || "/"} className="bb-back">
         <HugeiconsIcon icon={ArrowLeft01Icon} size={16} strokeWidth={1.8} />
-        bluebook
+        home
       </Link>
       {vertical ? (
         <div className="bb-item bb-item--short">
