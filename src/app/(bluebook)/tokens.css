@@ -1,0 +1,96 @@
+:root,
+[data-theme="light"] {
+  --paper: #f6f1e6;
+  --paper-raised: #fffcf5;
+  --paper-sunk: #ece5d6;
+  --ink: #27231e;
+  --ink-muted: #675f53;
+  --rule: #c4d3e6;
+  --rule-strong: #857a69;
+  --margin-red: #b8392f;
+  --cover: #2f5fa8;
+  --cover-deep: #244c8a;
+  --on-cover: #ffffff;
+  --cover-tint: #dce7f6;
+  --tape-yellow: #f3dc7a;
+  --tape-pink: #f2b8c3;
+  --tape-blue: #a9c4ea;
+  --stamp: #e0601f;
+  --stamp-ink: #a8461a;
+  --star: #f2b632;
+  --star-edge: #8a5c00;
+  --highlight: #bcd2f3;
+  --focus: var(--cover);
+  --player-bg: #000000;
+  --shadow-paper: 0 1px 1px #27231e14, 0 2px 8px #27231e14;
+  --shadow-lift: 0 2px 2px #27231e14, 0 10px 24px #27231e24;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --paper: #1b1a18;
+  --paper-raised: #262420;
+  --paper-sunk: #141311;
+  --ink: #efe8db;
+  --ink-muted: #aaa192;
+  --rule: #2f3a49;
+  --rule-strong: #7f776b;
+  --margin-red: #ec7a6e;
+  --cover: #93b6ec;
+  --cover-deep: #b3cdf3;
+  --on-cover: #13203a;
+  --cover-tint: #22324a;
+  --tape-yellow: #b89a3a;
+  --tape-pink: #a8677a;
+  --tape-blue: #4b6488;
+  --stamp: #ff8a4c;
+  --stamp-ink: #ff9a62;
+  --star: #f2c04a;
+  --star-edge: #f2c04a;
+  --highlight: #34507e;
+  --focus: var(--cover);
+  --player-bg: #000000;
+  --shadow-paper: 0 1px 1px #00000066, 0 4px 12px #0000004d;
+  --shadow-lift: 0 2px 2px #00000080, 0 12px 28px #00000080;
+  color-scheme: dark;
+}
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --line-pitch: 28px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  --radius-sm: 3px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  --page-max: 1200px;
+  --item-max: 1040px;
+  --form-max: 960px;
+  --column-min: 232px;
+  --ruled-margin: 112px;
+  --control-h: 40px;
+  --chip-h: 32px;
+  --ratio-tallest: 9 / 16;
+  --ratio-widest: 2 / 1;
+
+  --tilt-tape-left: -4deg;
+  --tilt-tape-right: 3deg;
+  --tilt-sticker: 12deg;
+  --tilt-polaroid: -1.5deg;
+
+  /* The --font-*-face variables come from next/font in layout.tsx. */
+  --font-display:
+    var(--font-yang-bagus-face), var(--font-chiron-face), system-ui, sans-serif;
+  --font-serif:
+    var(--font-basteleur-face), var(--font-chiron-face), Georgia, serif;
+  --font-sans: var(--font-poppins-face), "LXGW WenKai", system-ui, sans-serif;
+  --font-stamp: var(--font-lcd-face), ui-monospace, monospace;
+  --font-mono: var(--font-geist-mono-face), ui-monospace, monospace;
+}

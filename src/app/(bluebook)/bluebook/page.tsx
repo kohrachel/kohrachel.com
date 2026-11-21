@@ -3,36 +3,70 @@ import { Suspense } from "react";
 import { COMMON_PLATFORM_NAMES } from "@/domain-types/bluebook/links";
 import {
   OTHER_PLATFORMS,
+  SEARCH_MAX_WORDS,
   searchParamsSchema,
   type SearchParams,
 } from "@/domain-types/bluebook/search";
-import { formatDate } from "@/lib/bluebook/format";
+import { canWrite } from "@/server/auth/gate";
 import { bluebookBasePath } from "@/server/bluebook/paths";
 import { searchFilters, searchItems } from "@/server/bluebook/search";
-import { platformName } from "@/services/bluebook/links/platform";
+import { searchWords } from "@/services/bluebook/search/snippet";
+import { estimateCardHeight, ItemCard } from "./item-card";
+import { MasonryGrid } from "./masonry-grid";
 import { SearchForm } from "./search-form";
 
 type Props = PageProps<"/bluebook">;
 
+const LOADING_RATIOS = [
+  16 / 11,
+  3 / 4,
+  16 / 9,
+  2 / 3,
+  4 / 3,
+  1,
+  16 / 12,
+  3 / 4,
+];
+
 export default function BluebookHome({ searchParams }: Props) {
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
-      <h1 className="text-2xl font-semibold">bluebook</h1>
-      <Suspense fallback={<p className="text-stone-500">Loading…</p>}>
-        <Search searchParams={searchParams} />
+    <main className="bb-page">
+      <Suspense fallback={<HomeLoading />}>
+        <Home searchParams={searchParams} />
       </Suspense>
     </main>
   );
 }
 
-async function Search({
-  searchParams,
-}: {
-  searchParams: Props["searchParams"];
-}) {
+function HomeLoading() {
+  return (
+    <>
+      <header className="bb-masthead">
+        <span className="bb-wordmark">bluebook</span>
+      </header>
+      <MasonryGrid
+        label="Loading"
+        cells={LOADING_RATIOS.map((ratio, index) => ({
+          key: index,
+          height: 1 / ratio,
+          node: <div className="bb-skel" style={{ aspectRatio: ratio }} />,
+        }))}
+      />
+    </>
+  );
+}
+
+async function Home({ searchParams }: { searchParams: Props["searchParams"] }) {
   const parsed = searchParamsSchema.safeParse(await searchParams);
   const params: SearchParams = parsed.success ? parsed.data : { platform: [] };
+  const filtered = !!(
+    params.q ||
+    params.platform.length ||
+    params.year ||
+    params.fav
+  );
   const basePath = await bluebookBasePath();
+  const canAdd = await canWrite();
   const filters = await searchFilters();
   const results = await searchItems({
     query: params.q,
@@ -40,12 +74,7 @@ async function Search({
     year: params.year,
     favoritesOnly: params.fav === "1",
   });
-  const filtered = !!(
-    params.q ||
-    params.platform.length ||
-    params.year ||
-    params.fav
-  );
+  const words = params.q ? searchWords(params.q, SEARCH_MAX_WORDS) : [];
   const platformOptions = [
     ...filters.platforms.map((platform) => ({
       value: platform,
@@ -55,6 +84,7 @@ async function Search({
       ? [{ value: OTHER_PLATFORMS, label: "Other sites" }]
       : []),
   ];
+  const chipsOn = !!(params.platform.length || params.year || params.fav);
 
   return (
     <>
@@ -64,45 +94,65 @@ async function Search({
         params={params}
         platformOptions={platformOptions}
         years={filters.years}
+        canAdd={canAdd}
       />
 
+      {filtered && results.length > 0 && (
+        <div className="bb-results__head">
+          <p className="bb-meta">{countLine(results.length, params)}</p>
+        </div>
+      )}
+
       {results.length === 0 ? (
-        <p className="text-stone-500">
-          {filtered ? "Nothing matches." : "Nothing saved yet."}
-        </p>
+        <div className="bb-empty">
+          <span aria-hidden="true" className="bb-tape bb-tape--top" />
+          <p className="bb-section-title">
+            {filtered ? "Nothing but tumbleweeds..." : "Nothing saved yet."}
+          </p>
+          {filtered && (
+            <Link
+              href={chipsOn ? searchOnly(basePath, params.q) : basePath || "/"}
+              className="bb-btn bb-btn--outline"
+            >
+              {chipsOn ? "Clear filters" : "Clear search"}
+            </Link>
+          )}
+        </div>
       ) : (
-        <ul className="flex flex-col gap-4">
-          {results.map((item) => (
-            <li key={item.id} className="flex flex-col gap-0.5">
-              <Link
+        <MasonryGrid
+          label={filtered ? "Results" : "Everything saved"}
+          cells={results.map((item) => ({
+            key: item.id,
+            height: estimateCardHeight(item),
+            node: (
+              <ItemCard
+                item={item}
                 href={`${basePath}/item/${item.id}`}
-                className="font-medium hover:underline"
-              >
-                {item.title}
-                {item.isFavorite && (
-                  <span className="ml-1 text-amber-500">★</span>
-                )}
-              </Link>
-              <p className="text-sm text-stone-500">
-                {[
-                  item.creator,
-                  platformName(item.platform),
-                  item.lastConsumed &&
-                    formatDate(
-                      item.lastConsumed.on,
-                      item.lastConsumed.precision,
-                    ),
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-              {item.snippet && (
-                <p className="text-sm text-stone-700">{item.snippet}</p>
-              )}
-            </li>
-          ))}
-        </ul>
+                words={words}
+              />
+            ),
+          }))}
+        />
       )}
     </>
   );
+}
+
+/** "4 things match “grain” in 2026". */
+function countLine(count: number, params: SearchParams) {
+  const items = count === 1 ? "item" : "items";
+  return [
+    `Scavenged ${count} ${items} from the hoard`,
+    params.q && `matching “${params.q}”`,
+    params.year && `in ${params.year}`,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/** The homepage with the same search text and no filters. */
+function searchOnly(basePath: string, query: string | undefined) {
+  const home = basePath || "/";
+  const text = query?.trim();
+  return text ? `${home}?${new URLSearchParams({ q: text })}` : home;
 }

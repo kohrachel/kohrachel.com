@@ -1,123 +1,102 @@
 "use client";
 
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useId, useState, type ReactNode } from "react";
+import type { DatePrecision } from "@/domain-types/bluebook/add";
+import { readTypedDate, type ConsumedDate } from "@/lib/bluebook/dates";
 import {
-  dateParts,
-  readDateParts,
-  type ConsumedDate,
-  type DateParts,
-} from "@/lib/bluebook/dates";
-import { formatDate } from "@/lib/bluebook/format";
-import { fieldClass, quietButtonClass } from "./styles";
+  formatDateLong,
+  formatDateShort,
+  isoDateAt,
+} from "@/lib/bluebook/format";
 
-const PART_FIELDS = [
-  {
-    part: "year",
-    label: "Year",
-    placeholder: "YYYY",
-    length: 4,
-    width: "w-20",
-  },
-  {
-    part: "month",
-    label: "Month",
-    placeholder: "MM",
-    length: 2,
-    width: "w-16",
-  },
-  { part: "day", label: "Day", placeholder: "DD", length: 2, width: "w-16" },
-] as const;
+const ROUGHLY: Record<DatePrecision, string> = {
+  day: "",
+  month: "sometime that month",
+  year: "sometime that year",
+};
 
 /**
- * When you watched or read it: a year, then optionally a month, then
- * optionally a day. What's filled in sets the precision. Reports the date,
- * or `null` while the boxes don't describe one.
+ * When you watched or read it, typed the way you'd say it: "2026", "May
+ * 2026" or "20 May 2026". How much is typed sets the precision, and the
+ * stamp under the box shows what will be saved. Reports the date, or
+ * `null` while the text isn't one. `children` sit beside the box.
  */
 export function ConsumedField({
   initial,
   onChange,
   label = "Watched or read",
+  autoFocus = false,
+  children,
 }: {
   initial: ConsumedDate;
   onChange: (value: ConsumedDate | null) => void;
   label?: string;
+  autoFocus?: boolean;
+  children?: ReactNode;
 }) {
-  const [parts, setParts] = useState<DateParts>(() =>
-    dateParts(initial.consumedOn, initial.consumedPrecision),
+  const id = useId();
+  const [text, setText] = useState(() =>
+    formatDateLong(initial.consumedOn, initial.consumedPrecision),
   );
-  const boxes = useRef<(HTMLInputElement | null)[]>([]);
-  const result = readDateParts(parts, localToday());
-
-  function update(next: DateParts) {
-    setParts(next);
-    const read = readDateParts(next, localToday());
-    onChange(read.ok ? read.value : null);
-  }
+  const [left, setLeft] = useState(false);
+  const result = readTypedDate(text, localToday());
 
   return (
-    <fieldset className="flex flex-col gap-1.5 text-sm">
-      <legend className="mb-1 text-stone-500">{label}</legend>
-      <div className="flex flex-wrap items-end gap-2">
-        {PART_FIELDS.map(
-          ({ part, label: name, placeholder, length, width }, i) => (
-            <label key={part} className="flex flex-col gap-1">
-              <span className="text-xs text-stone-500">
-                {name}
-                {part !== "year" && " (optional)"}
-              </span>
-              <input
-                ref={(box) => {
-                  boxes.current[i] = box;
-                }}
-                value={parts[part]}
-                inputMode="numeric"
-                // Typing into a filled box replaces what's there.
-                onFocus={(event) => event.target.select()}
-                placeholder={placeholder}
-                maxLength={length}
-                aria-invalid={!result.ok || undefined}
-                onChange={(event) => {
-                  const value = event.target.value.replace(/\D/g, "");
-                  update({ ...parts, [part]: value });
-                  // Move on once the part can't take another digit.
-                  const full =
-                    value.length === length ||
-                    (part === "month" && Number(value) > 1) ||
-                    (part === "day" && Number(value) > 3);
-                  if (full && value !== parts[part])
-                    boxes.current[i + 1]?.focus();
-                }}
-                onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
-                  if (event.key === "Backspace" && !parts[part] && i > 0) {
-                    event.preventDefault();
-                    boxes.current[i - 1]?.focus();
-                  }
-                }}
-                className={`${fieldClass} ${width} text-center tabular-nums aria-invalid:border-red-400`}
-              />
-            </label>
-          ),
-        )}
-        <button
-          type="button"
-          onClick={() => {
-            const [year, month, day] = localToday().split("-");
-            update({ year, month, day });
+    <div className="bb-field bb-datefield">
+      <span className="bb-field__head">
+        <label className="bb-label" htmlFor={id}>
+          {label}
+        </label>
+        <span className="bb-hint">A year, a month or a day</span>
+      </span>
+      <div className="bb-datefield__row">
+        <input
+          id={id}
+          value={text}
+          autoFocus={autoFocus}
+          autoComplete="off"
+          spellCheck={false}
+          placeholder="2026, May 2026 or 20 May 2026"
+          // Typing straight away replaces the date that's there.
+          onFocus={(event) => event.target.select()}
+          onBlur={() => setLeft(true)}
+          onChange={(event) => {
+            setText(event.target.value);
+            const read = readTypedDate(event.target.value, localToday());
+            onChange(read.ok ? read.value : null);
           }}
-          className={quietButtonClass}
-        >
-          Set to today
-        </button>
+          aria-invalid={(left && !result.ok) || undefined}
+          aria-describedby={`${id}-read`}
+          className="bb-input"
+        />
+        {children}
       </div>
       <p
+        id={`${id}-read`}
         aria-live="polite"
-        className={result.ok ? "text-stone-500" : "text-red-700"}
+        className={`bb-datefield__read ${!result.ok && left ? "bb-datefield__read--error" : ""}`}
       >
-        {result.ok
-          ? formatDate(result.value.consumedOn, result.value.consumedPrecision)
-          : result.error}
+        {result.ok ? (
+          <>
+            <time
+              className="bb-stamp"
+              dateTime={isoDateAt(
+                result.value.consumedOn,
+                result.value.consumedPrecision,
+              )}
+            >
+              {formatDateShort(
+                result.value.consumedOn,
+                result.value.consumedPrecision,
+              ).toUpperCase()}
+            </time>
+            {ROUGHLY[result.value.consumedPrecision]}
+          </>
+        ) : (
+          result.error
+        )}
       </p>
-    </fieldset>
+    </div>
   );
 }
 

@@ -1,45 +1,56 @@
 "use client";
 
 import type { JSONContent } from "@tiptap/core";
-import { useState, useTransition } from "react";
+import {
+  Fragment,
+  useId,
+  useState,
+  useTransition,
+  type ReactNode,
+} from "react";
 import {
   EntryEditor,
   type EntryEditorValue,
 } from "@/components/bluebook/editor";
 import { saveEntryText } from "@/server/bluebook/entries";
+import { Notice } from "../../notice";
 import { buttonClass, quietButtonClass } from "../../styles";
 
 /**
- * An entry's text, with a button to write or edit it. While editing, the
- * text is replaced by the editor; saving refreshes the page.
+ * An entry's text with "Edit" and the other `tools` under it. While editing,
+ * the text is replaced by the editor; saving refreshes the page.
  */
 export function EntryTextEditor({
   entryId,
   itemId,
   content,
-  hasText,
   basePath,
+  tools = [],
   children,
 }: {
   entryId: number;
   itemId: number;
   content: JSONContent;
-  hasText: boolean;
   basePath: string;
-  children: React.ReactNode;
+  tools?: ReactNode[];
+  children: ReactNode;
 }) {
   const [editing, setEditing] = useState(false);
   if (!editing) {
     return (
       <>
         {children}
-        <button
-          type="button"
-          onClick={() => setEditing(true)}
-          className={quietButtonClass}
-        >
-          {hasText ? "Edit text" : "Write"}
-        </button>
+        <div className="bb-entry__tools">
+          <button type="button" onClick={() => setEditing(true)}>
+            Edit
+          </button>
+          {tools.map((tool, index) => (
+            <Fragment key={index}>
+              <span aria-hidden="true">·</span>
+              {tool}
+            </Fragment>
+          ))}
+        </div>
       </>
     );
   }
@@ -67,6 +78,7 @@ function Editing({
   basePath: string;
   onDone: () => void;
 }) {
+  const labelId = useId();
   const [value, setValue] = useState<EntryEditorValue>({
     content,
     isEmpty: !content.content?.length,
@@ -90,27 +102,38 @@ function Editing({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <EntryEditor
-        content={content}
-        onChange={setValue}
-        excludeItemId={itemId}
-        basePath={basePath}
-        autofocus
-      />
-      {error && (
-        <p role="alert" className="text-sm text-red-700">
-          {error}
-        </p>
-      )}
-      <div className="flex gap-2">
+    <section className="bb-editor" aria-label="Edit entry">
+      <div className="bb-log__head">
+        <h3 className="bb-section-title">Edit entry</h3>
+      </div>
+      <div className="bb-field">
+        <span className="bb-field__head">
+          <span className="bb-label" id={labelId}>
+            What did you think?
+          </span>
+          <span className="bb-hint">
+            Optional · type @ to mention something you&apos;ve saved
+          </span>
+        </span>
+        <EntryEditor
+          content={content}
+          onChange={setValue}
+          excludeItemId={itemId}
+          basePath={basePath}
+          placeholder="A line or a page."
+          labelledBy={labelId}
+          autofocus
+        />
+      </div>
+      {error && <Notice kind="error" title={error} />}
+      <div className="bb-row">
         <button
           type="button"
           onClick={save}
           disabled={pending}
           className={buttonClass}
         >
-          {pending ? "Saving…" : "Save"}
+          {pending ? "Saving…" : "Save entry"}
         </button>
         <button
           type="button"
@@ -121,6 +144,6 @@ function Editing({
           Cancel
         </button>
       </div>
-    </div>
+    </section>
   );
 }

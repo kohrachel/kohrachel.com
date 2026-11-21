@@ -1,9 +1,13 @@
 "use client";
 
+import { PlusSignIcon, Search01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { SearchParams } from "@/domain-types/bluebook/search";
-import { buttonClass, inputClass } from "./styles";
+import { ChipSelect } from "./chip-select";
+import { Star } from "./star";
 
 type Search = {
   query: string;
@@ -12,24 +16,25 @@ type Search = {
   favoritesOnly: boolean;
 };
 
-const chipClass =
-  "flex cursor-pointer items-center rounded-full border border-stone-300 px-3 py-1 has-[:checked]:border-stone-900 has-[:checked]:bg-stone-900 has-[:checked]:text-white has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-stone-400";
-
 /**
- * The homepage's search box and filters. Filters search as soon as they
- * change; typed text searches on Enter, once it's more than spaces, and ×
- * clears it. Everything lives in the address.
+ * The homepage's masthead (wordmark, search bar, Add) and filter chips.
+ * Filters search as soon as they change;
+ * typed text searches on Enter, once it's more than spaces, a past search
+ * picked from the browser's list searches at once, × clears it, and
+ * Escape leaves the box without clearing it. Everything lives in the address.
  */
 export function SearchForm({
   basePath,
   params,
   platformOptions,
   years,
+  canAdd,
 }: {
   basePath: string;
   params: SearchParams;
   platformOptions: { value: string; label: string }[];
   years: number[];
+  canAdd: boolean;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState(params.q ?? "");
@@ -57,28 +62,43 @@ export function SearchForm({
   }
 
   return (
-    <form
-      action={home}
-      role="search"
-      className="flex flex-col gap-3 text-sm"
-      onSubmit={(event) => {
-        event.preventDefault();
-        const trimmed = query.trim();
-        if (!trimmed) return;
-        setQuery(trimmed);
-        search({ ...current, query: trimmed });
-      }}
-    >
-      <div className="flex gap-2">
-        <div className="relative flex-1">
+    <>
+      <header className="bb-masthead">
+        <Link href={home} className="bb-wordmark">
+          bluebook
+        </Link>
+        <form
+          action={home}
+          role="search"
+          className="bb-search"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const trimmed = query.trim();
+            if (!trimmed) return;
+            setQuery(trimmed);
+            search({ ...current, query: trimmed });
+          }}
+        >
+          <HugeiconsIcon icon={Search01Icon} strokeWidth={1.8} aria-hidden />
           <input
             name="q"
+            type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key !== "Escape") return;
+              event.preventDefault();
+              event.currentTarget.blur();
+            }}
+            onChange={(event) => {
+              const value = event.target.value;
+              setQuery(value);
+              if (pickedFromList(event.nativeEvent) && value.trim()) {
+                search({ ...current, query: value.trim() });
+              }
+            }}
             placeholder="Search titles, creators and entries"
             aria-label="Search"
             enterKeyHint="search"
-            className={`${inputClass} pr-8`}
           />
           {query && (
             <button
@@ -88,73 +108,64 @@ export function SearchForm({
                 setQuery("");
                 search({ ...current, query: "" });
               }}
-              className="absolute inset-y-0 right-0 px-2.5 text-lg leading-none text-stone-400 hover:text-stone-700"
+              className="bb-search__clear"
             >
               ×
             </button>
           )}
-        </div>
-        <button type="submit" disabled={!query.trim()} className={buttonClass}>
-          Search
-        </button>
-      </div>
+        </form>
+        {canAdd && (
+          <div className="bb-masthead__end">
+            <Link href={`${basePath}/add`} className="bb-btn bb-btn--primary">
+              <HugeiconsIcon icon={PlusSignIcon} strokeWidth={1.8} />
+              Add
+            </Link>
+          </div>
+        )}
+      </header>
 
-      <div className="flex flex-wrap items-center gap-2">
-        {platformOptions.map(({ value, label }) => (
-          <label key={value} className={chipClass}>
-            <input
-              type="checkbox"
-              name="platform"
-              value={value}
-              checked={current.platforms.includes(value)}
-              onChange={(event) =>
+      <div className="bb-chips">
+        {platformOptions.map(({ value, label }) => {
+          const on = current.platforms.includes(value);
+          return (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={on}
+              onClick={() =>
                 search({
                   ...current,
-                  platforms: event.target.checked
-                    ? [...current.platforms, value]
-                    : current.platforms.filter((p) => p !== value),
+                  platforms: on
+                    ? current.platforms.filter((p) => p !== value)
+                    : [...current.platforms, value],
                 })
               }
-              className="sr-only"
-            />
-            {label}
-          </label>
-        ))}
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <select
-          name="year"
-          value={current.year ?? ""}
-          onChange={(event) =>
-            search({
-              ...current,
-              year: event.target.value ? Number(event.target.value) : undefined,
-            })
+              className="bb-chip"
+            >
+              {label}
+            </button>
+          );
+        })}
+        <ChipSelect
+          label="Year watched or read"
+          value={current.year ?? null}
+          options={[
+            { value: null, label: "Any year" },
+            ...years.map((year) => ({ value: year, label: String(year) })),
+          ]}
+          onChange={(year) => search({ ...current, year: year ?? undefined })}
+        />
+        <button
+          type="button"
+          aria-pressed={current.favoritesOnly}
+          onClick={() =>
+            search({ ...current, favoritesOnly: !current.favoritesOnly })
           }
-          aria-label="Year watched or read"
-          className="rounded-md border border-stone-300 bg-transparent px-2 py-1"
+          className="bb-chip"
         >
-          <option value="">Any year</option>
-          {years.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select>
-        <label className={chipClass}>
-          <input
-            type="checkbox"
-            name="fav"
-            value="1"
-            checked={current.favoritesOnly}
-            onChange={(event) =>
-              search({ ...current, favoritesOnly: event.target.checked })
-            }
-            className="sr-only"
-          />
-          ★ Favorites
-        </label>
+          <Star />
+          Favorites
+        </button>
         {filtered && (
           <button
             type="button"
@@ -166,13 +177,21 @@ export function SearchForm({
                 favoritesOnly: false,
               })
             }
-            className="text-stone-500 underline"
+            className="bb-btn bb-btn--quiet underline underline-offset-3"
           >
             Clear filters
           </button>
         )}
-        {pending && <span className="text-stone-400">Searching…</span>}
+        {pending && <span className="bb-hint">Searching…</span>}
       </div>
-    </form>
+    </>
   );
+}
+
+/**
+ * Typing, pasting and deleting say how the text changed; a browser filling
+ * in a suggestion doesn't.
+ */
+function pickedFromList(event: Event) {
+  return !(event instanceof InputEvent) || !event.inputType;
 }

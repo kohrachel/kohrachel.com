@@ -1,37 +1,27 @@
 import Link from "next/link";
 import type { ExistingItem, PreviewResult } from "@/domain-types/bluebook/add";
 import { COMMON_PLATFORM_NAMES } from "@/domain-types/bluebook/links";
-import { formatDate } from "@/lib/bluebook/format";
+import { formatDateShort } from "@/lib/bluebook/format";
+import { Notice } from "../notice";
 
-export function PreviewView({ result }: { result: PreviewResult }) {
-  if (!result.ok) {
-    return (
-      <p role="alert" className="text-sm text-red-700">
-        {problemMessage(result)}
-      </p>
-    );
-  }
+/** What the preview found that you should know before saving. */
+export function PreviewView({
+  result,
+  basePath,
+}: {
+  result: PreviewResult;
+  basePath: string;
+}) {
+  if (!result.ok) return <Notice kind="error" title={problemMessage(result)} />;
+  if (!result.existing) return null;
+  return <ExistingView existing={result.existing} basePath={basePath} />;
+}
 
-  const platform = result.commonPlatform
-    ? COMMON_PLATFORM_NAMES[result.commonPlatform]
-    : new URL(result.normalizedUrl).hostname.replace(/^www\./, "");
-
-  return (
-    <section className="flex flex-col gap-4">
-      <p className="text-sm break-all text-stone-500">
-        {platform} ·{" "}
-        <Link
-          href={result.normalizedUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="underline"
-        >
-          {result.normalizedUrl}
-        </Link>
-      </p>
-      {result.existing && <ExistingView existing={result.existing} />}
-    </section>
-  );
+/** The platform's name, or the link's site for anything else. */
+export function platformLabel(preview: Extract<PreviewResult, { ok: true }>) {
+  return preview.commonPlatform
+    ? COMMON_PLATFORM_NAMES[preview.commonPlatform]
+    : new URL(preview.normalizedUrl).hostname.replace(/^www\./, "");
 }
 
 function problemMessage(result: Extract<PreviewResult, { ok: false }>) {
@@ -47,30 +37,35 @@ function problemMessage(result: Extract<PreviewResult, { ok: false }>) {
   }
 }
 
-function ExistingView({ existing }: { existing: ExistingItem }) {
+function ExistingView({
+  existing,
+  basePath,
+}: {
+  existing: ExistingItem;
+  basePath: string;
+}) {
   const entries = `${existing.entryCount} ${existing.entryCount === 1 ? "entry" : "entries"}`;
   const last = existing.lastConsumed
-    ? `, last ${formatDate(existing.lastConsumed.on, existing.lastConsumed.precision)}`
+    ? `Last ${formatDateShort(existing.lastConsumed.on, existing.lastConsumed.precision)}. `
     : "";
 
   return (
-    <div className="rounded-md border border-stone-300 p-3 text-sm">
-      <p className="font-medium">
-        {existing.isDeleted
-          ? "You removed this before"
-          : "You already have this"}
-      </p>
-      <p>
-        {existing.title}
-        {existing.creator && ` · ${existing.creator}`}
-      </p>
-      <p className="text-stone-500">
-        {entries}
-        {last}.{" "}
-        {existing.isDeleted
-          ? "Saving brings it back with them."
-          : "Saving adds a new entry."}
-      </p>
-    </div>
+    <Notice
+      kind="info"
+      title={`${existing.isDeleted ? "You removed this before" : "Already in bluebook"} · ${entries}`}
+    >
+      {existing.isDeleted ? (
+        <>
+          {existing.title}. {last}Saving brings it back with its entries.
+        </>
+      ) : (
+        <>
+          <Link href={`${basePath}/item/${existing.id}`} className="bb-link">
+            {existing.title}
+          </Link>
+          . {last}Saving adds a new entry.
+        </>
+      )}
+    </Notice>
   );
 }
