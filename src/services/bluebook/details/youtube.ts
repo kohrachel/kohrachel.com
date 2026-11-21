@@ -2,6 +2,7 @@ import "server-only";
 import {
   DETAILS_MAX_DESCRIPTION_LENGTH,
   YOUTUBE_API_URL,
+  YOUTUBE_VERTICAL_THUMBNAIL_URL,
   type ItemDetails,
 } from "@/domain-types/bluebook/details";
 import { fetchJson } from "./fetch";
@@ -61,6 +62,18 @@ export async function fetchYouTubeDetails(
       item.contentDetails?.duration ?? null,
     ),
   };
+}
+
+/** The vertical thumbnail to try for a video taller than it is wide. */
+export function youtubeVerticalThumbnail(
+  normalizedUrl: string,
+  { width, height }: Pick<ItemDetails, "width" | "height">,
+): string | null {
+  const url = new URL(normalizedUrl);
+  const id = url.pathname === "/watch" ? url.searchParams.get("v") : null;
+  return id && width && height && height > width
+    ? YOUTUBE_VERTICAL_THUMBNAIL_URL(id)
+    : null;
 }
 
 function youtubeRequest(

@@ -144,6 +144,13 @@ export const PLATFORM_TITLE_SUFFIXES: Partial<Record<CommonPlatform, RegExp>> =
   };
 
 export const YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3";
+/**
+ * A vertical video's thumbnail in its own shape. The API only lists
+ * horizontal thumbnails; YouTube's site uses this one for Shorts. Horizontal
+ * videos don't have it.
+ */
+export const YOUTUBE_VERTICAL_THUMBNAIL_URL = (id: string) =>
+  `https://i.ytimg.com/vi/${id}/oardefault.jpg`;
 
 /** Bilibili's public web APIs. No key; they answer `{ code: 0, data }`. */
 export const BILIBILI_API = {
