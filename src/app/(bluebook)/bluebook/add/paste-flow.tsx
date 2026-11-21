@@ -103,6 +103,7 @@ export function PasteFlow({ basePath }: { basePath: string }) {
               key={previewCount}
               preview={result}
               onSaved={onSaved}
+              basePath={basePath}
             />
           )}
         </>

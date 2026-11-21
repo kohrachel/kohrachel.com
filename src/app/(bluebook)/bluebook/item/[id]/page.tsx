@@ -10,7 +10,7 @@ import { bluebookBasePath } from "@/server/bluebook/paths";
 import { embedFor, type Embed } from "@/services/bluebook/items/embed";
 import { platformName } from "@/services/bluebook/links/platform";
 import { EntryTextEditor } from "./entry-editor";
-import { EntryText } from "./entry-text";
+import { EntryText } from "@/components/bluebook/editor";
 import {
   AddEntryButton,
   DeleteEntryButton,

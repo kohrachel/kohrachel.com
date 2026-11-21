@@ -1,7 +1,7 @@
 import type { JSONContent } from "@tiptap/core";
 import { renderToReactElement } from "@tiptap/static-renderer/pm/react";
 import Link from "next/link";
-import { ENTRY_EXTENSIONS } from "@/components/bluebook/entry-extensions";
+import { ENTRY_EXTENSIONS } from "./extensions";
 
 /**
  * An entry's text as HTML. Mentions link to their items and show each

@@ -1,6 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
+import {
+  EntryEditor,
+  type EntryEditorValue,
+} from "@/components/bluebook/editor";
 import { saveLink } from "@/server/bluebook/add";
 import type {
   PreviewResult,
@@ -41,9 +46,11 @@ const SOURCE_LABELS: Record<DetailsSource, string> = {
 export function ConfirmForm({
   preview,
   onSaved,
+  basePath,
 }: {
   preview: Preview;
   onSaved: (saved: Saved) => void;
+  basePath: string;
 }) {
   const { existing } = preview;
   const details = preview.details?.details;
@@ -63,6 +70,12 @@ export function ConfirmForm({
   const [consumed, setConsumed] = useState<ConsumedDate | null>(today);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  const [text, setText] = useState<EntryEditorValue | null>(null);
+  const [textFailure, setTextFailure] = useState<{
+    itemId: number;
+    message: string;
+  } | null>(null);
 
   function save() {
     if (!consumed) return;
@@ -87,9 +100,15 @@ export function ConfirmForm({
     };
     startTransition(async () => {
       try {
-        const result = await saveLink(input);
-        if (result.ok) onSaved(result);
-        else setError(result.error);
+        const result = await saveLink(
+          input,
+          text && !text.isEmpty ? text.content : undefined,
+        );
+        if (!result.ok) setError(result.error);
+        // Stay here, so the text isn't lost.
+        else if (result.textError) {
+          setTextFailure({ itemId: result.itemId, message: result.textError });
+        } else onSaved(result);
       } catch {
         setError("Couldn't save. Try again, or check you're still logged in.");
       }
@@ -158,24 +177,47 @@ export function ConfirmForm({
 
       <ConsumedField initial={today()} onChange={setConsumed} />
 
+      <div className="flex flex-col gap-1 text-sm">
+        <span className="text-stone-500">Write about it (optional)</span>
+        <EntryEditor
+          onChange={setText}
+          excludeItemId={existing?.id}
+          basePath={basePath}
+        />
+      </div>
+
       {error && (
         <p role="alert" className="text-sm text-red-700">
           {error}
         </p>
       )}
-      <button
-        type="submit"
-        disabled={pending || !consumed || (!entryOnly && !title.trim())}
-        className={buttonClass}
-      >
-        {pending
-          ? "Saving…"
-          : entryOnly
-            ? "Add entry"
-            : existing?.isDeleted
-              ? "Restore"
-              : "Save"}
-      </button>
+      {textFailure ? (
+        <p role="alert" className="text-sm text-red-700">
+          Saved the link, but not your text ({textFailure.message}). Copy your
+          text, then{" "}
+          <Link
+            href={`${basePath}/item/${textFailure.itemId}`}
+            className="underline"
+          >
+            open the item
+          </Link>{" "}
+          to add it there.
+        </p>
+      ) : (
+        <button
+          type="submit"
+          disabled={pending || !consumed || (!entryOnly && !title.trim())}
+          className={buttonClass}
+        >
+          {pending
+            ? "Saving…"
+            : entryOnly
+              ? "Add entry"
+              : existing?.isDeleted
+                ? "Restore"
+                : "Save"}
+        </button>
+      )}
     </form>
   );
 }

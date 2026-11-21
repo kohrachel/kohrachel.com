@@ -1,6 +1,6 @@
 import { getSchema, type JSONContent } from "@tiptap/core";
 import { Node } from "@tiptap/pm/model";
-import { ENTRY_EXTENSIONS } from "@/components/bluebook/entry-extensions";
+import { ENTRY_EXTENSIONS } from "@/components/bluebook/editor/extensions";
 import {
   EMPTY_ENTRY_CONTENT,
   ENTRY_LINK,

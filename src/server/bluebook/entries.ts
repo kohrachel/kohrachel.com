@@ -15,7 +15,7 @@ import { ITEM_LISTS_TAG, itemTag } from "@/services/bluebook/items/cache-tags";
 
 const findMentionTargetsSchema = z.object({
   query: z.string().trim().max(200),
-  excludeItemId: z.number().int().positive(),
+  excludeItemId: z.number().int().positive().optional(),
 });
 
 /**
@@ -24,7 +24,7 @@ const findMentionTargetsSchema = z.object({
  */
 export async function findMentionTargets(input: {
   query: string;
-  excludeItemId: number;
+  excludeItemId?: number;
 }): Promise<MentionTarget[]> {
   await requireWriteAccess();
   const parsed = findMentionTargetsSchema.safeParse(input);
