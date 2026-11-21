@@ -1,4 +1,4 @@
-import { BookType } from "@/domain-types/ui/books";
+import type { BookType } from "@/domain-types/ui/books";
 
 export const BOOKS: BookType[] = [
   {

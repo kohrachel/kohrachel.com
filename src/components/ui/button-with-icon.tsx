@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { HugeiconsIcon, IconSvgElement } from "@hugeicons/react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import type { ComponentProps } from "react";
 
 type ButtonWithIconProps = ComponentProps<typeof Button> & {

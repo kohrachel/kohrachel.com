@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HugeiconsIcon, IconSvgElement } from "@hugeicons/react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 
 export default function MainContent({
   id,
