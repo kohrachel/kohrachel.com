@@ -1428,6 +1428,12 @@ a.bb-linkrow:hover {
 .bb-search input::-webkit-search-cancel-button {
   appearance: none;
 }
+/* Browsers tint a box they filled in; paint over it. */
+.bb-search input:autofill {
+  box-shadow: inset 0 0 0 100px var(--paper-raised);
+  -webkit-text-fill-color: var(--ink);
+  caret-color: var(--ink);
+}
 .bb-search > svg {
   color: var(--ink-muted);
 }

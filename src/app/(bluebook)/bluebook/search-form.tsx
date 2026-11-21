@@ -86,6 +86,7 @@ export function SearchForm({
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search titles, creators and entries"
             aria-label="Search"
+            autoComplete="off"
             enterKeyHint="search"
           />
           {query && (
