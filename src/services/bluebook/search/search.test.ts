@@ -29,8 +29,8 @@ describe.skipIf(!hasDatabase)("searching items", () => {
       update bluebook.items set metadata = case id
         when 1 then '{"thumbnailUrl": "https://i.ytimg.com/vi/aaaaaaaaaaa/maxresdefault.jpg", "durationSeconds": 754, "width": 1080, "height": 1920, "description": "Long text"}'::jsonb
         when 3 then '{"thumbnailUrl": "https://upload.wikimedia.org/mars.jpg"}'::jsonb
-        when 4 then '{"thumbnailUrl": "javascript:alert(1)", "durationSeconds": "12"}'::jsonb
-        when 6 then '{"thumbnailUrl": 5, "durationSeconds": true}'::jsonb
+        when 4 then '{"thumbnailUrl": "javascript:alert(1)", "durationSeconds": "12", "width": "1080", "height": 1920}'::jsonb
+        when 6 then '{"thumbnailUrl": 5, "durationSeconds": true, "width": 1080}'::jsonb
         else metadata end`);
     await db.execute(sql`
       insert into bluebook.entries (item_id, consumed_on, consumed_precision, plain_text, created_at) values
@@ -70,18 +70,20 @@ describe.skipIf(!hasDatabase)("searching items", () => {
     expect(chinese.snippet).toBe("和珍妮特一起看的。");
   });
 
-  test("includes the thumbnail and a video's length, and nothing else from the metadata", async () => {
+  test("includes the thumbnail, a video's length and size, and nothing else from the metadata", async () => {
     const results = await searchItemsService({});
     const byId = new Map(results.map((result) => [result.id, result]));
     expect(byId.get(1)).toMatchObject({
       thumbnailUrl: "https://i.ytimg.com/vi/aaaaaaaaaaa/maxresdefault.jpg",
       durationSeconds: 754,
+      videoSize: { width: 1080, height: 1920 },
     });
     expect(byId.get(1)).not.toHaveProperty("width");
     expect(byId.get(1)).not.toHaveProperty("description");
     expect(byId.get(3)).toMatchObject({
       thumbnailUrl: "https://upload.wikimedia.org/mars.jpg",
       durationSeconds: null,
+      videoSize: null,
     });
     expect(byId.get(2)).toMatchObject({
       thumbnailUrl: null,
@@ -89,12 +91,13 @@ describe.skipIf(!hasDatabase)("searching items", () => {
     });
   });
 
-  test("ignores a thumbnail or length that isn't the right kind of value", async () => {
+  test("ignores a thumbnail, length or size that isn't the right kind of value", async () => {
     const results = await searchItemsService({});
     for (const id of [4, 6]) {
       expect(results.find((result) => result.id === id)).toMatchObject({
         thumbnailUrl: null,
         durationSeconds: null,
+        videoSize: null,
       });
     }
   });
