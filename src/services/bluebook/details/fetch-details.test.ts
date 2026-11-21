@@ -381,6 +381,45 @@ describe("fetchDetails", () => {
     );
   });
 
+  test("reads a Goodreads book's first-published date from the end of its long page", async () => {
+    const link = "https://www.goodreads.com/book/show/25734172";
+    const work = "Work:kca://work/1";
+    const appData = JSON.stringify({
+      props: {
+        pageProps: {
+          apolloState: {
+            "Book:kca://book/1": {
+              __typename: "Book",
+              legacyId: 25734172,
+              work: { __ref: work },
+              details: { publicationTime: 1456819200000 },
+            },
+            [work]: {
+              __typename: "Work",
+              details: { publicationTime: 1413961200000 },
+            },
+          },
+        },
+      },
+    });
+    // Real pages put the app data past the usual reading limit.
+    const padding = "x".repeat(DETAILS_MAX_PAGE_BYTES + 100_000);
+    network.routes[link] = html(`<head>
+      <meta property="og:title" content="Seven Brief Lessons on Physics"/>
+    </head><body>${padding}
+    <script id="__NEXT_DATA__" type="application/json">${appData}</script>
+    </body>`);
+    const result = await fetchDetails(
+      input({
+        resolvedUrl: link,
+        normalizedUrl: link,
+        commonPlatform: CommonPlatform.Goodreads,
+      }),
+    );
+    expect(result.details.publishedAt).toBe("2014-10-22T00:00:00.000Z");
+    expect(result.sources.publishedAt).toBe("page_meta");
+  });
+
   test("measures the thumbnail, without recording a source for its size", async () => {
     network.routes["https://example.com/post"] = html(
       `<meta property="og:image" content="https://example.com/cover.png">`,

@@ -9,17 +9,20 @@ import {
   COMMON_PLATFORM_NAMES,
   CommonPlatform,
 } from "@/domain-types/bluebook/links";
+import { goodreadsPublishedAt } from "./goodreads";
 import { cleanText, toIsoDate, truncateText } from "./page-meta";
 
 /**
  * Tidies details read from a common platform's page at `url` (the cleaned
- * link). Returns `null` when the page was a login or sign-up page instead of
- * the content.
+ * link), filling in any the page's `html` holds outside its meta tags.
+ * Returns `null` when the page was a login or sign-up page instead of the
+ * content.
  */
 export function cleanPageDetails(
   platform: CommonPlatform,
   details: ItemDetails,
   url: string,
+  html: string,
 ): ItemDetails | null {
   if (details.title && LOGIN_PAGE_TITLE.test(details.title)) return null;
   // A LinkedIn comment's page shows the post it's on, so its details (text,
@@ -35,7 +38,7 @@ export function cleanPageDetails(
   return {
     ...details,
     title,
-    ...platformSpecific(platform, { ...details, title }, new URL(url)),
+    ...platformSpecific(platform, { ...details, title }, new URL(url), html),
   };
 }
 
@@ -54,6 +57,7 @@ function platformSpecific(
   platform: CommonPlatform,
   details: ItemDetails,
   url: URL,
+  html: string,
 ): Partial<ItemDetails> {
   switch (platform) {
     case CommonPlatform.Bilibili: {
@@ -78,11 +82,14 @@ function platformSpecific(
     }
     case CommonPlatform.Instagram:
       return instagram(details);
+    case CommonPlatform.Goodreads: {
+      const publishedAt = goodreadsPublishedAt(html, url.toString());
+      return publishedAt ? { publishedAt } : {};
+    }
     case CommonPlatform.YouTube:
     case CommonPlatform.X:
     case CommonPlatform.Xiaohongshu:
     case CommonPlatform.Reddit:
-    case CommonPlatform.Goodreads:
     case CommonPlatform.Wikipedia:
     case CommonPlatform.LinkedIn:
       return {};
