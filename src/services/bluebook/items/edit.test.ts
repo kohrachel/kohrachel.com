@@ -15,7 +15,7 @@ const {
 
 type Row = Record<string, unknown>;
 const rows = async (query: ReturnType<typeof sql>) =>
-  (await db.execute(query)) as unknown as Row[];
+  (await db.execute<Row>(query)).rows;
 
 describe.skipIf(!hasDatabase)("editing an item", () => {
   beforeEach(async () => {

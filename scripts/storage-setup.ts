@@ -1,7 +1,7 @@
 // Applies supabase/storage-setup.sql to the database in DATABASE_URL.
 // See docs/storage-and-auth-plan.md §A2. Idempotent — safe to re-run.
 import { config } from "dotenv";
-import postgres from "postgres";
+import { Client } from "pg";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -16,14 +16,16 @@ if (!url) {
 const sqlPath = join(process.cwd(), "supabase", "storage-setup.sql");
 const sqlText = readFileSync(sqlPath, "utf8");
 
-const sql = postgres(url, { max: 1 });
+const client = new Client({ connectionString: url });
 
 try {
-  await sql.unsafe(sqlText);
+  await client.connect();
+  // Without parameters, pg runs the whole file, several statements at once.
+  await client.query(sqlText);
   console.log("✓ storage-setup.sql applied to Supabase.");
 } catch (err) {
   console.error("✗ Failed to apply storage-setup.sql:", err);
   process.exitCode = 1;
 } finally {
-  await sql.end();
+  await client.end();
 }
