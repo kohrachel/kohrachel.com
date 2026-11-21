@@ -4,7 +4,7 @@ import { PlusSignIcon, Search01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition, type ReactNode } from "react";
+import { useState, useTransition } from "react";
 import type { SearchParams } from "@/domain-types/bluebook/search";
 import { Star } from "./star";
 
@@ -16,8 +16,8 @@ type Search = {
 };
 
 /**
- * The homepage's masthead (wordmark, search bar, Add) and filter chips,
- * with `favorites` between them. Filters search as soon as they change;
+ * The homepage's masthead (wordmark, search bar, Add) and filter chips.
+ * Filters search as soon as they change;
  * typed text searches on Enter, once it's more than spaces, and × clears
  * it. Everything lives in the address.
  */
@@ -27,14 +27,12 @@ export function SearchForm({
   platformOptions,
   years,
   canAdd,
-  favorites,
 }: {
   basePath: string;
   params: SearchParams;
   platformOptions: { value: string; label: string }[];
   years: number[];
   canAdd: boolean;
-  favorites?: ReactNode;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState(params.q ?? "");
@@ -112,8 +110,6 @@ export function SearchForm({
           </div>
         )}
       </header>
-
-      {favorites}
 
       <div className="bb-chips">
         {platformOptions.map(({ value, label }) => {

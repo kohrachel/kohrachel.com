@@ -9,29 +9,15 @@ import {
 } from "@/domain-types/bluebook/search";
 import { canWrite } from "@/server/auth/gate";
 import { bluebookBasePath } from "@/server/bluebook/paths";
-import {
-  favoriteItems,
-  searchFilters,
-  searchItems,
-} from "@/server/bluebook/search";
+import { searchFilters, searchItems } from "@/server/bluebook/search";
 import { searchWords } from "@/services/bluebook/search/snippet";
-import { FavoritesStrip } from "./favorites-strip";
 import { estimateCardHeight, ItemCard } from "./item-card";
 import { MasonryGrid } from "./masonry-grid";
 import { SearchForm } from "./search-form";
 
 type Props = PageProps<"/bluebook">;
 
-const LOADING_RATIOS = [
-  16 / 11,
-  3 / 4,
-  16 / 9,
-  2 / 3,
-  4 / 3,
-  1,
-  16 / 12,
-  3 / 4,
-];
+const LOADING_RATIOS = [2.2, 1.6, 2, 1.4, 1.8, 2.4, 1.5, 2];
 
 export default function BluebookHome({ searchParams }: Props) {
   return (
@@ -79,7 +65,6 @@ async function Home({ searchParams }: { searchParams: Props["searchParams"] }) {
     year: params.year,
     favoritesOnly: params.fav === "1",
   });
-  const favorites = filtered ? [] : await favoriteItems();
   const words = params.q ? searchWords(params.q, SEARCH_MAX_WORDS) : [];
   const platformOptions = [
     ...filters.platforms.map((platform) => ({
@@ -101,11 +86,6 @@ async function Home({ searchParams }: { searchParams: Props["searchParams"] }) {
         platformOptions={platformOptions}
         years={filters.years}
         canAdd={canAdd}
-        favorites={
-          favorites.length > 0 && (
-            <FavoritesStrip items={favorites} basePath={basePath} />
-          )
-        }
       />
 
       {filtered && results.length > 0 && (

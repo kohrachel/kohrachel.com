@@ -61,15 +61,6 @@ export function formatDateShort(isoDate: string, precision: DatePrecision) {
   return `${day} ${name} ${year}`;
 }
 
-/** A camera's date imprint: `2026-03-12` → "'26 3 12", "'26 3" or "'26". */
-export function formatPhotoStamp(isoDate: string, precision: DatePrecision) {
-  const { year, month, day } = dateParts(isoDate);
-  const parts = [`'${String(year).slice(-2)}`, month, day];
-  return parts
-    .slice(0, precision === "year" ? 1 : precision === "month" ? 2 : 3)
-    .join(" ");
-}
-
 /** A `<time datetime>` value at the date's precision: "2026-03-12", "2026-03" or "2026". */
 export function isoDateAt(isoDate: string, precision: DatePrecision) {
   return isoDate.slice(
