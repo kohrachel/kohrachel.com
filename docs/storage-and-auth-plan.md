@@ -136,86 +136,218 @@ No other application code changes — **provided the invariants below hold.**
 
 # Part B — Auth / write-access
 
+The blog and bluebook have **separate logins** that share no code, cookies or
+users. The blog has one writer and a shared-secret password. Bluebook has a few
+invited accounts.
+
 ## B0. Goals & constraints
 
-- Public bucket ⇒ **reads are intentionally open**. The only concern is
-  **writes**: upload / delete / overwrite (storage) and post mutations
-  (`savePost`).
-- Single-author site. We need a **"is this me?"** gate, not user accounts.
-- Auth must be independent of storage: changing it must not touch Part A.
+- Reads are public on both sites. Auth only guards writes (and the blog
+  editor's unpublished drafts).
+- Blog: one writer (the owner). Bluebook: invite-only, 10 people at most.
+- This is **not** meant to be a production-grade auth surface: no multiple
+  providers, no account linking, no self-service account management. Nice if we
+  get them later, but we don't design for them.
+- A session lasts indefinitely on each device, and signing in on one device
+  never signs out another.
+- Sign-in must work on Vercel previews, not just locally and in production.
+- Auth stays independent of storage (Part A).
 
-## B1. Current state
-
-- `/editor` is gated to `NODE_ENV === "development"` via `src/proxy.ts`
-  (rewrites to not-found in prod). Real "secret" today = possession of repo +
-  `.env` + ability to run dev.
-- `savePost` (`src/server/posts/upsert.ts`) has **no in-action check**.
-
-## B2. The gap to close
+## B1. The rule for server actions
 
 **Server actions are public HTTP endpoints identified by an action ID.** Next.js
 may dispatch an action from routes other than its own page, and middleware route
-matching (`matcher: "/editor/:path*"`) does **not** reliably gate action
-invocations. Guidance: **authorize inside the action**, never rely solely on
-middleware.
+matching does **not** reliably gate action invocations. So: **authorize inside
+the action**, never rely solely on `src/proxy.ts`.
 
-## B3. Decision — gate lives inside each write action, in one helper
+## B2. Blog: shared-secret admin login (implemented)
 
-All write actions call a single gate helper. Today the gate is the dev-mode
-check; later it becomes a shared secret — swapping the helper body, nothing else.
+- Code: `src/server/auth/session.ts`, `gate.ts`, `login.ts`. Log in at
+  `kohrachel.com/admin/login` with `ADMIN_SECRET`.
+- The cookie holds a signed expiry (HMAC with `ADMIN_SECRET`), not the secret
+  itself, and lasts 90 days. `next dev` is always allowed without logging in.
+- Write actions and editor reads call `requireWriteAccess()`; pages that show
+  owner-only UI call `canWrite()`.
+- `/editor` is still hidden in production by `src/proxy.ts`, so in production
+  this login unlocks nothing until the editor goes live. We keep it for then.
 
-Phase 1 (now): dev-mode gate.
+Changes when bluebook gets its own login (B5 step 2):
 
-```
-// inside every write action (savePost, future uploadImage)
-if (process.env.NODE_ENV !== "development") throw new Error("unauthorized");
-```
+- The cookie becomes host-only (`kohrachel.com`). Today it is set on
+  `Domain=kohrachel.com`, which shares it with `bluebook.kohrachel.com`.
+- `requireWriteAccess()` / `canWrite()` become blog-only. No bluebook code
+  calls them.
+- After deploying, change `ADMIN_SECRET` once. Browsers keep the old shared
+  cookie for up to 90 days, and logging out only clears the new host-only one;
+  a new secret makes every old cookie invalid.
 
-Phase 2 (when writes must work in prod): single shared secret. **Implemented** in
-`src/server/auth/session.ts` + `gate.ts`; log in at `kohrachel.com/admin/login`.
-The cookie holds a signed expiry (HMAC with `ADMIN_SECRET`), not the secret itself,
-and is shared across `*.kohrachel.com`. `next dev` stays allowed without logging in.
+## B3. Bluebook: accounts
 
-```
-// src/server/auth/require-admin.ts  (shape only)
-requireAdmin():
-  - read `admin_token` cookie (httpOnly, secure)
-  - compare to process.env.ADMIN_SECRET (server-only) via timingSafeEqual
-  - throw on mismatch
-```
+### Decisions
 
-- `ADMIN_SECRET` = one long random string in env (server-only, not
-  `NEXT_PUBLIC`). This is the entire "auth database".
-- Presented via a tiny login route that sets the cookie after checking a
-  password. Reads stay public; only write actions call `requireAdmin()`.
+- **Our own code, not Supabase Auth or Auth.js.** The requirements are small,
+  and users, roles and sessions need our own tables either way. Users and
+  sessions live in the `bluebook` schema under Drizzle, removing a session
+  takes effect immediately, there is no second user list to keep in step, the
+  Supabase SDK stays limited to the storage adapter (I1), and the login moves
+  with bluebook if it ever leaves this repo.
+- **Username or email, plus a password.** Considered and set aside for v1:
+  - Emailed codes or links: the inbox becomes the only key to the account, and
+    it needs an email service.
+  - Sign in with Google: needs a Google Cloud OAuth app, and Google doesn't
+    allow wildcard return addresses, so previews would need a relay through
+    production. Passwords work on previews with no extra code.
+- **Invite-only through the `users` table.** A user row is the invite. There is
+  no public sign-up page and no allowlist env var.
+- **No `logins` table in v1.** The password hash lives on `users`. Adding
+  another sign-in method later is a new table; nothing existing moves.
+- **No pepper.** A slow hash with a per-user salt is enough at this size.
 
-## B4. Upgrade path to real auth (optional, later)
+### Data (`bluebook` schema)
 
-If we ever need multiple users, replace `requireAdmin()` internals with a real
-provider (**Supabase Auth** = least resistance since we're already on Supabase;
-**Auth.js** = provider-neutral). Note: Supabase Auth is a **separate** coupling
-from Supabase Storage — moving off storage does not move auth, and vice versa.
+`users`
 
-## B5. Auth invariants
+| column | notes |
+|---|---|
+| `id` | |
+| `email` | Unique, stored lowercase. Private: never shown on any page. |
+| `username` | Unique ignoring case. Letters, numbers, `_` and `-`. Null until setup is finished. |
+| `display_name` | Not unique. Null until setup is finished. |
+| `role` | `owner` or `member`. |
+| `password_hash` | One string with algorithm, settings, salt and hash: `$scrypt$n=…,r=8,p=1$<salt>$<hash>`. Null until setup is finished. |
+| `setup_token_hash`, `setup_token_expires_at` | The current setup link, stored as a hash. Null when there's none. |
+| `failed_sign_ins`, `locked_until` | Limits password guessing. |
+| `disabled_at` | Set → can't sign in, sessions stop working. Their entries stay up. |
+| `created_at` | |
 
-- **J1.** Every write server action (storage or DB) calls the gate helper as its
-  first line. No exceptions.
-- **J2.** The gate lives in one helper so Phase 1 → 2 → real-auth is a one-file
-  change.
+`sessions`
+
+| column | notes |
+|---|---|
+| `id` | |
+| `user_id` | |
+| `token_hash` | Hash of the session ID in the cookie, so reading the database doesn't let anyone sign in. |
+| `created_at`, `last_used_at`, `expires_at` | |
+
+`entries` gets a `user_id` (required once existing entries are filled in; see
+"Existing data"). Items don't record who added them: an item is shared by
+everyone and its link stays unique across the site.
+
+### Flows
+
+**Invite.** `bun run bluebook:invite <email>` creates the user row (or finds
+it), makes a random setup token, stores its hash with a 24-hour expiry, and
+prints `https://bluebook.kohrachel.com/setup/<token>` (with an option for
+another base URL, such as a preview). The owner sends the link however they
+like.
+
+**Setup** (`/setup/<token>`). Checks the token matches, hasn't expired, and the
+user isn't disabled. A first-time user picks a username and display name
+(pre-filled from their email); everyone picks a password. On save: store the
+password hash, clear the token, delete the user's other sessions, and sign in on
+this device.
+
+**Password reset.** Run the invite script again for that person. It prints a
+new link and the old one stops working. The setup page then only asks for a
+password. There is no "forgot password" email, so email is never a way in.
+
+**Sign in** (`/login`). Username or email, plus password. Locked, disabled,
+unknown account and wrong password all show the same "Wrong username or
+password." For an unknown account we still hash the password so the response
+takes the same time. After 10 wrong passwords in a row the account waits 15
+minutes; a successful sign-in resets the count.
+
+**Sessions.** The `bluebook_session` cookie holds a random 32-byte session ID:
+`httpOnly`, `secure`, `sameSite=lax`, host-only. Each request looks up the
+session and its user in one query (cached per request) and rejects expired
+sessions and disabled users. If a session hasn't been used in the last day, its
+expiry moves out and the cookie is set again. Chrome caps cookies at 400 days,
+so that's the lifetime; a device used at least once in that window stays signed
+in indefinitely.
+
+**Sign out.** Deletes the session row and clears the cookie.
+
+**Disable.** By hand in the database: set `disabled_at` and delete the user's
+sessions.
+
+### Permissions
+
+| action | anyone | member | owner |
+|---|---|---|---|
+| Read everything | ✓ | ✓ | ✓ |
+| Add an item or entry | | ✓ | ✓ |
+| Fix an item's details | | ✓ | ✓ |
+| Edit or delete an entry (date, text, mentions) | | their own | anyone's |
+| Delete an item (deletes everyone's entries on it) | | | ✓ |
+
+Bluebook has its own gate helpers (who's signed in, require a member, require
+the entry's author or the owner, require the owner), called inside each server
+action. Finer-grained roles can be added later on top of `role`.
+
+Open: favorites. `items.is_favorite` is one flag for the whole site. Decide in
+B5 step 3 whether favorites become per person (a small favorites table) or
+stay one flag that only the owner sets.
+
+### Password storage
+
+- Node's built-in `scrypt` (Bun's password helpers don't exist on Vercel's Node
+  runtime), at or above OWASP's minimum (`n=2^17, r=8, p=1`), with a random
+  16-byte salt per user, stored next to the hash.
+- Compare with `timingSafeEqual`.
+- The settings are stored in the hash string, so if we raise them later, an
+  older hash is redone with the new settings the next time that person signs in.
+- Passwords: at least 8 characters, up to 256, no composition rules (NIST).
+
+### Local dev and previews
+
+- `next dev`: treated as signed in as the owner unless actually signed in.
+  `BLUEBOOK_DEV_USER=<username>` acts as someone else.
+- Previews: real sign-in works, since nothing depends on a fixed address. They
+  use whichever database their env points to.
+
+### Existing data
+
+The tables PR is schema-only and adds `entries.user_id` as nullable. Then, by
+hand: create the owner user and set every existing entry's `user_id` to them. A
+later migration makes the column required.
+
+### Code layout
+
+- Tables: `src/db/entities/bluebook/users.ts`, `sessions.ts`.
+- Logic (hashing, sessions, setup tokens): `src/services/bluebook/auth/`.
+- Gate and sign-in/out/setup actions: `src/server/bluebook/auth/`.
+- Pages: `src/app/(bluebook)/bluebook/login/`, `setup/[token]/`.
+- Script: `scripts/bluebook-invite.ts` (`bluebook:invite`).
+
+## B4. Auth invariants
+
+- **J1.** Every write server action calls **its own site's** gate as its first
+  line: blog actions the blog gate, bluebook actions the bluebook gate. Never
+  the other site's.
+- **J2.** Each site's gate lives in one place.
 - **J3.** Do not rely on `src/proxy.ts` / middleware alone for write security;
   it's defense-in-depth, not the gate.
 - **J4.** Secrets (`ADMIN_SECRET`, service-role key, S3 keys) are server-only,
   never `NEXT_PUBLIC`.
+- **J5.** Emails, password hashes and token hashes never leave the server.
+  Pages show only usernames and display names.
+- **J6.** Session IDs and setup tokens are stored only as hashes.
 
-## B6. Auth phases
+## B5. Bluebook auth phases (one PR each, stacked)
 
-1. Add the in-action dev check (B3 Phase 1) to `savePost` and any new write
-   action. Do this alongside Storage phase 4.
-2. Keep bucket `file_size_limit` + `allowed_mime_types` (Part A) as
-   defense-in-depth regardless of the gate.
-3. Only if/when writes must run in prod: implement `requireAdmin()` + login
-   route (B3 Phase 2).
-4. Only if multi-user is ever needed: swap to a real auth provider (B4).
+1. **Tables.** `users`, `sessions`, nullable `entries.user_id`. Schema only.
+   Then by hand: owner user, backfill entries.
+2. **Sign-in.** Password hashing, sessions, invite script, setup and login
+   pages, sign-out, bluebook gate helpers, `next dev` shortcut. Bluebook pages
+   and actions switch to "signed-in member" and stop calling the blog gate; the
+   add page links to bluebook's `/login`. In the same PR: the blog cookie
+   becomes host-only (B2). Change `ADMIN_SECRET` after deploying.
+3. **Per-person permissions.** New entries record their author, the
+   permissions table is enforced, the item page shows who logged it and when,
+   `entries.user_id` becomes required, and favorites change if we decide so.
+
+Later: personal API keys for the iOS Shortcut (#86) and browser extension
+(#105); more sign-in methods (a `logins` table); finer-grained roles.
 
 ---
 
@@ -227,7 +359,7 @@ whose first line is the **auth gate** (Part B) and whose body calls the
 
 ```
 uploadImage(input):
-  requireAdmin()                         // Part B — swappable
+  requireWriteAccess()                   // Part B — the site's gate
   const key = buildKey(...)
   await storage.upload(bucket, key, ...) // Part A — swappable
   await db.insert(...).values({ bucket, key })  // metadata (Drizzle)
