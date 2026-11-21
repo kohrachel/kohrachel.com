@@ -39,6 +39,9 @@ export type SearchResult = {
   creator: string | null;
   platform: string;
   isFavorite: boolean;
+  thumbnailUrl: string | null;
+  /** Only for videos. */
+  durationSeconds: number | null;
   lastConsumed: { on: string; precision: DatePrecision } | null;
   snippet: string | null;
 };
