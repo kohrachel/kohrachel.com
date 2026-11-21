@@ -1,4 +1,4 @@
-import { ListInput } from "@/server/posts/list";
+import type { ListInput } from "@/server/posts/list";
 import { cacheTag, cacheLife } from "next/cache";
 import { postSlugTag, postTag } from "./cache-tags";
 import { db } from "@/db";

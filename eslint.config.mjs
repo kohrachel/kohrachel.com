@@ -35,6 +35,11 @@ const eslintConfig = defineConfig([
     rules: {
       "@next/next/no-img-element": "off",
       "prefer-const": "error",
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        { prefer: "type-imports", fixStyle: "inline-type-imports" },
+      ],
+      "@typescript-eslint/no-import-type-side-effects": "error",
       "no-restricted-imports": [
         "error",
         {

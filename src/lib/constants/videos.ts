@@ -1,4 +1,4 @@
-import { VideoType } from "@/domain-types/ui/videos";
+import type { VideoType } from "@/domain-types/ui/videos";
 
 export const VIDEOS: VideoType[] = [
   {
