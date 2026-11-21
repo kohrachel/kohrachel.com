@@ -59,8 +59,10 @@ export type CurrentUser = {
   id: number;
   username: string;
   displayName: string;
-  role: "owner" | "member";
+  role: UserRole;
 };
+
+export type UserRole = "owner" | "admin" | "member";
 
 export type FormState = {
   error: string;

@@ -7,3 +7,4 @@ export * from "./entities/bluebook/entries";
 export * from "./entities/bluebook/mentions";
 export * from "./entities/bluebook/users";
 export * from "./entities/bluebook/sessions";
+export * from "./entities/bluebook/favorites";

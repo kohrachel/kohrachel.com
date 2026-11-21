@@ -58,6 +58,7 @@ export async function searchItemsService({
   platforms = [],
   year,
   favoritesOnly = false,
+  viewerId = null,
   limit = SEARCH_LIMIT,
 }: SearchInput): Promise<SearchResult[]> {
   const words = searchWords(query, SEARCH_MAX_WORDS);
@@ -98,7 +99,12 @@ export async function searchItemsService({
         and y.consumed_on < ${`${year + 1}-01-01`}::date)`,
     );
   }
-  if (favoritesOnly) conditions.push(sql`i.is_favorite`);
+  const isFavorite =
+    viewerId === null
+      ? sql`false`
+      : sql`exists (select 1 from bluebook.favorites f
+          where f.item_id = i.id and f.user_id = ${viewerId})`;
+  if (favoritesOnly && viewerId !== null) conditions.push(isFavorite);
 
   const matchedTexts = words.length
     ? sql`array(
@@ -114,7 +120,7 @@ export async function searchItemsService({
     : sql``;
 
   const { rows } = await db.execute<Row>(sql`
-    select i.id, i.title, i.creator, i.platform, i.is_favorite,
+    select i.id, i.title, i.creator, i.platform, ${isFavorite} as is_favorite,
       i.metadata->'thumbnailUrl' as thumbnail_url,
       i.metadata->'durationSeconds' as duration_seconds,
       i.metadata->'width' as width,

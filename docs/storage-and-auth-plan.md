@@ -213,7 +213,7 @@ Changes when bluebook gets its own login (B5 step 2):
 | `email` | Unique, stored lowercase. Private: never shown on any page. |
 | `username` | Unique ignoring case. Letters, numbers, `_` and `-`. Null until setup is finished. |
 | `display_name` | Not unique. Null until setup is finished. |
-| `role` | `owner` or `member`. |
+| `role` | `owner`, `admin` or `member`. Admins have the owner's powers in bluebook for now. |
 | `password_hash` | One string with algorithm, settings, salt and hash: `$scrypt$n=…,r=8,p=1$<salt>$<hash>`. Null until setup is finished. |
 | `setup_token_hash`, `setup_token_expires_at` | The current setup link, stored as a hash. Null when there's none. |
 | `failed_sign_ins`, `locked_until` | Limits password guessing. |
@@ -232,6 +232,11 @@ Changes when bluebook gets its own login (B5 step 2):
 `entries` gets a `user_id` (required once existing entries are filled in; see
 "Existing data"). Items don't record who added them: an item is shared by
 everyone and its link stays unique across the site.
+
+`favorites` (`user_id`, `item_id`, primary key on both) holds each person's
+stars. `items.is_favorite`, the old single flag, is no longer read; its rows
+are copied into `favorites` for the owner by hand, and the column is dropped
+in a later migration.
 
 ### Flows
 
@@ -273,21 +278,25 @@ sessions.
 
 ### Permissions
 
-| action | anyone | member | owner |
+| action | anyone | member | owner, admin |
 |---|---|---|---|
 | Read everything | ✓ | ✓ | ✓ |
 | Add an item or entry | | ✓ | ✓ |
 | Fix an item's details | | ✓ | ✓ |
+| Star an item (for themselves) | | ✓ | ✓ |
 | Edit or delete an entry (date, text, mentions) | | their own | anyone's |
-| Delete an item (deletes everyone's entries on it) | | | ✓ |
+| Delete an item (deletes everyone's entries on it) | | only if every entry is theirs | ✓ |
+| Restore a deleted item by pasting its link again | | only if every entry is theirs | ✓ |
 
-Bluebook has its own gate helpers (who's signed in, require a member, require
-the entry's author or the owner, require the owner), called inside each server
-action. Finer-grained roles can be added later on top of `role`.
+The rules live in `src/lib/bluebook/permissions.ts` and are checked inside the
+services each server action calls; the pages use the same rules to decide
+which controls to show. Finer-grained roles can be added later on top of
+`role`.
 
-Open: favorites. `items.is_favorite` is one flag for the whole site. Decide in
-B5 step 3 whether favorites become per person (a small favorites table) or
-stay one flag that only the owner sets.
+Favorites are per person. Signed in, you see stars on your own favorites and
+can filter by them; signed-out visitors see no stars and no Favorites filter.
+On an item page, each entry's author has a star next to their name if they
+starred the item.
 
 ### Password storage
 
@@ -343,9 +352,11 @@ later migration makes the column required.
    and actions switch to "signed-in member" and stop calling the blog gate; the
    add page links to bluebook's `/login`. In the same PR: the blog cookie
    becomes host-only (B2). Change `ADMIN_SECRET` after deploying.
-3. **Per-person permissions.** New entries record their author, the
-   permissions table is enforced, the item page shows who logged it and when,
-   `entries.user_id` becomes required, and favorites change if we decide so.
+3. **Per-person permissions.** The `admin` role, new entries record their
+   author, the permissions table is enforced, the item page shows who logged
+   each entry, `entries.user_id` becomes required, and favorites move to a
+   per-person `favorites` table. Then by hand: copy the owner's old
+   favorites into it. A later migration drops `items.is_favorite`.
 
 Later: personal API keys for the iOS Shortcut (#86) and browser extension
 (#105); more sign-in methods (a `logins` table); finer-grained roles.

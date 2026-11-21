@@ -13,6 +13,7 @@ import {
   isoDateAt,
   timesInWords,
 } from "@/lib/bluebook/format";
+import { canDeleteItem, canEditEntry } from "@/lib/bluebook/permissions";
 import { sizeOf, thumbnailFrame } from "@/lib/bluebook/thumbnail";
 import { currentUser } from "@/server/bluebook/auth/gate";
 import { getItem } from "@/server/bluebook/items";
@@ -196,7 +197,9 @@ function ItemHead({ item }: { item: ItemPageData }) {
     <div className="bb-item__head">
       <div className="bb-item__title-row">
         <h1 className="bb-item-title">{item.title}</h1>
-        {item.isFavorite && <Star className="bb-star--lg" label="Favorite" />}
+        <Suspense fallback={null}>
+          <ViewerStar favoritedBy={item.favoritedBy} />
+        </Suspense>
       </div>
       {item.creator && <p className="bb-item__creator">{item.creator}</p>}
       <p className="bb-meta">{meta.join(" · ")}</p>
@@ -312,6 +315,12 @@ function EntryLog({
                 <Suspense fallback={stamp}>
                   <OwnerEntryDate entry={entry}>{stamp}</OwnerEntryDate>
                 </Suspense>
+                <p className="bb-entry__by">
+                  {entry.author.displayName}
+                  {item.favoritedBy.includes(entry.author.id) && (
+                    <Star label="Favorite" />
+                  )}
+                </p>
               </div>
               <Suspense fallback={text}>
                 <OwnerEntry
@@ -331,7 +340,20 @@ function EntryLog({
   );
 }
 
-/** An entry's date stamp, which the owner can click to change. */
+/** The viewer's own star, since favorites are per person. */
+async function ViewerStar({ favoritedBy }: { favoritedBy: number[] }) {
+  const user = await currentUser();
+  return user && favoritedBy.includes(user.id) ? (
+    <Star className="bb-star--lg" label="Your favorite" />
+  ) : null;
+}
+
+async function canEdit(entry: Entry) {
+  const user = await currentUser();
+  return !!user && canEditEntry(user, entry.author.id);
+}
+
+/** An entry's date stamp, which its author (or an admin) can click to change. */
 async function OwnerEntryDate({
   entry,
   children,
@@ -339,7 +361,7 @@ async function OwnerEntryDate({
   entry: Entry;
   children: React.ReactNode;
 }) {
-  if (!(await currentUser())) return children;
+  if (!(await canEdit(entry))) return children;
   return (
     <EntryDateButton
       id={entry.id}
@@ -351,7 +373,7 @@ async function OwnerEntryDate({
   );
 }
 
-/** An entry's text, with the owner's Edit · Delete under it. */
+/** An entry's text, with Edit · Delete under it for its author (or an admin). */
 async function OwnerEntry({
   entry,
   itemId,
@@ -365,7 +387,7 @@ async function OwnerEntry({
   deletable: boolean;
   children: React.ReactNode;
 }) {
-  if (!(await currentUser())) return children;
+  if (!(await canEdit(entry))) return children;
   return (
     <EntryTextEditor
       entryId={entry.id}
@@ -382,8 +404,8 @@ async function OwnerEntry({
 }
 
 /**
- * The owner's controls. They read the login cookie, so they load on their
- * own and the rest of the page stays cached.
+ * The signed-in person's controls. They read the login cookie, so they load
+ * on their own and the rest of the page stays cached.
  */
 async function OwnerItemTools({
   item,
@@ -392,7 +414,8 @@ async function OwnerItemTools({
   item: ItemPageData;
   basePath: string;
 }) {
-  if (!(await currentUser())) return null;
+  const user = await currentUser();
+  if (!user) return null;
   return (
     <ItemTools
       item={{
@@ -400,8 +423,12 @@ async function OwnerItemTools({
         title: item.title,
         creator: item.creator,
         publishedAt: item.publishedAt?.toISOString() ?? null,
-        isFavorite: item.isFavorite,
+        isFavorite: item.favoritedBy.includes(user.id),
       }}
+      canDelete={canDeleteItem(
+        user,
+        item.entries.map((entry) => entry.author.id),
+      )}
       basePath={basePath}
     />
   );

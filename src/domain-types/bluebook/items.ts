@@ -11,7 +11,8 @@ export type ItemPageData = {
   creator: string | null;
   publishedAt: Date | null;
   metadata: Record<string, unknown>;
-  isFavorite: boolean;
+  /** Ids of the users who starred it. */
+  favoritedBy: number[];
   entries: {
     id: number;
     consumedOn: string;
@@ -19,6 +20,7 @@ export type ItemPageData = {
     content: JSONContent;
     plainText: string;
     contentEditedAt: Date | null;
+    author: { id: number; username: string; displayName: string };
   }[];
   /** Current titles of the items its entries mention; `null` if deleted. */
   mentionedTitles: Record<number, string | null>;

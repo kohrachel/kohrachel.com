@@ -55,11 +55,12 @@ export async function saveEntryText(input: {
   entryId: number;
   content: unknown;
 }): Promise<SaveEntryTextResult> {
-  await requireMember();
+  const actor = await requireMember();
   const parsed = saveEntryTextSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Invalid" };
 
   const result = await saveEntryTextService(
+    actor,
     parsed.data.entryId,
     parsed.data.content,
   );

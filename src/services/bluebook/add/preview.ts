@@ -1,5 +1,5 @@
 import "server-only";
-import { count, desc, eq } from "drizzle-orm";
+import { count, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { entries, items } from "@/db/schema";
 import type { ExistingItem, PreviewResult } from "@/domain-types/bluebook/add";
@@ -8,13 +8,17 @@ import { cleanLink } from "@/services/bluebook/links/clean";
 
 /**
  * Turns pasted text into what the confirm form needs: the cleaned link,
- * whether an item already has it, and details to pre-fill. Saves nothing.
+ * whether an item already has it (and whether the viewer has starred it),
+ * and details to pre-fill. Saves nothing.
  */
-export async function previewLinkService(text: string): Promise<PreviewResult> {
+export async function previewLinkService(
+  text: string,
+  viewerId: number,
+): Promise<PreviewResult> {
   const link = await cleanLink(text);
   if (!link.ok) return link;
 
-  const existing = await findItem(link.normalizedUrl);
+  const existing = await findItem(link.normalizedUrl, viewerId);
   const details =
     existing && !existing.isDeleted
       ? null
@@ -34,6 +38,7 @@ export async function previewLinkService(text: string): Promise<PreviewResult> {
 /** The item with this link, deleted or not, with a summary of its entries. */
 export async function findItem(
   normalizedUrl: string,
+  viewerId: number,
 ): Promise<ExistingItem | null> {
   const [row] = await db
     .select({
@@ -41,7 +46,9 @@ export async function findItem(
       title: items.title,
       creator: items.creator,
       platform: items.platform,
-      isFavorite: items.isFavorite,
+      isFavorite: sql<boolean>`exists (
+        select 1 from bluebook.favorites f
+        where f.item_id = ${items.id} and f.user_id = ${viewerId})`,
       publishedAt: items.publishedAt,
       deletedAt: items.deletedAt,
       entryCount: count(entries.id),

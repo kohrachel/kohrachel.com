@@ -13,9 +13,13 @@ const { db } = hasDatabase ? await import("@/db") : { db: null! };
 const { saveLinkService } = await import("./save");
 const { startOfPeriod } = await import("@/lib/bluebook/dates");
 const { findItem, previewLinkService } = await import("./preview");
+const { MEMBER, OWNER, resetBluebook } = await import("@/test/bluebook-users");
 
-const save = (overrides: Partial<SaveInput> = {}) =>
+type Actor = typeof OWNER | typeof MEMBER;
+
+const saveAs = (actor: Actor, overrides: Partial<SaveInput> = {}) =>
   saveLinkService(
+    actor,
     saveInputSchema.parse({
       url: "https://youtu.be/dQw4w9WgXcQ?si=abc",
       resolvedUrl: "https://youtu.be/dQw4w9WgXcQ?si=abc",
@@ -27,6 +31,9 @@ const save = (overrides: Partial<SaveInput> = {}) =>
       ...overrides,
     }),
   );
+const save = (overrides: Partial<SaveInput> = {}) => saveAs(OWNER, overrides);
+const favorites = () =>
+  rows(sql`select user_id, item_id from bluebook.favorites order by user_id`);
 
 type Row = Record<string, unknown>;
 const rows = async (query: ReturnType<typeof sql>) =>
@@ -34,7 +41,7 @@ const rows = async (query: ReturnType<typeof sql>) =>
 
 describe.skipIf(!hasDatabase)("saving a link", () => {
   beforeEach(async () => {
-    await db.execute(sql`truncate bluebook.items restart identity cascade`);
+    await resetBluebook(db);
   });
 
   test("creates an item and its first entry", async () => {
@@ -54,13 +61,13 @@ describe.skipIf(!hasDatabase)("saving a link", () => {
       title: "Never Gonna Give You Up",
       creator: "Rick Astley",
       metadata: { durationSeconds: 214 },
-      is_favorite: false,
       deleted_at: null,
     });
     const [entry] = await rows(sql`select * from bluebook.entries`);
     // Raw SQL returns bigint ids as strings.
     expect(entry).toMatchObject({
       item_id: "1",
+      user_id: "1",
       consumed_on: "2026-11-15",
       consumed_precision: "day",
       plain_text: "",
@@ -102,10 +109,41 @@ describe.skipIf(!hasDatabase)("saving a link", () => {
     const [item] = await rows(sql`select * from bluebook.items`);
     expect(item).toMatchObject({
       title: "Restored title",
-      is_favorite: true,
       deleted_at: null,
     });
     expect(await rows(sql`select id from bluebook.entries`)).toHaveLength(2);
+    expect(await favorites()).toEqual([{ user_id: "1", item_id: "1" }]);
+  });
+
+  test("records who saved each entry, and stars it for them alone", async () => {
+    await saveAs(OWNER, { isFavorite: true });
+    await saveAs(MEMBER, { consumedOn: "2026-11-16" });
+    expect(
+      await rows(sql`select user_id from bluebook.entries order by id`),
+    ).toEqual([{ user_id: "1" }, { user_id: "3" }]);
+    expect(await favorites()).toEqual([{ user_id: "1", item_id: "1" }]);
+
+    await saveAs(MEMBER, { consumedOn: "2026-11-17", isFavorite: true });
+    await saveAs(OWNER, { consumedOn: "2026-11-18" });
+    expect(await favorites()).toEqual([{ user_id: "3", item_id: "1" }]);
+  });
+
+  test("members restore a deleted item only if they alone had logged it", async () => {
+    await saveAs(OWNER);
+    await saveAs(MEMBER, { consumedOn: "2026-11-16" });
+    await db.execute(sql`update bluebook.items set deleted_at = now()`);
+    expect(await saveAs(MEMBER)).toEqual({
+      ok: false,
+      error:
+        "This was deleted, and others had logged it, so only the owner or an admin can bring it back.",
+    });
+    expect(await rows(sql`select id from bluebook.entries`)).toHaveLength(2);
+
+    await db.execute(sql`delete from bluebook.entries where user_id = 1`);
+    expect(await saveAs(MEMBER)).toMatchObject({
+      ok: true,
+      outcome: "restored",
+    });
   });
 
   test("keeps old metadata that wasn't fetched again when restoring", async () => {
@@ -181,11 +219,11 @@ describe.skipIf(!hasDatabase)("saving a link", () => {
 
 describe.skipIf(!hasDatabase)("previewing a link", () => {
   beforeEach(async () => {
-    await db.execute(sql`truncate bluebook.items restart identity cascade`);
+    await resetBluebook(db);
   });
 
   test("fetches details for a new link", async () => {
-    const result = await previewLinkService("https://youtu.be/dQw4w9WgXcQ");
+    const result = await previewLinkService("https://youtu.be/dQw4w9WgXcQ", 1);
     expect(result).toMatchObject({
       ok: true,
       normalizedUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
@@ -200,7 +238,7 @@ describe.skipIf(!hasDatabase)("previewing a link", () => {
     await save({ consumedOn: "2026-11-15", consumedPrecision: "month" });
     network.requested.length = 0;
 
-    const result = await previewLinkService("https://youtu.be/dQw4w9WgXcQ");
+    const result = await previewLinkService("https://youtu.be/dQw4w9WgXcQ", 1);
     expect(result).toMatchObject({
       ok: true,
       details: null,
@@ -221,25 +259,33 @@ describe.skipIf(!hasDatabase)("previewing a link", () => {
   test("fetches details again for a deleted item", async () => {
     await save();
     await db.execute(sql`update bluebook.items set deleted_at = now()`);
-    const result = await previewLinkService("https://youtu.be/dQw4w9WgXcQ");
+    const result = await previewLinkService("https://youtu.be/dQw4w9WgXcQ", 1);
     expect(result.ok && result.existing?.isDeleted).toBe(true);
     expect(result.ok && result.details).not.toBeNull();
   });
 
   test("passes on why a link can't be used", async () => {
-    expect(await previewLinkService("no link here")).toEqual({
+    expect(await previewLinkService("no link here", 1)).toEqual({
       ok: false,
       reason: "no_link",
     });
     expect(
       await previewLinkService(
         "https://www.youtube.com/results?search_query=x",
+        1,
       ),
     ).toMatchObject({ ok: false, reason: "unsupported_page" });
   });
 
   test("finds nothing for a link no item has", async () => {
-    expect(await findItem("https://example.com/none")).toBeNull();
+    expect(await findItem("https://example.com/none", 1)).toBeNull();
+  });
+
+  test("shows whether the viewer starred the item", async () => {
+    await saveAs(MEMBER, { isFavorite: true });
+    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    expect((await findItem(url, 3))?.isFavorite).toBe(true);
+    expect((await findItem(url, 1))?.isFavorite).toBe(false);
   });
 });
 
