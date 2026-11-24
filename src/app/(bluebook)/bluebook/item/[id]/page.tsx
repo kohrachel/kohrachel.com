@@ -23,6 +23,7 @@ import {
   platformGroup,
   platformName,
 } from "@/services/bluebook/links/platform";
+import { Avatar, Byline, type Person } from "../../byline";
 import { Star } from "../../star";
 import { Thumb } from "../../thumb";
 import { Connections } from "./connections";
@@ -270,6 +271,10 @@ function EntryLog({
   verb: string;
 }) {
   const { entries } = item;
+  // Someone who hasn't finished setting up has no name to sign with yet.
+  const writers = [
+    ...new Map(entries.map(({ author }) => [author.id, author])).values(),
+  ].filter((writer) => writer.displayName);
   return (
     <section className="bb-log">
       <div className="bb-log__head">
@@ -277,11 +282,19 @@ function EntryLog({
           <h2 className="bb-section-title">
             {verb} {timesInWords(entries.length)}
           </h2>
+          {writers.length > 1 && (
+            <span className="bb-log__who">
+              <span className="bb-avatars">
+                {writers.map((writer) => (
+                  <Avatar key={writer.id} person={writer} size="lg" />
+                ))}
+              </span>
+              by {writers.length} people
+            </span>
+          )}
         </div>
         <Suspense fallback={null}>
-          <OwnerOnly>
-            <AddEntryButton itemId={item.id} />
-          </OwnerOnly>
+          <ViewerAddEntry itemId={item.id} />
         </Suspense>
       </div>
       <ol className="bb-sheet">
@@ -315,13 +328,16 @@ function EntryLog({
                 <Suspense fallback={stamp}>
                   <OwnerEntryDate entry={entry}>{stamp}</OwnerEntryDate>
                 </Suspense>
-                <p className="bb-entry__by">
-                  {entry.author.displayName}
-                  {item.favoritedBy.includes(entry.author.id) && (
-                    <Star label="Favorite" />
-                  )}
-                </p>
               </div>
+              {entry.author.displayName && (
+                <p className="bb-entry__by">
+                  <Byline person={entry.author}>
+                    {item.favoritedBy.includes(entry.author.id) && (
+                      <Star label="Favorite" />
+                    )}
+                  </Byline>
+                </p>
+              )}
               <Suspense fallback={text}>
                 <OwnerEntry
                   entry={entry}
@@ -351,6 +367,15 @@ async function ViewerStar({ favoritedBy }: { favoritedBy: number[] }) {
 async function canEdit(entry: Entry) {
   const user = await currentUser();
   return !!user && canEditEntry(user, entry.author.id);
+}
+
+/** "Writing as" you, or whose entry an admin is changing. */
+function Who({ label, person }: { label: string; person: Person }) {
+  return (
+    <span className="bb-log__who">
+      {label} <Byline person={person} size="sm" />
+    </span>
+  );
 }
 
 /** An entry's date stamp, which its author (or an admin) can click to change. */
@@ -387,13 +412,20 @@ async function OwnerEntry({
   deletable: boolean;
   children: React.ReactNode;
 }) {
-  if (!(await canEdit(entry))) return children;
+  const user = await currentUser();
+  if (!user || !canEditEntry(user, entry.author.id)) return children;
   return (
     <EntryTextEditor
       entryId={entry.id}
       itemId={itemId}
       content={entry.content}
       basePath={basePath}
+      who={
+        <Who
+          label={user.id === entry.author.id ? "Writing as" : "Signed by"}
+          person={entry.author}
+        />
+      }
       tools={
         deletable ? [<DeleteEntryButton key="delete" id={entry.id} />] : []
       }
@@ -434,8 +466,15 @@ async function OwnerItemTools({
   );
 }
 
-async function OwnerOnly({ children }: { children: React.ReactNode }) {
-  return (await currentUser()) ? children : null;
+async function ViewerAddEntry({ itemId }: { itemId: number }) {
+  const user = await currentUser();
+  if (!user) return null;
+  return (
+    <AddEntryButton
+      itemId={itemId}
+      who={<Who label="Writing as" person={user} />}
+    />
+  );
 }
 
 function text(value: unknown) {

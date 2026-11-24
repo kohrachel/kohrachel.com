@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { SearchParams } from "@/domain-types/bluebook/search";
+import { Byline, type Person } from "./byline";
 import { ChipSelect } from "./chip-select";
 import { Star } from "./star";
 
@@ -28,13 +29,14 @@ export function SearchForm({
   params,
   platformOptions,
   years,
-  canAdd,
+  viewer,
 }: {
   basePath: string;
   params: SearchParams;
   platformOptions: { value: string; label: string }[];
   years: number[];
-  canAdd: boolean;
+  /** Who's signed in; visitors get no Add, account link or Favorites chip. */
+  viewer: Person | null;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState(params.q ?? "");
@@ -114,8 +116,15 @@ export function SearchForm({
             </button>
           )}
         </form>
-        {canAdd && (
+        {viewer && (
           <div className="bb-masthead__end">
+            <Link
+              href={`${basePath}/login`}
+              title="Your account"
+              className="bb-masthead__me"
+            >
+              <Byline person={viewer} size="sm" />
+            </Link>
             <Link href={`${basePath}/add`} className="bb-btn bb-btn--primary">
               <HugeiconsIcon icon={PlusSignIcon} strokeWidth={1.8} />
               Add
@@ -155,7 +164,7 @@ export function SearchForm({
           ]}
           onChange={(year) => search({ ...current, year: year ?? undefined })}
         />
-        {canAdd && (
+        {viewer && (
           <button
             type="button"
             aria-pressed={current.favoritesOnly}

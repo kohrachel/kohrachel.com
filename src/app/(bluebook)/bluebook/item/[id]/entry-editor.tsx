@@ -25,6 +25,7 @@ export function EntryTextEditor({
   itemId,
   content,
   basePath,
+  who,
   tools = [],
   children,
 }: {
@@ -32,6 +33,8 @@ export function EntryTextEditor({
   itemId: number;
   content: JSONContent;
   basePath: string;
+  /** Whose entry it is, shown beside "Edit entry". */
+  who?: ReactNode;
   tools?: ReactNode[];
   children: ReactNode;
 }) {
@@ -60,6 +63,7 @@ export function EntryTextEditor({
       itemId={itemId}
       content={content}
       basePath={basePath}
+      who={who}
       onDone={() => setEditing(false)}
     />
   );
@@ -70,12 +74,14 @@ function Editing({
   itemId,
   content,
   basePath,
+  who,
   onDone,
 }: {
   entryId: number;
   itemId: number;
   content: JSONContent;
   basePath: string;
+  who?: ReactNode;
   onDone: () => void;
 }) {
   const labelId = useId();
@@ -105,6 +111,7 @@ function Editing({
     <section className="bb-editor" aria-label="Edit entry">
       <div className="bb-log__head">
         <h3 className="bb-section-title">Edit entry</h3>
+        {who}
       </div>
       <div className="bb-field">
         <span className="bb-field__head">

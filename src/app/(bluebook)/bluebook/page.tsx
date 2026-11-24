@@ -69,7 +69,6 @@ async function Home({ searchParams }: { searchParams: Props["searchParams"] }) {
     params.fav
   );
   const basePath = await bluebookBasePath();
-  const canAdd = user !== null;
   const filters = await searchFilters();
   const results = await searchItems({
     query: params.q,
@@ -98,7 +97,7 @@ async function Home({ searchParams }: { searchParams: Props["searchParams"] }) {
         params={params}
         platformOptions={platformOptions}
         years={filters.years}
-        canAdd={canAdd}
+        viewer={user && { id: user.id, displayName: user.displayName }}
       />
 
       {filtered && results.length > 0 && (

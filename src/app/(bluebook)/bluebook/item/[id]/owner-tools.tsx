@@ -330,7 +330,14 @@ export function EntryDateButton({
 }
 
 /** Adds an entry, for watching or reading it again, without pasting the link. */
-export function AddEntryButton({ itemId }: { itemId: number }) {
+export function AddEntryButton({
+  itemId,
+  who,
+}: {
+  itemId: number;
+  /** "Writing as" you, shown while adding. */
+  who?: ReactNode;
+}) {
   const [adding, setAdding] = useState(false);
   const { error, pending, run } = useEdit();
   if (!adding) {
@@ -350,6 +357,7 @@ export function AddEntryButton({ itemId }: { itemId: number }) {
       initial={today()}
       label="When did you watch or read it again?"
       submitLabel="Add entry"
+      who={who}
       pending={pending}
       error={error}
       onCancel={() => setAdding(false)}
@@ -368,6 +376,7 @@ function EntryDateForm({
   initial,
   label,
   submitLabel,
+  who,
   pending,
   error,
   onCancel,
@@ -376,6 +385,7 @@ function EntryDateForm({
   initial: ConsumedDate;
   label: string;
   submitLabel: string;
+  who?: ReactNode;
   pending: boolean;
   error: string | null;
   onCancel: () => void;
@@ -393,6 +403,7 @@ function EntryDateForm({
         if (event.key === "Escape" && !pending) onCancel();
       }}
     >
+      {who}
       <ConsumedField
         initial={initial}
         onChange={setConsumed}
