@@ -52,7 +52,7 @@ function ExistingView({
   return (
     <Notice
       kind="info"
-      title={`${existing.isDeleted ? "You removed this before" : "Already in bluebook"} · ${entries}`}
+      title={`${existing.isDeleted ? "This was removed from bluebook" : "Already in bluebook"} · ${entries}`}
     >
       {existing.isDeleted ? (
         <>
@@ -63,7 +63,7 @@ function ExistingView({
           <Link href={`${basePath}/item/${existing.id}`} className="bb-link">
             {existing.title}
           </Link>
-          . {last}Saving adds a new entry.
+          . {last}Saving adds your entry to it.
         </>
       )}
     </Notice>

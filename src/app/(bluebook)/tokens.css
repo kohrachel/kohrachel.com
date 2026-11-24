@@ -20,6 +20,12 @@
   --star: #f2b632;
   --star-edge: #8a5c00;
   --highlight: #bcd2f3;
+  --pen-green: #3d7350;
+  --pen-plum: #7b4a8a;
+  --pen-rust: #a14f26;
+  --pen-teal: #28707c;
+  --pen-graphite: #4d525e;
+  --on-pen: #ffffff;
   --focus: var(--cover);
   --player-bg: #000000;
   --shadow-paper: 0 1px 1px #27231e14, 0 2px 8px #27231e14;
@@ -48,6 +54,12 @@
   --star: #f2c04a;
   --star-edge: #f2c04a;
   --highlight: #34507e;
+  --pen-green: #8fd0a2;
+  --pen-plum: #d3a6e2;
+  --pen-rust: #f0a479;
+  --pen-teal: #86cdd8;
+  --pen-graphite: #c3c7d0;
+  --on-pen: #1b1a18;
   --focus: var(--cover);
   --player-bg: #000000;
   --shadow-paper: 0 1px 1px #00000066, 0 4px 12px #0000004d;
@@ -77,6 +89,7 @@
   --ruled-margin: 112px;
   --control-h: 40px;
   --chip-h: 32px;
+  --avatar: 24px;
   --ratio-tallest: 9 / 16;
   --ratio-widest: 2 / 1;
 
