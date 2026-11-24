@@ -1,11 +1,10 @@
-import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { signOut } from "@/server/bluebook/auth/actions";
 import { sessionUser } from "@/server/bluebook/auth/gate";
 import { bluebookBasePath } from "@/server/bluebook/paths";
+import { Byline } from "../byline";
 import { SignInForm } from "./sign-in-form";
 
 export const metadata: Metadata = {
@@ -15,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <main className="bb-page bb-page--form">
+    <main className="bb-page bb-page--account">
       <Suspense fallback={<h1 className="bb-page-title">Sign in</h1>}>
         <LoginContent />
       </Suspense>
@@ -28,30 +27,33 @@ async function LoginContent() {
   const user = await sessionUser();
   return (
     <>
-      <Link href={basePath || "/"} className="bb-back">
-        <HugeiconsIcon icon={ArrowLeft01Icon} size={16} strokeWidth={1.8} />
-        home
+      <Link href={basePath || "/"} className="bb-wordmark">
+        bluebook
       </Link>
-      {user ? (
-        <>
-          <h1 className="bb-page-title">Signed in</h1>
-          <div className="bb-form">
-            <p className="bb-meta">
-              You&apos;re signed in as {user.displayName} (@{user.username}).
-            </p>
+      <section className="bb-account">
+        <span aria-hidden="true" className="bb-tape bb-tape--top" />
+        {user ? (
+          <>
+            <div className="bb-account__head">
+              <h1 className="bb-page-title">Signed in</h1>
+              <p className="bb-account__who">
+                <Byline person={user} />
+                <span className="bb-meta">@{user.username}</span>
+              </p>
+            </div>
             <form action={signOut} className="bb-row">
               <button type="submit" className="bb-btn bb-btn--outline">
                 Sign out
               </button>
             </form>
-          </div>
-        </>
-      ) : (
-        <>
-          <h1 className="bb-page-title">Sign in</h1>
-          <SignInForm />
-        </>
-      )}
+          </>
+        ) : (
+          <>
+            <h1 className="bb-page-title">Sign in</h1>
+            <SignInForm />
+          </>
+        )}
+      </section>
     </>
   );
 }

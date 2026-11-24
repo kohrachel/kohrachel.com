@@ -55,6 +55,26 @@ export const setupSchema = z
 
 export type SetupInput = z.output<typeof setupSchema>;
 
+export const profileSchema = z.object({
+  username: usernameSchema,
+  displayName: displayNameSchema,
+});
+
+export type ProfileInput = z.output<typeof profileSchema>;
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1).max(PASSWORD_MAX),
+    password: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((input) => input.password === input.confirmPassword, {
+    message: "The passwords don't match.",
+    path: ["confirmPassword"],
+  });
+
+export type ChangePasswordInput = z.output<typeof changePasswordSchema>;
+
 export type CurrentUser = {
   id: number;
   username: string;
@@ -68,3 +88,11 @@ export type FormState = {
   error: string;
   values?: Record<string, string>;
 } | null;
+
+export type AccountFormState =
+  | { saved: true }
+  | { saved: false; error: string; values?: Record<string, string> }
+  | null;
+
+export type UsernameCheck =
+  { available: true } | { available: false; error: string };

@@ -1714,6 +1714,48 @@ a.bb-linkrow:hover {
 .bb-page--form {
   max-width: var(--form-max);
 }
+
+/* account pages: sign in, setup */
+.bb-page--account {
+  max-width: 520px;
+}
+.bb-account {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-8) var(--space-6) var(--space-6);
+  background: var(--paper-raised);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-paper);
+}
+.bb-account__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.bb-account__lead {
+  color: var(--ink-muted);
+}
+.bb-account__who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.bb-sheet--sample {
+  padding-block: 0;
+  background-color: var(--paper);
+  box-shadow: none;
+}
+@media (max-width: 480px) {
+  .bb-account {
+    padding: var(--space-8) var(--space-4) var(--space-4);
+  }
+  .bb-account .bb-form__pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .bb-add__side {
   position: sticky;
   top: var(--space-6);

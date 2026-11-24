@@ -10,6 +10,11 @@ const { inviteService } = await import("./invite");
 const { findSetupLinkService, finishSetupService } = await import("./setup");
 const { signInService } = await import("./sign-in");
 const {
+  changePasswordService,
+  updateProfileService,
+  usernameAvailableService,
+} = await import("./account");
+const {
   createSessionService,
   deleteSessionService,
   findDevUserService,
@@ -308,6 +313,124 @@ describe.skipIf(!hasDatabase)("bluebook accounts", () => {
         role: "member",
       });
       expect(await findDevUserService("nobody")).toBeNull();
+    });
+  });
+
+  describe("account settings", () => {
+    test("changes the username and display name", async () => {
+      await setUp("friend@example.com", "friend");
+      expect(
+        await updateProfileService(1, {
+          username: "Friendly",
+          displayName: "A Friend",
+        }),
+      ).toEqual({ ok: true, signedItemIds: [] });
+      expect(
+        await rows(sql`select username, display_name from bluebook.users`),
+      ).toEqual([{ username: "Friendly", display_name: "A Friend" }]);
+      expect(await signInService("friendly", PASSWORD)).toMatchObject({
+        ok: true,
+      });
+    });
+
+    test("a new display name lists the items the user signed", async () => {
+      await setUp("friend@example.com", "friend");
+      await setUp("other@example.com", "other");
+      await db.execute(sql`truncate bluebook.items restart identity cascade`);
+      await db.execute(sql`
+        insert into bluebook.items (url, normalized_url, title) values
+          ('https://example.com/a', 'https://example.com/a', 'A'),
+          ('https://example.com/b', 'https://example.com/b', 'B'),
+          ('https://example.com/c', 'https://example.com/c', 'C')`);
+      await db.execute(sql`
+        insert into bluebook.entries (item_id, user_id, consumed_on) values
+          (1, 1, '2026-01-01'), (1, 1, '2026-02-01'), (2, 2, '2026-01-01'),
+          (3, 1, '2026-01-01')`);
+
+      const renamed = await updateProfileService(1, {
+        username: "friend",
+        displayName: "Friend",
+      });
+      expect(renamed.ok && renamed.signedItemIds.sort()).toEqual([1, 3]);
+      expect(
+        await updateProfileService(1, {
+          username: "friend2",
+          displayName: "Friend",
+        }),
+      ).toEqual({ ok: true, signedItemIds: [] });
+    });
+
+    test("a username someone else has is refused, in any case", async () => {
+      await setUp("friend@example.com", "friend");
+      await setUp("other@example.com", "other");
+      expect(
+        await updateProfileService(2, {
+          username: "FRIEND",
+          displayName: "Other",
+        }),
+      ).toEqual({ ok: false, error: "That username is taken." });
+      expect(
+        await updateProfileService(2, {
+          username: "OTHER",
+          displayName: "Other",
+        }),
+      ).toMatchObject({ ok: true });
+      expect(
+        await rows(sql`select username from bluebook.users order by id`),
+      ).toEqual([{ username: "friend" }, { username: "OTHER" }]);
+    });
+
+    test("a username is available unless someone else has it, in any case", async () => {
+      await setUp("friend@example.com", "friend");
+      await setUp("other@example.com", "other");
+      expect(await usernameAvailableService(2, "FRIEND")).toEqual({
+        available: false,
+        error: "That username is taken.",
+      });
+      expect(await usernameAvailableService(2, "Other")).toEqual({
+        available: true,
+      });
+      expect(await usernameAvailableService(2, "someone")).toEqual({
+        available: true,
+      });
+    });
+
+    test("the password changes only with the current one", async () => {
+      const here = await setUp("friend@example.com", "friend");
+      expect(
+        await changePasswordService(
+          1,
+          { currentPassword: "not it", password: "a new password!" },
+          here.token,
+        ),
+      ).toEqual({ ok: false, error: "That's not your current password." });
+      expect(await signInService("friend", PASSWORD)).toMatchObject({
+        ok: true,
+      });
+      expect(await signInService("friend", "a new password!")).toEqual({
+        ok: false,
+      });
+    });
+
+    test("a new password signs out every other device", async () => {
+      const here = await setUp("friend@example.com", "friend");
+      const elsewhere = await createSessionService(1);
+      const other = await setUp("other@example.com", "other");
+
+      expect(
+        await changePasswordService(
+          1,
+          { currentPassword: PASSWORD, password: "a new password!" },
+          here.token,
+        ),
+      ).toEqual({ ok: true });
+      expect(await findSessionUserService(here.token)).not.toBeNull();
+      expect(await findSessionUserService(elsewhere.token)).toBeNull();
+      expect(await findSessionUserService(other.token)).not.toBeNull();
+      expect(await signInService("friend", PASSWORD)).toEqual({ ok: false });
+      expect(await signInService("friend", "a new password!")).toMatchObject({
+        ok: true,
+      });
     });
   });
 });

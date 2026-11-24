@@ -11,13 +11,18 @@ function penClass(person: Person) {
   return `bb-pen-${PENS[person.id % PENS.length]}`;
 }
 
-/** A person's initial on their pen colour. Decoration: show the name too. */
+/**
+ * A person's initial on their pen colour. Decoration: show the name too.
+ * `plain` leaves the pen off, for someone who doesn't have one yet.
+ */
 export function Avatar({
   person,
   size = "md",
+  plain = false,
 }: {
   person: Person;
   size?: Size;
+  plain?: boolean;
 }) {
   const initial = Array.from(person.displayName.trim())[0] ?? "";
   return (
@@ -26,7 +31,7 @@ export function Avatar({
       className={[
         "bb-avatar",
         size === "md" ? "" : `bb-avatar--${size}`,
-        penClass(person),
+        plain ? "" : penClass(person),
       ].join(" ")}
     >
       {initial.toUpperCase()}

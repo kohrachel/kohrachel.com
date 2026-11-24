@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import {
   DISPLAY_NAME_MAX,
   PASSWORD_MAX,
@@ -9,6 +9,7 @@ import {
   type FormState,
 } from "@/domain-types/bluebook/auth";
 import { Notice } from "../../notice";
+import { SignatureSample } from "../../signature-sample";
 
 export function SetupForm({
   action,
@@ -22,14 +23,28 @@ export function SetupForm({
   suggestedDisplayName: string;
 }) {
   const [state, formAction, pending] = useActionState(action, null);
+  const [displayName, setDisplayName] = useState(suggestedDisplayName);
+  const signature = displayName.trim() || "Your name";
 
   return (
     <form action={formAction} className="bb-form">
       {needsProfile && (
         <>
+          <SignatureSample person={{ id: 0, displayName: signature }} plain />
+          <Field label="Display name" hint="The name on your entries.">
+            <input
+              name="displayName"
+              autoComplete="nickname"
+              required
+              maxLength={DISPLAY_NAME_MAX}
+              value={displayName}
+              onChange={(event) => setDisplayName(event.target.value)}
+              className="bb-input"
+            />
+          </Field>
           <Field
             label="Username"
-            hint="Letters, numbers, _ and -. Shown on your entries."
+            hint="For signing in. Letters, numbers, _ and -."
           >
             <input
               name="username"
@@ -43,39 +58,31 @@ export function SetupForm({
               className="bb-input"
             />
           </Field>
-          <Field label="Display name">
-            <input
-              name="displayName"
-              autoComplete="nickname"
-              required
-              maxLength={DISPLAY_NAME_MAX}
-              defaultValue={state?.values?.displayName ?? suggestedDisplayName}
-              className="bb-input"
-            />
-          </Field>
         </>
       )}
-      <Field label="Password" hint={`At least ${PASSWORD_MIN} characters.`}>
-        <input
-          type="password"
-          name="password"
-          autoComplete="new-password"
-          required
-          minLength={PASSWORD_MIN}
-          maxLength={PASSWORD_MAX}
-          className="bb-input"
-        />
-      </Field>
-      <Field label="Password again">
-        <input
-          type="password"
-          name="confirmPassword"
-          autoComplete="new-password"
-          required
-          maxLength={PASSWORD_MAX}
-          className="bb-input"
-        />
-      </Field>
+      <div className="bb-form__pair">
+        <Field label="Password" hint={`At least ${PASSWORD_MIN} characters.`}>
+          <input
+            type="password"
+            name="password"
+            autoComplete="new-password"
+            required
+            minLength={PASSWORD_MIN}
+            maxLength={PASSWORD_MAX}
+            className="bb-input"
+          />
+        </Field>
+        <Field label="Password again">
+          <input
+            type="password"
+            name="confirmPassword"
+            autoComplete="new-password"
+            required
+            maxLength={PASSWORD_MAX}
+            className="bb-input"
+          />
+        </Field>
+      </div>
       {state && <Notice kind="error" title={state.error} />}
       <div className="bb-row">
         <button
