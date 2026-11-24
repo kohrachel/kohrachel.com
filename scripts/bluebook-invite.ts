@@ -1,6 +1,8 @@
 // Prints a one-time bluebook setup link for an email, adding the user if
 // they're new. Run it again for a password reset.
 //   bun run bluebook:invite friend@example.com [--base-url https://…]
+// --base-url defaults to https://bluebook.kohrachel.com; locally it's
+// http://localhost:3000/bluebook. See docs/bluebook/README.md.
 import { SETUP_LINK_HOURS } from "@/domain-types/bluebook/auth";
 import { inviteService } from "@/services/bluebook/auth/invite";
 
