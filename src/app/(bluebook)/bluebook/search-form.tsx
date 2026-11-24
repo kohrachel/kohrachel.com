@@ -155,17 +155,19 @@ export function SearchForm({
           ]}
           onChange={(year) => search({ ...current, year: year ?? undefined })}
         />
-        <button
-          type="button"
-          aria-pressed={current.favoritesOnly}
-          onClick={() =>
-            search({ ...current, favoritesOnly: !current.favoritesOnly })
-          }
-          className="bb-chip"
-        >
-          <Star />
-          Favorites
-        </button>
+        {canAdd && (
+          <button
+            type="button"
+            aria-pressed={current.favoritesOnly}
+            onClick={() =>
+              search({ ...current, favoritesOnly: !current.favoritesOnly })
+            }
+            className="bb-chip"
+          >
+            <Star />
+            Favorites
+          </button>
+        )}
         {filtered && (
           <button
             type="button"

@@ -14,10 +14,11 @@ mock.module("next/cache", () => ({
 
 const { db } = hasDatabase ? await import("@/db") : { db: null! };
 const { getItemService } = await import("./get");
+const { resetBluebook } = await import("@/test/bluebook-users");
 
 describe.skipIf(!hasDatabase)("an item's links", () => {
   beforeAll(async () => {
-    await db.execute(sql`truncate bluebook.items restart identity cascade`);
+    await resetBluebook(db);
     await db.execute(sql`
       insert into bluebook.items (url, normalized_url, title, deleted_at) values
         ('a', 'https://example.com/a', 'Item A', null),
@@ -25,14 +26,25 @@ describe.skipIf(!hasDatabase)("an item's links", () => {
         ('c', 'https://example.com/c', 'Item C', null),
         ('d', 'https://example.com/d', 'Gone', now())`);
     await db.execute(sql`
-      insert into bluebook.entries (item_id, consumed_on, consumed_precision) values
-        (1, '2026-01-01', 'day'), (1, '2026-03-01', 'month'),
-        (2, '2025-05-05', 'day'), (4, '2026-02-02', 'day')`);
+      insert into bluebook.entries (item_id, consumed_on, consumed_precision, user_id) values
+        (1, '2026-01-01', 'day', 3), (1, '2026-03-01', 'month', 1),
+        (2, '2025-05-05', 'day', 1), (4, '2026-02-02', 'day', 1)`);
+    await db.execute(sql`
+      insert into bluebook.favorites (user_id, item_id) values (3, 1), (2, 1), (1, 2)`);
     await db.execute(sql`
       insert into bluebook.mentions (entry_id, target_item_id, context) values
         (1, 2, 'A mentions B.'), (2, 3, 'A mentions C later.'),
         (2, 4, 'A mentions a deleted item.'),
         (3, 1, 'B mentions A.'), (4, 1, 'A deleted item mentions A.')`);
+  });
+
+  test("names each entry's author and lists who starred it", async () => {
+    const item = await getItemService(1);
+    expect(item?.entries.map((entry) => entry.author)).toEqual([
+      { id: 1, username: "owner", displayName: "Owner" },
+      { id: 3, username: "member", displayName: "Member" },
+    ]);
+    expect(item?.favoritedBy).toEqual([2, 3]);
   });
 
   test("lists items it links out to, most recently mentioned first", async () => {

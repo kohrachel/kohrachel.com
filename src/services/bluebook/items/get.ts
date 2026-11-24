@@ -2,7 +2,7 @@ import "server-only";
 import { and, asc, desc, eq, inArray, isNull, max } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
-import { entries, items, mentions } from "@/db/schema";
+import { entries, favorites, items, mentions, users } from "@/db/schema";
 import type { ItemPageData } from "@/domain-types/bluebook/items";
 import { mentionedItemIds } from "@/services/bluebook/entries/content";
 import { itemTag } from "./cache-tags";
@@ -25,7 +25,6 @@ export async function getItemService(id: number): Promise<ItemPageData | null> {
       creator: items.creator,
       publishedAt: items.publishedAt,
       metadata: items.metadata,
-      isFavorite: items.isFavorite,
     })
     .from(items)
     .where(and(eq(items.id, id), isNull(items.deletedAt)));
@@ -39,10 +38,24 @@ export async function getItemService(id: number): Promise<ItemPageData | null> {
       content: entries.content,
       plainText: entries.plainText,
       contentEditedAt: entries.contentEditedAt,
+      author: {
+        id: users.id,
+        username: users.username,
+        displayName: users.displayName,
+      },
     })
     .from(entries)
+    .innerJoin(users, eq(users.id, entries.userId))
     .where(eq(entries.itemId, id))
     .orderBy(desc(entries.consumedOn), desc(entries.id));
+
+  const favoritedBy = (
+    await db
+      .select({ userId: favorites.userId })
+      .from(favorites)
+      .where(eq(favorites.itemId, id))
+      .orderBy(asc(favorites.userId))
+  ).map((row) => row.userId);
 
   // A mentioned item's title shows here, so its changes refresh this page.
   const ids = [
@@ -111,7 +124,15 @@ export async function getItemService(id: number): Promise<ItemPageData | null> {
 
   return {
     ...item,
-    entries: itemEntries,
+    entries: itemEntries.map(({ author, ...entry }) => ({
+      ...entry,
+      author: {
+        id: author.id,
+        username: author.username ?? "",
+        displayName: author.displayName ?? author.username ?? "",
+      },
+    })),
+    favoritedBy,
     mentionedTitles,
     linksOut,
     mentionedIn,

@@ -661,6 +661,18 @@ textarea.bb-input {
   padding-right: 14px;
   text-align: right;
 }
+.bb-entry__by {
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--ink-muted);
+  overflow-wrap: anywhere;
+}
+.bb-entry__by .bb-star {
+  width: 14px;
+  height: 14px;
+  margin-left: 3px;
+  vertical-align: -2px;
+}
 .bb-entry__text {
   padding-left: 16px;
   font: 400 16px/28px var(--font-sans);

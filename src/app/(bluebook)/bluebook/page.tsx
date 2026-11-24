@@ -58,7 +58,10 @@ function HomeLoading() {
 
 async function Home({ searchParams }: { searchParams: Props["searchParams"] }) {
   const parsed = searchParamsSchema.safeParse(await searchParams);
-  const params: SearchParams = parsed.success ? parsed.data : { platform: [] };
+  const user = await currentUser();
+  const asked: SearchParams = parsed.success ? parsed.data : { platform: [] };
+  // Favorites are per person, so visitors can't filter by them.
+  const params: SearchParams = user ? asked : { ...asked, fav: undefined };
   const filtered = !!(
     params.q ||
     params.platform.length ||
@@ -66,13 +69,14 @@ async function Home({ searchParams }: { searchParams: Props["searchParams"] }) {
     params.fav
   );
   const basePath = await bluebookBasePath();
-  const canAdd = (await currentUser()) !== null;
+  const canAdd = user !== null;
   const filters = await searchFilters();
   const results = await searchItems({
     query: params.q,
     platforms: [...params.platform].sort(),
     year: params.year,
     favoritesOnly: params.fav === "1",
+    viewerId: user?.id ?? null,
   });
   const words = params.q ? searchWords(params.q, SEARCH_MAX_WORDS) : [];
   const platformOptions = [

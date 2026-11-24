@@ -7,7 +7,10 @@ import { sql } from "drizzle-orm";
 const hasDatabase = !!process.env.TEST_DATABASE_URL;
 
 const { db } = hasDatabase ? await import("@/db") : { db: null! };
-const { saveEntryTextService } = await import("./save-text");
+const { saveEntryTextService: save } = await import("./save-text");
+const { MEMBER, OWNER, resetBluebook } = await import("@/test/bluebook-users");
+const saveEntryTextService = (entryId: number, json: unknown) =>
+  save(OWNER, entryId, json);
 
 type Row = Record<string, unknown>;
 const rows = async (query: ReturnType<typeof sql>) =>
@@ -36,15 +39,15 @@ const mentionRows = () =>
 
 describe.skipIf(!hasDatabase)("saving entry text", () => {
   beforeEach(async () => {
-    await db.execute(sql`truncate bluebook.items restart identity cascade`);
+    await resetBluebook(db);
     await db.execute(sql`
       insert into bluebook.items (url, normalized_url, title, deleted_at) values
         ('a', 'https://example.com/a', 'Item A', null),
         ('b', 'https://example.com/b', 'Mars', null),
         ('c', 'https://example.com/c', 'Gone', now())`);
     await db.execute(sql`
-      insert into bluebook.entries (item_id, consumed_on) values
-        (1, '2026-11-15'), (3, '2026-11-15')`);
+      insert into bluebook.entries (item_id, consumed_on, user_id) values
+        (1, '2026-11-15', 1), (3, '2026-11-15', 1)`);
   });
 
   test("saves text, its plain copy and mentions with their sentence", async () => {
@@ -111,5 +114,13 @@ describe.skipIf(!hasDatabase)("saving entry text", () => {
     const missing = { ok: false as const, error: "That entry doesn't exist." };
     expect(await saveEntryTextService(99, doc(text("x")))).toEqual(missing);
     expect(await saveEntryTextService(2, doc(text("x")))).toEqual(missing);
+  });
+
+  test("only the author, the owner or an admin can change the text", async () => {
+    expect(await save(MEMBER, 1, doc(text("Mine now")))).toEqual({
+      ok: false,
+      error: "You can only change your own entries.",
+    });
+    expect(await entry()).toEqual({ plain_text: "", edited: false });
   });
 });

@@ -2,7 +2,11 @@ import "server-only";
 import { and, eq, gt, isNotNull, isNull, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { sessions, users } from "@/db/schema";
-import { SESSION_DAYS, type CurrentUser } from "@/domain-types/bluebook/auth";
+import {
+  SESSION_DAYS,
+  type CurrentUser,
+  type UserRole,
+} from "@/domain-types/bluebook/auth";
 import { hashToken, newToken } from "./tokens";
 
 const sessionEnd = sql`now() + make_interval(days => ${SESSION_DAYS})`;
@@ -20,7 +24,7 @@ function toCurrentUser(row: {
   id: number;
   username: string | null;
   displayName: string | null;
-  role: "owner" | "member";
+  role: UserRole;
 }): CurrentUser | null {
   if (row.username === null || row.displayName === null) return null;
   return {

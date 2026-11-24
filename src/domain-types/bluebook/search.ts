@@ -29,7 +29,10 @@ export type SearchInput = {
   query?: string;
   platforms?: string[];
   year?: number;
+  /** Only the viewer's favorites; ignored without a viewer. */
   favoritesOnly?: boolean;
+  /** Whose stars to show. Signed-out visitors see none. */
+  viewerId?: number | null;
   limit?: number;
 };
 

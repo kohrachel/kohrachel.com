@@ -4,6 +4,7 @@ import type { JSONContent } from "@tiptap/core";
 import { db } from "@/db";
 import { entries, items, mentions } from "@/db/schema";
 import type { SaveEntryTextResult } from "@/domain-types/bluebook/entries";
+import { canEditEntry, type Actor } from "@/lib/bluebook/permissions";
 import {
   cleanEntryContent,
   collectMentions,
@@ -20,6 +21,7 @@ import {
  * entry's own item and every item it mentions now or did before.
  */
 export async function saveEntryTextService(
+  actor: Actor,
   entryId: number,
   json: unknown,
 ): Promise<SaveEntryTextResult> {
@@ -28,7 +30,7 @@ export async function saveEntryTextService(
 
   return db.transaction(async (tx) => {
     const [entry] = await tx
-      .select({ itemId: entries.itemId })
+      .select({ itemId: entries.itemId, userId: entries.userId })
       .from(entries)
       .innerJoin(
         items,
@@ -37,6 +39,9 @@ export async function saveEntryTextService(
       .where(eq(entries.id, entryId))
       .for("update", { of: entries });
     if (!entry) return { ok: false, error: "That entry doesn't exist." };
+    if (!canEditEntry(actor, entry.userId)) {
+      return { ok: false, error: "You can only change your own entries." };
+    }
 
     const ids = mentionedItemIds(cleaned);
     const titles = new Map(
