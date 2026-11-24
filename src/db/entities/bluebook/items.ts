@@ -1,6 +1,5 @@
 import {
   bigint,
-  boolean,
   check,
   index,
   jsonb,
@@ -27,7 +26,6 @@ export const items = bluebook.table.withRLS(
     creator: text(),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     metadata: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
-    isFavorite: boolean("is_favorite").default(false).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`now()`)
       .notNull(),

@@ -1,0 +1,1 @@
+ALTER TABLE "bluebook"."items" DROP COLUMN "is_favorite";
