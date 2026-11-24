@@ -327,7 +327,8 @@ later migration makes the column required.
 - Logic (hashing, sessions, setup tokens): `src/services/bluebook/auth/`.
 - Gate and sign-in/out/setup actions: `src/server/bluebook/auth/`.
 - Pages: `src/app/(bluebook)/bluebook/login/`, `setup/[token]/`.
-- Script: `scripts/bluebook-invite.ts` (`bluebook:invite`).
+- Script: `scripts/bluebook-invite.ts` (`bluebook:invite`). How to use it,
+  and other account tasks: `docs/bluebook/README.md`.
 
 ## B4. Auth invariants
 
