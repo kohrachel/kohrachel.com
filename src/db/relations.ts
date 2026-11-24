@@ -25,6 +25,7 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
     mentions: r.many.mentions({ from: r.entries.id, to: r.mentions.entryId }),
+    user: r.one.users({ from: r.entries.userId, to: r.users.id }),
   },
   mentions: {
     target: r.one.items({
@@ -35,6 +36,17 @@ export const relations = defineRelations(schema, (r) => ({
     entry: r.one.entries({
       from: r.mentions.entryId,
       to: r.entries.id,
+      optional: false,
+    }),
+  },
+  users: {
+    entries: r.many.entries(),
+    sessions: r.many.sessions(),
+  },
+  sessions: {
+    user: r.one.users({
+      from: r.sessions.userId,
+      to: r.users.id,
       optional: false,
     }),
   },
