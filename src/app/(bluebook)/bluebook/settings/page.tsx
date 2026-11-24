@@ -8,7 +8,7 @@ import { currentUser } from "@/server/bluebook/auth/gate";
 import { bluebookBasePath } from "@/server/bluebook/paths";
 import { Byline } from "../byline";
 import { Notice } from "../notice";
-import { SignatureSample } from "../signature-sample";
+import { PasswordForm, ProfileForm } from "./account-forms";
 
 export const metadata: Metadata = {
   title: "Your account · bluebook",
@@ -40,44 +40,22 @@ async function SettingsContent() {
           <section className="bb-account">
             <span aria-hidden="true" className="bb-tape bb-tape--top" />
             <h2 className="bb-section-title">Your name</h2>
-            <div className="bb-form">
-              <SignatureSample person={user} />
-              <label className="bb-field">
-                <span className="bb-field__head">
-                  <span className="bb-label">Display name</span>
-                </span>
-                <input
-                  value={user.displayName}
-                  disabled
-                  readOnly
-                  className="bb-input"
-                />
-                <span className="bb-hint">The name on your entries.</span>
-              </label>
-              <label className="bb-field">
-                <span className="bb-field__head">
-                  <span className="bb-label">Username</span>
-                </span>
-                <input
-                  value={user.username}
-                  disabled
-                  readOnly
-                  className="bb-input"
-                />
-                <span className="bb-hint">For signing in.</span>
-              </label>
-              <p className="bb-account__lead">
-                These can&apos;t be changed here yet.
-              </p>
-            </div>
+            <ProfileForm
+              user={{
+                id: user.id,
+                displayName: user.displayName,
+                username: user.username,
+              }}
+            />
           </section>
           <section className="bb-account">
             <div className="bb-account__head">
               <h2 className="bb-section-title">Password</h2>
               <p className="bb-account__lead">
-                To change it, ask for a reset link.
+                Changing it signs you out everywhere else.
               </p>
             </div>
+            <PasswordForm />
           </section>
           <section className="bb-account">
             <div className="bb-account__head">
