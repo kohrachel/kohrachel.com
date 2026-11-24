@@ -1,7 +1,7 @@
 "use server";
 
 import { updateTag } from "next/cache";
-import { requireWriteAccess } from "@/server/auth/gate";
+import { requireMember } from "@/server/bluebook/auth/gate";
 import {
   previewInputSchema,
   saveInputSchema,
@@ -18,7 +18,7 @@ import { ITEM_LISTS_TAG, itemTag } from "@/services/bluebook/items/cache-tags";
 
 /** Cleans up a pasted link and fetches details for the confirm form. */
 export async function previewLink(input: PreviewInput): Promise<PreviewResult> {
-  await requireWriteAccess();
+  await requireMember();
   const { text } = previewInputSchema.parse(input);
   return previewLinkService(text);
 }
@@ -32,7 +32,7 @@ export async function saveLink(
   input: SaveInput,
   entryText?: unknown,
 ): Promise<SaveResult> {
-  await requireWriteAccess();
+  await requireMember();
   const parsed = saveInputSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid" };

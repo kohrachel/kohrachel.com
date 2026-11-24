@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 
 const COOKIE_NAME = "admin_session";
 const MAX_AGE_SECONDS = 90 * 24 * 60 * 60;
@@ -22,15 +22,6 @@ function safeEqual(a: string, b: string): boolean {
   return timingSafeEqual(hashA, hashB);
 }
 
-// Shares the session across kohrachel.com and its subdomains; any other host
-// (localhost, Vercel previews) gets a host-only cookie.
-async function cookieDomain(): Promise<string | undefined> {
-  const host = (await headers()).get("host")?.split(":")[0] ?? "";
-  return host === "kohrachel.com" || host.endsWith(".kohrachel.com")
-    ? "kohrachel.com"
-    : undefined;
-}
-
 export function checkPassword(password: string): boolean {
   const secret = adminSecret();
   return secret !== null && safeEqual(password, secret);
@@ -47,16 +38,11 @@ export async function createSession() {
     sameSite: "lax",
     path: "/",
     maxAge: MAX_AGE_SECONDS,
-    domain: await cookieDomain(),
   });
 }
 
 export async function deleteSession() {
-  (await cookies()).set(COOKIE_NAME, "", {
-    path: "/",
-    maxAge: 0,
-    domain: await cookieDomain(),
-  });
+  (await cookies()).set(COOKIE_NAME, "", { path: "/", maxAge: 0 });
 }
 
 export async function hasSession(): Promise<boolean> {
