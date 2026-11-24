@@ -118,16 +118,16 @@ export function SearchForm({
         </form>
         {viewer && (
           <div className="bb-masthead__end">
+            <Link href={`${basePath}/add`} className="bb-btn bb-btn--primary">
+              <HugeiconsIcon icon={PlusSignIcon} strokeWidth={1.8} />
+              Add
+            </Link>
             <Link
               href={`${basePath}/login`}
               title="Your account"
               className="bb-masthead__me"
             >
               <Byline person={viewer} size="sm" />
-            </Link>
-            <Link href={`${basePath}/add`} className="bb-btn bb-btn--primary">
-              <HugeiconsIcon icon={PlusSignIcon} strokeWidth={1.8} />
-              Add
             </Link>
           </div>
         )}
