@@ -1743,6 +1743,11 @@ a.bb-linkrow:hover {
   align-items: center;
   gap: var(--space-2);
 }
+.bb-input:disabled {
+  color: var(--ink-muted);
+  background: var(--paper-sunk);
+  cursor: not-allowed;
+}
 .bb-sheet--sample {
   padding-block: 0;
   background-color: var(--paper);

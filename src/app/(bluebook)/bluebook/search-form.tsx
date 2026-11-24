@@ -123,7 +123,7 @@ export function SearchForm({
               Add
             </Link>
             <Link
-              href={`${basePath}/login`}
+              href={`${basePath}/settings`}
               title="Your account"
               className="bb-masthead__me"
             >

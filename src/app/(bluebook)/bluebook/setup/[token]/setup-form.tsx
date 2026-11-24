@@ -8,8 +8,8 @@ import {
   USERNAME_MAX,
   type FormState,
 } from "@/domain-types/bluebook/auth";
-import { Avatar } from "../../byline";
 import { Notice } from "../../notice";
+import { SignatureSample } from "../../signature-sample";
 
 export function SetupForm({
   action,
@@ -30,22 +30,7 @@ export function SetupForm({
     <form action={formAction} className="bb-form">
       {needsProfile && (
         <>
-          <div className="bb-sheet bb-sheet--sample" aria-hidden="true">
-            <div className="bb-entry">
-              <div className="bb-entry__date">
-                <span className="bb-stamp">TODAY</span>
-              </div>
-              <p className="bb-entry__by">
-                <span className="bb-by">
-                  <Avatar person={{ id: 0, displayName: signature }} plain />
-                  <span className="bb-by__name">{signature}</span>
-                </span>
-              </p>
-              <p className="bb-entry__text bb-entry__text--empty">
-                How your entries are signed.
-              </p>
-            </div>
-          </div>
+          <SignatureSample person={{ id: 0, displayName: signature }} plain />
           <Field label="Display name" hint="The name on your entries.">
             <input
               name="displayName"
