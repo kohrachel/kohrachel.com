@@ -8,7 +8,7 @@ import {
   formatPhotoStamp,
   isoDateAt,
 } from "@/lib/bluebook/format";
-import { estimateLines } from "@/lib/bluebook/masonry";
+import { estimateLines, type Tape } from "@/lib/bluebook/masonry";
 import { thumbnailFrame } from "@/lib/bluebook/thumbnail";
 import { platformName } from "@/services/bluebook/links/platform";
 import { Star } from "./star";
@@ -23,10 +23,12 @@ export function ItemCard({
   item,
   href,
   words = [],
+  tape,
 }: {
   item: SearchResult;
   href: string;
   words?: string[];
+  tape?: Tape;
 }) {
   const note = !item.thumbnailUrl;
   const meta = [item.creator, platformName(item.platform)]
@@ -37,14 +39,14 @@ export function ItemCard({
       ? "Last watched"
       : "Last watched or read";
   const last = item.lastConsumed;
-  const tape = item.id % 4 === 0 && (
+  const tapeStrip = tape && (
     <span
       aria-hidden="true"
       className={[
         "bb-tape",
         note ? "bb-tape--corner" : "bb-tape--top",
-        TAPE_COLOURS[item.id % 3],
-        item.id % 8 === 0 ? "bb-tape--right" : "",
+        TAPE_COLOURS[tape.colour],
+        tape.leansRight ? "bb-tape--right" : "",
       ].join(" ")}
     />
   );
@@ -70,7 +72,7 @@ export function ItemCard({
   if (note) {
     return (
       <Link href={href} className="bb-card bb-card--note">
-        {tape}
+        {tapeStrip}
         {star}
         {last && (
           <time
@@ -89,7 +91,7 @@ export function ItemCard({
   const frame = thumbnailFrame(item.thumbnailSize ?? item.videoSize);
   return (
     <Link href={href} className="bb-card">
-      {tape}
+      {tapeStrip}
       {star}
       <div
         className={`bb-card__thumb ${frame.crop === "cover" ? "" : `bb-thumb--${frame.crop}`}`}

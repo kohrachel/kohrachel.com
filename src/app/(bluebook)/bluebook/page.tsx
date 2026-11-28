@@ -49,7 +49,9 @@ function HomeLoading() {
         cells={LOADING_RATIOS.map((ratio, index) => ({
           key: index,
           height: 1 / ratio,
-          node: <div className="bb-skel" style={{ aspectRatio: ratio }} />,
+          render: () => (
+            <div className="bb-skel" style={{ aspectRatio: ratio }} />
+          ),
         }))}
       />
     </>
@@ -127,11 +129,13 @@ async function Home({ searchParams }: { searchParams: Props["searchParams"] }) {
           cells={results.map((item) => ({
             key: item.id,
             height: estimateCardHeight(item),
-            node: (
+            tapeSeed: item.id,
+            render: (tape) => (
               <ItemCard
                 item={item}
                 href={`${basePath}/item/${item.id}`}
                 words={words}
+                tape={tape}
               />
             ),
           }))}
